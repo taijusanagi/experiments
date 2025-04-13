@@ -1,19 +1,23 @@
-import type { Metadata } from "next";
 import "./globals.css";
+import { Noto_Sans } from "next/font/google";
 
-export const metadata: Metadata = {
+const noto = Noto_Sans({
+  subsets: ["latin"],
+});
+
+export const metadata = {
   title: "Sanagi Labs",
-  description: "code-driven curiosity",
+  description: "A space for learning, building, and soft experiments in AI",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className={`${noto.className} antialiased`}>{children}</body>
     </html>
   );
 }

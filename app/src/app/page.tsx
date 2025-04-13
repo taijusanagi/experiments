@@ -7,7 +7,8 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
-    document.body.className = darkMode ? "dark" : "light";
+    document.body.classList.remove("dark", "light");
+    document.body.classList.add(darkMode ? "dark" : "light");
   }, [darkMode]);
 
   return (
@@ -39,7 +40,7 @@ export default function Home() {
       </div>
 
       {/* Logo */}
-      <div className="w-20 h-20 sm:w-24 sm:h-24 mb-4 relative">
+      <div className="w-20 h-20 sm:w-24 sm:h-24 mb-6 relative">
         <img
           src="/character.png"
           alt="Sanagi Character"
@@ -58,7 +59,7 @@ export default function Home() {
 
       {/* Tagline */}
       <p
-        className={`text-lg sm:text-xl mb-10 font-light ${
+        className={`text-center text-lg sm:text-xl mb-10 font-light ${
           darkMode ? "text-neutral-400" : "text-neutral-500"
         }`}
       >
