@@ -8,6 +8,18 @@ const noto = Noto_Sans({
 export const metadata = {
   title: "Sanagi Labs",
   description: "A space for learning, building, and soft experiments in AI",
+  openGraph: {
+    title: "Sanagi Labs",
+    description: "A space for learning, building, and soft experiments in AI",
+    images: [
+      {
+        url: "https://taijusanagi.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Sanagi Labs Open Graph Image",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
