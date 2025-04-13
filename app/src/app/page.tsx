@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Sun, Moon, Code, ExternalLink } from "lucide-react";
+import { Sun, Moon, ExternalLink } from "lucide-react";
 
 export default function Home() {
   const [darkMode, setDarkMode] = useState(true);
@@ -18,14 +18,15 @@ export default function Home() {
           : "bg-gradient-to-br from-neutral-50 to-neutral-100 text-neutral-900"
       }`}
     >
+      {/* Topbar */}
       <div className="absolute top-0 left-0 w-full p-4 flex justify-between items-center">
-        <span className="text-sm font-mono opacity-50">taijusanagi.com</span>
+        <span className="text-sm font-mono opacity-50">Sanagi Labs</span>
         <button
           onClick={() => setDarkMode(!darkMode)}
-          className={`p-2 rounded-full transition-all duration-300 ${
+          className={`p-2 rounded-full border transition-all duration-300 ${
             darkMode
-              ? "bg-neutral-800 text-yellow-300 hover:bg-neutral-700"
-              : "bg-neutral-200 text-indigo-600 hover:bg-neutral-300"
+              ? "bg-neutral-800 border-teal-800 text-teal-400 hover:bg-neutral-700"
+              : "bg-neutral-100 border-teal-200 text-teal-600 hover:bg-neutral-200"
           }`}
           aria-label="Toggle dark mode"
         >
@@ -37,49 +38,49 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="w-24 h-24 mb-6 relative">
-        <div
-          className={`absolute inset-0 rounded-xl flex items-center justify-center ${
-            darkMode ? "bg-cyan-900/20" : "bg-cyan-100"
-          }`}
-        >
-          <Code
-            className={`w-12 h-12 ${
-              darkMode ? "text-cyan-400" : "text-cyan-600"
-            }`}
-          />
-        </div>
+      {/* Logo */}
+      <div className="w-20 h-20 sm:w-24 sm:h-24 mb-4 relative">
+        <img
+          src="/character.png"
+          alt="Sanagi Character"
+          className="object-contain w-full h-full"
+        />
       </div>
 
+      {/* Title */}
       <h1
-        className={`text-5xl font-bold mb-3 tracking-tight ${
+        className={`text-5xl sm:text-6xl font-extrabold mb-2 tracking-tight ${
           darkMode ? "text-white" : "text-neutral-900"
         }`}
       >
         Sanagi Labs
       </h1>
 
+      {/* Tagline */}
       <p
-        className={`text-lg mb-10 font-light ${
+        className={`text-lg sm:text-xl mb-10 font-light ${
           darkMode ? "text-neutral-400" : "text-neutral-500"
         }`}
       >
-        <span className="font-medium">code</span>-driven curiosity
+        Sanagi Labs is a space for learning, building, and soft experiments in
+        AI
       </p>
 
+      {/* CTA Button */}
       <div className="flex gap-5 mb-16">
         <a
           href="/notes"
-          className={`px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-all transform hover:scale-105 ${
+          className={`px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-all hover:scale-105 border ${
             darkMode
-              ? "bg-cyan-800/30 text-cyan-100 border border-cyan-700 hover:bg-cyan-700"
-              : "bg-cyan-50 text-cyan-800 border border-cyan-200 hover:bg-cyan-100"
+              ? "bg-teal-900/30 text-teal-100 border-teal-700 hover:bg-teal-800"
+              : "bg-teal-50 text-teal-800 border-teal-200 hover:bg-teal-100"
           }`}
         >
           Notes <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
         </a>
       </div>
 
+      {/* Footer */}
       <footer
         className={`text-sm absolute bottom-4 font-light ${
           darkMode ? "text-neutral-600" : "text-neutral-500"
