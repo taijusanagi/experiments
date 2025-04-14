@@ -72,6 +72,8 @@ export function convertNotebookToMarkdown(notebookPath: string): string | null {
     const fileContent = fs.readFileSync(fullPath, "utf-8");
     const notebookData: JupyterNotebook = JSON.parse(fileContent);
 
+    console.log("notebookData", notebookData);
+
     return notebookData.cells
       .map((cell) => {
         const content = Array.isArray(cell.source)

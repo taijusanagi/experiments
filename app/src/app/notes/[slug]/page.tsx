@@ -73,17 +73,12 @@ export default async function NotebookPage({
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Render title H1 above the markdown content */}
-      <h1 className="text-3xl md:text-4xl font-bold mb-6 md:mb-8 text-center px-4">
-        {pageTitle}
-      </h1>
-
       {/* Markdown Content Rendered by Client Component */}
       {/* Ensure MarkdownRenderer uses max-w-none or similar if you want it wider */}
       <div className="w-full max-w-4xl">
         {" "}
         {/* Adjust max-width as needed */}
-        <MarkdownRenderer content={content} />
+        <MarkdownRenderer content={content} title={pageTitle} />
       </div>
 
       {/* Navigation Section */}
