@@ -3,6 +3,7 @@
 import React from "react";
 import { ExternalLink } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext"; // Only needed if styles depend directly on darkMode state here
+import Link from "next/link";
 
 export default function Home() {
   const { darkMode } = useTheme(); // Get theme if needed for specific element styles
@@ -35,7 +36,7 @@ export default function Home() {
 
       {/* CTA Button */}
       <div className="flex gap-5 mb-4">
-        <a
+        <Link
           href="/notes"
           className={`px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-all hover:scale-105 border ${
             darkMode // Example of using darkMode state directly if needed for specific styles
@@ -43,8 +44,8 @@ export default function Home() {
               : "bg-teal-50 text-teal-800 border-teal-200 hover:bg-teal-100"
           }`}
         >
-          Notes <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
-        </a>
+          Notes
+        </Link>
       </div>
     </div>
   );

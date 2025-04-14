@@ -16,8 +16,8 @@ export default function Layout({ children }: { children: ReactNode }) {
       // these gradients if you like the specific effect.
       className={`min-h-screen flex flex-col transition-colors duration-500 ${
         darkMode
-          ? "bg-neutral-900 text-neutral-100"
-          : "bg-neutral-50 text-neutral-900"
+          ? "bg-[#1e1e1e] text-[#e5e5e5]" // Slightly softer dark bg and text
+          : "bg-[#fdfdfd] text-[#1a1a1a]" // Cleaner light mode contrast
       }`}
     >
       {/* Header */}
