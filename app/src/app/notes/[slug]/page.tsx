@@ -138,7 +138,7 @@ export default async function NotebookPage({ params }: Props) {
             href="/notes"
             className="inline-flex items-center text-sm text-neutral-600 dark:text-neutral-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors duration-300 ease-in-out group" // Standardized transition, removed translate
           >
-            <ArrowLeft className="w-4 h-4 mr-2 transition-transform duration-300 ease-in-out group-hover:-translate-x-1" />{" "}
+            <ArrowLeft className="w-4 h-4 mr-1" />
             {/* Keep transform only on icon if desired */}
             Back to Notes
           </Link>
