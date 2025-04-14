@@ -27,7 +27,7 @@ export default async function NotebookPage({
 }: {
   params: { slug: string };
 }) {
-  const slug = params.slug;
+  const { slug } = await params;
   // Construct the correct path relative to the server process CWD
   const notebookPath = path.join(notebookDir, `${slug}.ipynb`);
 
