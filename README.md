@@ -1,275 +1,272 @@
 # Sanagi Labs
 
-A space for learning, building, and soft experiments in AI.  
-Learn in public.
-
-## Machine Learning Micro Note Roadmap (Basics to Advanced Models)
+A space for learning, building, and soft experiments in AI.
 
 This roadmap progresses from foundational knowledge to classical ML, dives into Deep Learning fundamentals and architectures, covers specialized topics, and concludes with practical implementation and analysis. Each checklist item represents a target topic for a single micro note.
 
 ---
 
-### Part I: Foundations
+## Part I: Foundations
 
 _This part covers the essential prerequisites._
 
-#### `00 - Foundations`
+### `00 - Foundations`
 
 - **Math:**
-  - - [ ] Vectors and Matrices (Linear Algebra Basics)
-  - - [ ] Dot Product Explained
-  - - [ ] Derivatives and Gradients (Calculus Basics)
-  - - [ ] Chain Rule Explained
-  - - [ ] Basic Probability Concepts
-  - - [ ] Common Probability Distributions (Normal, Bernoulli)
-  - - [ ] Bayes' Theorem Explained
+  - - [ ] Vectors and Matrices (slug: `linear-algebra-basics`)
+  - - [ ] Dot Product (slug: `dot-product`)
+  - - [ ] Derivatives and Gradients (slug: `derivatives-gradients`)
+  - - [ ] Chain Rule (slug: `chain-rule`)
+  - - [ ] Probability (slug: `probability-basics`)
+  - - [ ] Probability Distributions (slug: `probability-distributions`)
+  - - [ ] Bayes' Theorem (slug: `bayes-theorem`)
 - **Programming & Data:**
-  - - [ ] Python Basics (for ML)
-  - - [ ] NumPy Introduction (Arrays, Operations)
-  - - [ ] Pandas Introduction (DataFrames, Series)
-  - - [ ] Matplotlib / Seaborn (Basic Plotting)
-  - - [ ] Vectorization Explained
-  - - [ ] What is Big Data?
-  - - [ ] Data Loading and Handling
-  - - [ ] Data Cleaning (Handling Missing Values)
-  - - [ ] Handling Categorical Features (One-Hot Encoding)
-  - - [ ] Feature Scaling (Normalization, Standardization)
-  - - [ ] Feature Engineering Concepts (incl. Interaction Features)
-  - - [ ] Binning / Discretization
-  - - [ ] Univariate Nonlinear Transformations (Log, Sqrt, etc.)
-  - - [ ] Feature Selection Methods (Filter, Wrapper, Embedded)
-  - - [ ] Utilizing Expert Knowledge in Feature Eng.
-  - - [ ] Training, Validation, and Test Sets
+  - - [ ] Python for ML (slug: `python-basics-ml`)
+  - - [ ] NumPy (slug: `numpy-intro`)
+  - - [ ] Pandas (slug: `pandas-intro`)
+  - - [ ] Matplotlib / Seaborn Plotting (slug: `matplotlib-seaborn-plotting`)
+  - - [ ] Vectorization (slug: `vectorization`)
+  - - [ ] Big Data (slug: `big-data-concepts`)
+  - - [ ] Data Loading and Handling (slug: `data-loading-handling`)
+  - - [ ] Data Cleaning / Missing Values (slug: `data-cleaning-missing-values`)
+  - - [ ] Handling Categorical Features / One-Hot (slug: `categorical-features-one-hot`)
+  - - [ ] Feature Scaling (slug: `feature-scaling`)
+  - - [ ] Feature Engineering (slug: `feature-engineering-concepts`)
+  - - [ ] Binning / Discretization (slug: `binning-discretization`)
+  - - [ ] Univariate Transformations (slug: `univariate-transformations`)
+  - - [ ] Feature Selection (slug: `feature-selection-methods`)
+  - - [ ] Expert Knowledge in Feature Eng. (slug: `expert-knowledge-feature-eng`)
+  - - [ ] Train/Validation/Test Sets (slug: `train-validation-test-sets`)
 - **Search & Optimization (Non-Gradient):**
-  - - [ ] Search Space / State Space Search
-  - - [ ] Hill Climbing Algorithm
-  - - [ ] Simulated Annealing Algorithm
+  - - [ ] State Space Search (slug: `state-space-search`)
+  - - [ ] Hill Climbing (slug: `hill-climbing`)
+  - - [ ] Simulated Annealing (slug: `simulated-annealing`)
 
 ---
 
-### Part II: Classical Machine Learning
+## Part II: Classical Machine Learning
 
 _Focuses on traditional ML algorithms that don't typically involve deep neural networks._
 
-#### `01 - Classical ML - Supervised`
+### `01 - Classical ML - Supervised`
 
-- - [ ] What is Supervised Learning? (incl. Regression vs. Classification)
-- - [ ] Linear Regression Explained
-- - [ ] Ridge Regression (L2 Regularization for LinReg)
-- - [ ] Lasso Regression (L1 Regularization for LinReg)
-- - [ ] Polynomial Regression
-- - [ ] Logistic Regression Explained
-- - [ ] Decision Boundary Concept
-- - [ ] K-Nearest Neighbors (KNN) Algorithm
-- - [ ] Naive Bayes Classifier
-- - [ ] Support Vector Machines (SVM) (incl. Kernels)
-- - [ ] Decision Trees (incl. Splitting Criteria, Pruning, Regression Trees)
-- - [ ] Random Forests Algorithm
-- - [ ] AdaBoost Algorithm
-- - [ ] Gradient Boosting Machines (GBM) - Core Idea
-- - [ ] Bias-Variance Tradeoff Explained
+- - [ ] Supervised Learning (slug: `supervised-learning-intro`)
+- - [ ] Linear Regression (slug: `linear-regression`)
+- - [ ] Ridge Regression (slug: `ridge-regression`)
+- - [ ] Lasso Regression (slug: `lasso-regression`)
+- - [ ] Polynomial Regression (slug: `polynomial-regression`)
+- - [ ] Logistic Regression (slug: `logistic-regression`)
+- - [ ] Decision Boundary (slug: `decision-boundary`)
+- - [ ] K-Nearest Neighbors (KNN) (slug: `knn`)
+- - [ ] Naive Bayes (slug: `naive-bayes`)
+- - [ ] Support Vector Machines (SVM) & Kernels (slug: `svm-kernels`)
+- - [ ] Decision Trees (slug: `decision-trees`)
+- - [ ] Random Forests (slug: `random-forests`)
+- - [ ] AdaBoost (slug: `adaboost`)
+- - [ ] Gradient Boosting Machines (GBM) (slug: `gbm`)
+- - [ ] Bias-Variance Tradeoff (slug: `bias-variance-tradeoff`)
 
-#### `02 - Classical ML - Unsupervised`
+### `02 - Classical ML - Unsupervised`
 
-- - [ ] What is Unsupervised Learning? (incl. Clustering vs. Dim Reduction)
-- - [ ] K-Means Clustering (incl. Initialization, Choosing K)
-- - [ ] Hierarchical Clustering (Agglomerative)
-- - [ ] DBSCAN Algorithm
-- - [ ] Anomaly Detection Overview
-- - [ ] Principal Component Analysis (PCA) Explained
-- - [ ] Non-Negative Matrix Factorization (NMF)
-- - [ ] Manifold Learning Overview (Isomap, LLE ideas)
-- - [ ] t-SNE (for Visualization)
-- - [ ] Topic Modeling Overview (incl. LDA)
+- - [ ] Unsupervised Learning (slug: `unsupervised-learning-intro`)
+- - [ ] K-Means Clustering (slug: `kmeans-clustering`)
+- - [ ] Hierarchical Clustering (slug: `hierarchical-clustering`)
+- - [ ] DBSCAN (slug: `dbscan`)
+- - [ ] Anomaly Detection (slug: `anomaly-detection`)
+- - [ ] Principal Component Analysis (PCA) (slug: `pca`)
+- - [ ] Non-Negative Matrix Factorization (NMF) (slug: `nmf`)
+- - [ ] Manifold Learning (slug: `manifold-learning`)
+- - [ ] t-SNE Visualization (slug: `tsne`)
+- - [ ] Topic Modeling & LDA (slug: `topic-modeling-lda`)
 
 ---
 
-### Part III: Model Training and Evaluation
+## Part III: Model Training and Evaluation
 
 _Covers the crucial cross-cutting concepts for building and assessing any ML model._
 
-#### `03 - Model Training & Evaluation`
+### `03 - Model Training & Evaluation`
 
-- - [ ] Loss Functions (Overview & Common Examples)
-- - [ ] Gradient Descent Explained
-- - [ ] Gradient Descent Variants & Learning Rate (Batch, Mini-batch, Stochastic)
-- - [ ] Checking Gradient Descent Convergence
-- - [ ] Optimization Algorithms Overview (Adam, RMSprop)
-- - [ ] Overfitting and Underfitting Explained
-- - [ ] Model Complexity Concept
-- - [ ] Regularization (L1, L2) - Core Idea
-- - [ ] Cross-Validation Explained (k-Fold, Stratified)
-- - [ ] The Bootstrap Method (Bootstrapping)
-- - [ ] Bagging (Bootstrap Aggregating)
-- - [ ] Hyperparameter Tuning Methods (Grid Search, Random Search)
-- - [ ] Evaluating Clustering Performance
-- - [ ] Evaluating Anomaly Detection Performance
-- - [ ] Manual Evaluation Methods (for NLP/LLMs)
-- - [ ] Establishing Performance Baselines
-- - [ ] Learning Curves Explained
-- - [ ] Error Analysis Techniques
-- - [ ] Handling Imbalanced Datasets
-- - [ ] Uncertainty Estimation in Models (Decision Function, Probabilities)
-- - [ ] Evolutionary Computation Overview
-- - [ ] Genetic Programming Overview
-- - [ ] Regression Evaluation Metrics (MAE, MSE/RMSE, R-squared)
-- - [ ] Classification Evaluation Metrics (Accuracy, Precision, Recall, F1)
-- - [ ] Precision-Recall Tradeoff Explained
-- - [ ] Confusion Matrix Explained
-- - [ ] ROC Curve and AUC Explained
+- - [ ] Loss Functions (slug: `loss-functions`)
+- - [ ] Gradient Descent (slug: `gradient-descent`)
+- - [ ] GD Variants & Learning Rate (slug: `gradient-descent-variants-lr`)
+- - [ ] GD Convergence (slug: `gradient-descent-convergence`)
+- - [ ] Optimization Algorithms (Adam, RMSprop) (slug: `optimization-algorithms`)
+- - [ ] Overfitting and Underfitting (slug: `overfitting-underfitting`)
+- - [ ] Model Complexity (slug: `model-complexity`)
+- - [ ] Regularization (L1/L2) (slug: `regularization-l1-l2`)
+- - [ ] Cross-Validation (slug: `cross-validation`)
+- - [ ] Bootstrap Method (slug: `bootstrap-method`)
+- - [ ] Bagging (slug: `bagging`)
+- - [ ] Hyperparameter Tuning (slug: `hyperparameter-tuning`)
+- - [ ] Evaluating Clustering (slug: `evaluating-clustering`)
+- - [ ] Evaluating Anomaly Detection (slug: `evaluating-anomaly-detection`)
+- - [ ] Manual Evaluation (NLP/LLMs) (slug: `manual-evaluation-nlp`)
+- - [ ] Establishing Baselines (slug: `establishing-baselines`)
+- - [ ] Learning Curves (slug: `learning-curves`)
+- - [ ] Error Analysis (slug: `error-analysis`)
+- - [ ] Handling Imbalanced Datasets (slug: `handling-imbalanced-datasets`)
+- - [ ] Uncertainty Estimation (slug: `uncertainty-estimation`)
+- - [ ] Evolutionary Computation (slug: `evolutionary-computation`)
+- - [ ] Genetic Programming (slug: `genetic-programming`)
+- - [ ] Regression Metrics (slug: `regression-metrics`)
+- - [ ] Classification Metrics (slug: `classification-metrics`)
+- - [ ] Precision-Recall Tradeoff (slug: `precision-recall-tradeoff`)
+- - [ ] Confusion Matrix (slug: `confusion-matrix`)
+- - [ ] ROC Curve & AUC (slug: `roc-curve-auc`)
 
 ---
 
-### Part IV: Deep Learning Fundamentals
+## Part IV: Deep Learning Fundamentals
 
 _Introduces neural networks and the core concepts behind deep learning._
 
-#### `04 - Deep Learning Fundamentals`
+### `04 - Deep Learning Fundamentals`
 
-- - [ ] The Perceptron / Artificial Neuron
-- - [ ] Activation Functions Overview (Why use? Common types)
-- - [ ] Why Activation Functions are Needed (Non-linearity)
-- - [ ] Neural Network / Multi-Layer Perceptron (MLP) Explained
-- - [ ] Common Neural Network Layer Types - Overview
-- - [ ] Feedforward Computation Explained
-- - [ ] Backpropagation Explained (incl. Computation Graph)
-- - [ ] Vanishing and Exploding Gradients Problem
-- - [ ] Weight Initialization Techniques - Overview
-- - [ ] Batch Normalization Explained
-- - [ ] Dropout Explained
-- - [ ] Transfer Learning - General Concept
+- - [ ] Perceptron / Artificial Neuron (slug: `perceptron`)
+- - [ ] Activation Functions (slug: `activation-functions`)
+- - [ ] Need for Activation Functions (slug: `why-activation-functions`)
+- - [ ] Multi-Layer Perceptron (MLP) (slug: `mlp`)
+- - [ ] Neural Network Layer Types (slug: `nn-layer-types`)
+- - [ ] Feedforward Computation (slug: `feedforward-computation`)
+- - [ ] Backpropagation (slug: `backpropagation`)
+- - [ ] Vanishing/Exploding Gradients (slug: `vanishing-exploding-gradients`)
+- - [ ] Weight Initialization (slug: `weight-initialization`)
+- - [ ] Batch Normalization (slug: `batch-normalization`)
+- - [ ] Dropout (slug: `dropout`)
+- - [ ] Transfer Learning (slug: `transfer-learning-concept`)
 
 ---
 
-### Part V: Deep Learning for Computer Vision
+## Part V: Deep Learning for Computer Vision
 
 _Focuses on specialized architectures and techniques for image data._
 
-#### `05 - Computer Vision (CNNs)`
+### `05 - Computer Vision (CNNs)`
 
-- - [ ] Representing Images Digitally (Pixels, Channels)
-- - [ ] Convolution Operation Explained
-- - [ ] Filters / Kernels in CNNs
-- - [ ] Padding and Stride Explained
-- - [ ] Pooling Layers Explained (Max Pooling, Average Pooling)
-- - [ ] Basic CNN Architecture Explained (Conv -> Activation -> Pool)
-- - [ ] LeNet-5 Architecture (Historical Context)
-- - [ ] AlexNet & VGG Architectures (Key Ideas)
-- - [ ] ResNet Architecture & Residual Connections
-- - [ ] Transfer Learning for Images (Using Pretrained CNNs)
-- - [ ] Data Augmentation for Images
+- - [ ] Digital Image Representation (slug: `image-representation`)
+- - [ ] Convolution Operation (slug: `convolution-operation`)
+- - [ ] CNN Filters / Kernels (slug: `cnn-filters-kernels`)
+- - [ ] CNN Padding & Stride (slug: `cnn-padding-stride`)
+- - [ ] CNN Pooling Layers (slug: `cnn-pooling-layers`)
+- - [ ] Basic CNN Architecture (slug: `basic-cnn-architecture`)
+- - [ ] LeNet-5 Architecture (slug: `lenet5`)
+- - [ ] AlexNet & VGG Architectures (slug: `alexnet-vgg`)
+- - [ ] ResNet & Residual Connections (slug: `resnet-residual-connections`)
+- - [ ] Image Transfer Learning (slug: `transfer-learning-images`)
+- - [ ] Image Data Augmentation (slug: `data-augmentation-images`)
 
 ---
 
-### Part VI: Deep Learning for Sequences and Language
+## Part VI: Deep Learning for Sequences and Language
 
 _Covers models designed for sequential data, leading up to modern NLP._
 
-#### `06 - Sequential Models & NLP Basics (RNNs)`
+### `06 - Sequential Models & NLP Basics (RNNs)`
 
-- - [ ] Handling Sequence Data (Text, Time Series)
-- - [ ] Text Preprocessing Overview (Tokenization, Stopwords, Stemming, Lemmatization)
-- - [ ] Text Features: Bag-of-Words
-- - [ ] Text Features: TF-IDF
-- - [ ] N-gram Language Models
-- - [ ] Text Features: n-Grams
-- - [ ] Representing Words: One-Hot Encoding vs Embeddings
-- - [ ] Word Embeddings Overview (Why use them?)
-- - [ ] Word2Vec Algorithm (Skip-gram / CBOW)
-- - [ ] GloVe Algorithm
-- - [ ] Recurrent Neural Networks (RNN) - Core Idea & Limitations
-- - [ ] Backpropagation Through Time (BPTT)
-- - [ ] Long Short-Term Memory (LSTM) Networks Explained
-- - [ ] Gated Recurrent Unit (GRU) Networks Explained
-- - [ ] Encoder-Decoder (Seq2Seq) Architecture - Basic Idea
-- - [ ] Using CNNs for Text Classification
+- - [ ] Handling Sequence Data (slug: `sequence-data`)
+- - [ ] Text Preprocessing (slug: `text-preprocessing`)
+- - [ ] Bag-of-Words (slug: `bag-of-words`)
+- - [ ] TF-IDF (slug: `tf-idf`)
+- - [ ] N-gram Language Models (slug: `ngram-language-models`)
+- - [ ] n-Gram Text Features (slug: `ngram-text-features`)
+- - [ ] One-Hot vs Embeddings (slug: `one-hot-vs-embeddings`)
+- - [ ] Word Embeddings (slug: `word-embeddings-overview`)
+- - [ ] Word2Vec (slug: `word2vec`)
+- - [ ] GloVe (slug: `glove`)
+- - [ ] Recurrent Neural Networks (RNN) (slug: `rnn-basics`)
+- - [ ] Backpropagation Through Time (BPTT) (slug: `bptt`)
+- - [ ] Long Short-Term Memory (LSTM) (slug: `lstm`)
+- - [ ] Gated Recurrent Unit (GRU) (slug: `gru`)
+- - [ ] Encoder-Decoder (Seq2Seq) Architecture (slug: `seq2seq-architecture`)
+- - [ ] CNNs for Text Classification (slug: `cnn-for-text`)
 
-#### `07 - Attention & Transformers`
+### `07 - Attention & Transformers`
 
-- - [ ] Limitation of Fixed Context Vectors in Seq2Seq
-- - [ ] Attention Mechanism - Core Idea (Query, Key, Value)
-- - [ ] Self-Attention Explained
-- - [ ] Multi-Head Attention Explained
-- - [ ] Positional Encoding Explained
-- - [ ] The Transformer Architecture: Encoder Block
-- - [ ] The Transformer Architecture: Decoder Block
-- - [ ] The Transformer Architecture: Encoder-Decoder Interaction
+- - [ ] Seq2Seq Context Vector Limitations (slug: `seq2seq-context-vector-limitations`)
+- - [ ] Attention Mechanism (slug: `attention-mechanism`)
+- - [ ] Self-Attention (slug: `self-attention`)
+- - [ ] Multi-Head Attention (slug: `multi-head-attention`)
+- - [ ] Positional Encoding (slug: `positional-encoding`)
+- - [ ] Transformer Encoder (slug: `transformer-encoder`)
+- - [ ] Transformer Decoder (slug: `transformer-decoder`)
+- - [ ] Transformer Encoder-Decoder Interaction (slug: `transformer-encoder-decoder`)
 
-#### `08 - Large Language Models (LLMs)`
+### `08 - Large Language Models (LLMs)`
 
-- - [ ] Language Modeling Task Explained (Predicting Next Token)
-- - [ ] BERT Architecture & Concepts (Encoder-Only, MLM)
-- - [ ] GPT Architecture & Concepts (Decoder-Only, Autoregressive)
-- - [ ] GPT-2 Architecture & Concepts (Scaling, Dataset, Zero-shot)
-- - [ ] Pre-training vs. Fine-tuning Explained
-- - [ ] Tokenization for LLMs (Subword Tokenization, BPE)
-- - [ ] LLM Decoding Strategies Overview (Greedy, Beam Search, Sampling)
-- - [ ] Prompt Engineering Basics
-- - [ ] Few-Shot & Zero-Shot Learning Concepts
-- - [ ] Retrieval-Augmented Generation (RAG) Explained
-- - [ ] Multimodal Models - Overview
-- - [ ] LLM Agents - Core Idea
+- - [ ] Language Modeling (slug: `language-modeling`)
+- - [ ] BERT Architecture (slug: `bert`)
+- - [ ] GPT Architecture (slug: `gpt-architecture`)
+- - [ ] GPT-2 Architecture (slug: `gpt2-architecture-concepts`)
+- - [ ] Pre-training vs Fine-tuning (slug: `pretraining-finetuning`)
+- - [ ] LLM Tokenization (slug: `llm-tokenization`)
+- - [ ] LLM Decoding Strategies (slug: `llm-decoding-strategies`)
+- - [ ] Prompt Engineering (slug: `prompt-engineering`)
+- - [ ] Few-Shot & Zero-Shot Learning (slug: `few-shot-zero-shot-learning`)
+- - [ ] Retrieval-Augmented Generation (RAG) (slug: `rag`)
+- - [ ] Multimodal Models (slug: `multimodal-models`)
+- - [ ] LLM Agents (slug: `llm-agents`)
 
 ---
 
-### Part VII: Advanced Generative Models
+## Part VII: Advanced Generative Models
 
 _Explores other powerful models focused on data generation beyond LLMs._
 
-#### `09 - Other Generative Models`
+### `09 - Other Generative Models`
 
-- - [ ] Generative vs. Discriminative Models Explained
-- - [ ] Autoencoders (AE) Explained
-- - [ ] Variational Autoencoders (VAE) Explained
-- - [ ] Generative Adversarial Networks (GANs) Explained
-- - [ ] GANs - Training & Challenges (Minimax, Mode Collapse)
-- - [ ] Diffusion Models Explained (Forward/Reverse Process, Noise Schedules)
+- - [ ] Generative vs Discriminative Models (slug: `generative-vs-discriminative`)
+- - [ ] Autoencoders (AE) (slug: `autoencoders`)
+- - [ ] Variational Autoencoders (VAE) (slug: `vae`)
+- - [ ] Generative Adversarial Networks (GANs) (slug: `gans`)
+- - [ ] GAN Training & Challenges (slug: `gan-training-challenges`)
+- - [ ] Diffusion Models (slug: `diffusion-models`)
 
 ---
 
-### Part VIII: Specialized ML Topics
+## Part VIII: Specialized ML Topics
 
 _Dives into distinct paradigms and application areas within ML._
 
-#### `12 - Recommender Systems`
+### `12 - Recommender Systems`
 
-- - [ ] Recommender Systems - Overview & Types
-- - [ ] Collaborative Filtering Explained
-- - [ ] Content-Based Filtering Explained
-- - [ ] Mean Normalization (for RecSys)
-- - [ ] Measuring Similarity (for RecSys)
-- - [ ] Deep Learning for Recommender Systems Overview
+- - [ ] Recommender Systems (slug: `recsys-overview`)
+- - [ ] Collaborative Filtering (slug: `collaborative-filtering`)
+- - [ ] Content-Based Filtering (slug: `content-based-filtering`)
+- - [ ] RecSys Mean Normalization (slug: `recsys-mean-normalization`)
+- - [ ] RecSys Similarity Measures (slug: `recsys-similarity-measures`)
+- - [ ] Deep Learning for RecSys (slug: `deep-learning-recsys`)
 
-#### `13 - Reinforcement Learning`
+### `13 - Reinforcement Learning`
 
-- - [ ] Reinforcement Learning - Overview
-- - [ ] Markov Decision Process (MDP) Explained
-- - [ ] Key RL Concepts: Policy, Value Function, Q-value, Return, Reward
-- - [ ] Bellman Equation Explained
-- - [ ] Q-Learning Algorithm - Basic Idea
-- - [ ] Exploration vs. Exploitation (Epsilon-Greedy)
+- - [ ] Reinforcement Learning (slug: `rl-overview`)
+- - [ ] Markov Decision Process (MDP) (slug: `mdp`)
+- - [ ] RL Key Concepts (Policy, Value, Q-value, Return, Reward) (slug: `rl-key-concepts`)
+- - [ ] Bellman Equation (slug: `bellman-equation`)
+- - [ ] Q-Learning (slug: `q-learning`)
+- - [ ] RL Exploration vs Exploitation (Epsilon-Greedy) (slug: `rl-exploration-exploitation`)
 
 ---
 
-### Part IX: Practical Implementation and Analysis
+## Part IX: Practical Implementation and Analysis
 
 _Focuses on tools and applying knowledge to understand specific models._
 
-#### `10 - Tools & Libraries`
+### `10 - Tools & Libraries`
 
-- - [ ] Using Scikit-learn (for Classical ML)
-- - [ ] Using Scikit-learn Pipelines
-- - [ ] PyTorch Basics (Tensors, Autograd, nn.Module)
-- - [ ] PyTorch DataLoader and Datasets
-- - [ ] TensorFlow / Keras Basics Overview
-- - [ ] Using Hugging Face `transformers` Library
-- - [ ] Experiment Tracking (Weights & Biases / TensorBoard)
+- - [ ] Using Scikit-learn (slug: `sklearn-basics`)
+- - [ ] Scikit-learn Pipelines (slug: `sklearn-pipelines`)
+- - [ ] PyTorch Basics (slug: `pytorch-basics`)
+- - [ ] PyTorch DataLoader/Dataset (slug: `pytorch-dataloader-dataset`)
+- - [ ] TensorFlow/Keras Basics (slug: `tensorflow-keras-basics`)
+- - [ ] Using Hugging Face Transformers (slug: `huggingface-transformers`)
+- - [ ] Experiment Tracking Tools (slug: `experiment-tracking-tools`)
 
-#### `11 - Model Deep Dives`
+### `11 - Model Deep Dives`
 
 - (_Note: These represent larger analysis tasks_)
-- - [ ] Analysis: GPT-2 Model
-- - [ ] Analysis: Stable Diffusion Model
-- - [ ] Analysis: [Add other models as needed]
+- - [ ] Analysis: GPT-2 (slug: `analysis-gpt2`)
+- - [ ] Analysis: Stable Diffusion (slug: `analysis-stable-diffusion`)
+- - [ ] Analysis: [Model Name] (slug: `analysis-[model-name]`)
 
 ---
