@@ -1,9 +1,9 @@
 "use client"; // May not be needed anymore unless you have other client interactions
 
 import React from "react";
-import { ExternalLink } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext"; // Only needed if styles depend directly on darkMode state here
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   const { darkMode } = useTheme(); // Get theme if needed for specific element styles
@@ -14,10 +14,12 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center text-center flex-1">
       {/* Logo */}
       <div className="w-20 h-20 sm:w-24 sm:h-24 mb-6 relative">
-        <img
+        <Image
           src="/character.png"
           alt="Sanagi Character"
-          className="object-contain w-full h-full"
+          fill
+          className="object-contain"
+          priority
         />
       </div>
 

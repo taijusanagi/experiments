@@ -1,11 +1,10 @@
 // app/notes/[slug]/page.tsx
 import path from "path";
-import fs from "fs";
 import { notFound } from "next/navigation";
 import React from "react";
 import Link from "next/link";
 import "katex/dist/katex.min.css";
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 import {
   ArrowLeft,
   CalendarDays,
@@ -31,12 +30,9 @@ export async function generateStaticParams() {
   }));
 }
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const pageTitleForMetadata = formatSlugToTitle(slug);
   return {

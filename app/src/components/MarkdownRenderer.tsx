@@ -23,11 +23,13 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
 
   // Define the custom renderer for code blocks inside the client component
   const components = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pre({ children }: any) {
       // Keep the not-prose class to override typography styles if needed
       return <div className="not-prose">{children}</div>;
     },
-    code({ node, inline, className, children, ...props }: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    code({ inline, className, children, ...props }: any) {
       const match = /language-(\w+)/.exec(className || "");
       return !inline && match ? (
         <div className="text-xs">

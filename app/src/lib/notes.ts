@@ -8,11 +8,13 @@ import strip from "strip-markdown";
 interface JupyterCell {
   cell_type: "markdown" | "code" | "raw";
   source: string[] | string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: { [key: string]: any };
 }
 interface JupyterMetadata {
   updated?: string | null;
   created?: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 interface JupyterNotebook {
@@ -108,7 +110,7 @@ export function getSortedNotesData(): NoteInfo[] {
           if (match && match[1]) {
             title = match[1].trim();
             const h1LineEndIndex = match[0].length;
-            let remainingContent = firstCellSource
+            const remainingContent = firstCellSource
               .substring(h1LineEndIndex)
               .trim();
             if (remainingContent) {
@@ -157,9 +159,7 @@ export function getSortedNotesData(): NoteInfo[] {
 }
 
 // --- Modify extractMarkdownContentAndMetadata return type ---
-export function extractMarkdownContentAndMetadata(
-  notebookPath: string
-): {
+export function extractMarkdownContentAndMetadata(notebookPath: string): {
   content: string;
   metadata: JupyterMetadata;
   extractedTitle: string | null;
