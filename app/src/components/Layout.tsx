@@ -22,7 +22,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     >
       {/* Header */}
       <header className="w-full p-4 flex justify-between items-center">
-        <Link href="/" className="text-sm font-mono opacity-50">
+        <Link href="/" className="text-sm font-mono opacity-50 hover:underline">
           Sanagi Labs
         </Link>
         <button
