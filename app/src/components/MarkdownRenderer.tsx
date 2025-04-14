@@ -58,7 +58,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     // The prose classes now work correctly because the ThemeProvider
     // puts 'dark' or 'light' on the body tag.
     // Ensure your tailwind.config.js has darkMode: 'class'
-    <article className="prose dark:prose-invert max-w-none w-full">
+    <article className="prose prose-sm dark:prose-invert max-w-none w-full">
       <ReactMarkdown
         remarkPlugins={[remarkMath]}
         rehypePlugins={[rehypeRaw, rehypeKatex]}

@@ -1,3 +1,12 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:where(.dark, .dark *));
+
+.prose .html-table-output table th,
+.prose .html-table-output table td {
+  @apply text-center px-2 py-1 text-xs;
+}
+
+.prose .html-table-output p {
+  @apply text-right;
+}

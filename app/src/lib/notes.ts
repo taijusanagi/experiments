@@ -316,7 +316,15 @@ export function extractMarkdownContentAndMetadata(notebookPath: string): {
                           : output.data["text/html"] || ""
                       ).trim();
                       // CHANGED: Removed <details> wrapper
-                      if (htmlContent) outputMarkdown += `\n${htmlContent}\n`;
+                      if (htmlContent) {
+                        // --- MODIFICATION START ---
+                        // Wrap the HTML in a div with classes for overflow and text size
+                        // - overflow-x-auto: Adds horizontal scroll if table is wider than container
+                        // - text-xs or text-sm: Sets smaller base font size (adjust as needed)
+                        // - maybe add max-w-full or w-full if needed, though prose container might handle this
+                        outputMarkdown += `\n<div class="html-table-output overflow-x-auto text-xs">\n${htmlContent}\n</div>\n`;
+                        // --- MODIFICATION END ---
+                      }
                     } else if (output.data["text/markdown"]) {
                       const mdContent = (
                         Array.isArray(output.data["text/markdown"])
