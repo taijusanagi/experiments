@@ -16,10 +16,10 @@ export default function Home() {
       <div className="w-20 h-20 sm:w-24 sm:h-24 mb-6 relative">
         <Image
           src="/character.png"
-          alt="Sanagi Character"
+          alt="tofupunch"
           fill
           className="object-contain"
-          priority
+          unoptimized
         />
       </div>
 
