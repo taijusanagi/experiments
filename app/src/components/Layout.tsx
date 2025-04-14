@@ -40,7 +40,7 @@ export default function SanagiLayout({ children }: { children: ReactNode }) {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-12">
+      <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
         {children}
       </main>
 

@@ -10,9 +10,12 @@ import rehypeRaw from "rehype-raw";
 import "katex/dist/katex.min.css";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+// import { materialLight } from "react-syntax-highlighter/dist/esm/styles/prism"; // or another light theme
 
 import { convertNotebookToMarkdown } from "@/lib/convertNotebookToMarkdown";
 const notebookDir = path.resolve(process.cwd(), "../notes/src");
+
+import Layout from "@/components/Layout";
 
 export async function generateStaticParams() {
   // ... (generateStaticParams remains the same)
@@ -62,16 +65,17 @@ export default async function NotebookPage({
   };
 
   return (
-    <article className="prose mx-auto p-4">
-      {/* Typography styles applied here */}
-      <h1>{slug}</h1>
-      <ReactMarkdown
-        remarkPlugins={[remarkMath]}
-        rehypePlugins={[rehypeRaw, rehypeKatex]}
-        components={components} // Use the modified components
-      >
-        {content}
-      </ReactMarkdown>
-    </article>
+    <Layout>
+      <article className="prose dark:prose-invert p-4 transition-colors duration-300">
+        <h1>{slug}</h1>
+        <ReactMarkdown
+          remarkPlugins={[remarkMath]}
+          rehypePlugins={[rehypeRaw, rehypeKatex]}
+          components={components}
+        >
+          {content}
+        </ReactMarkdown>
+      </article>
+    </Layout>
   );
 }
