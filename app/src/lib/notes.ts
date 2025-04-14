@@ -11,6 +11,7 @@ interface Output {
   output_type: string; // e.g., "stream", "display_data", "execute_result", "error"
   name?: string; // e.g., "stdout", "stderr" (for stream)
   text?: string[] | string; // for stream
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: { [mimeType: string]: any }; // for display_data, execute_result (e.g., "text/plain", "image/png")
   ename?: string; // for error
   evalue?: string; // for error
@@ -262,7 +263,7 @@ export function extractMarkdownContentAndMetadata(notebookPath: string): {
           let outputMarkdown = "";
           if (cell.outputs && cell.outputs.length > 0) {
             // Keep the main outputs header if there are any outputs
-            let hasVisibleOutput = cell.outputs.some((output) => {
+            const hasVisibleOutput = cell.outputs.some((output) => {
               switch (output.output_type) {
                 case "stream":
                   return !!(
