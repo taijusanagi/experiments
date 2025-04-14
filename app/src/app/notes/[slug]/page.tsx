@@ -34,9 +34,37 @@ type Props = {
 };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const pageTitleForMetadata = formatSlugToTitle(slug);
+
+  const notebookPath = path.join(notesDirectory, `${slug}.ipynb`);
+  const noteData = extractMarkdownContentAndMetadata(notebookPath);
+
+  if (!noteData) {
+    notFound();
+  }
+
+  const pageTitleForMetadata =
+    noteData.extractedTitle || formatSlugToTitle(slug);
+
   return {
     title: `${pageTitleForMetadata} | Sanagi Labs`,
+    openGraph: {
+      title: pageTitleForMetadata,
+      type: "article",
+      url: `https://taijusanagi.com/notes/${slug}`,
+      images: [
+        {
+          url: `/ogp/${slug}.png`,
+          width: 1200,
+          height: 630,
+          alt: `${pageTitleForMetadata} OGP`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: pageTitleForMetadata,
+      images: [`/ogp/${slug}.png`],
+    },
   };
 }
 function formatDate(dateString: string | null): string | null {
