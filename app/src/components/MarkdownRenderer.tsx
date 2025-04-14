@@ -16,13 +16,9 @@ import { useTheme } from "@/context/ThemeContext"; // Adjust path
 
 interface MarkdownRendererProps {
   content: string;
-  slug: string;
 }
 
-export default function MarkdownRenderer({
-  content,
-  slug,
-}: MarkdownRendererProps) {
+export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   const { darkMode } = useTheme(); // Get the current theme state
 
   // Define the custom renderer for code blocks inside the client component
@@ -58,8 +54,6 @@ export default function MarkdownRenderer({
     // puts 'dark' or 'light' on the body tag.
     // Ensure your tailwind.config.js has darkMode: 'class'
     <article className="prose dark:prose-invert max-w-none w-full p-4">
-      {/* You might want the title outside the markdown rendering for better control */}
-      <h1> {slug.replace(/[-_]/g, " ")}</h1>
       <ReactMarkdown
         remarkPlugins={[remarkMath]}
         rehypePlugins={[rehypeRaw, rehypeKatex]}
