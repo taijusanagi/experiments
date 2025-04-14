@@ -16,13 +16,13 @@ export default function Layout({ children }: { children: ReactNode }) {
       // these gradients if you like the specific effect.
       className={`min-h-screen flex flex-col transition-colors duration-500 ${
         darkMode
-          ? "bg-gradient-to-br from-neutral-900 to-neutral-800 text-neutral-100"
-          : "bg-gradient-to-br from-neutral-50 to-neutral-100 text-neutral-900"
+          ? "bg-neutral-900 text-neutral-100"
+          : "bg-neutral-50 text-neutral-900"
       }`}
     >
       {/* Header */}
       <header className="w-full p-4 flex justify-between items-center">
-        <Link href="/" className="text-sm font-mono opacity-50 hover:underline">
+        <Link href="/" className="text-sm font-mono opacity-50">
           Sanagi Labs
         </Link>
         <button
@@ -44,7 +44,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
       {/* Main content */}
       {/* Removed justify-center from default layout to better suit notes pages */}
-      <main className="flex-1 flex flex-col items-center px-4 sm:px-6 py-8 sm:py-12 w-full">
+      <main className="flex-1 flex flex-col items-center w-full">
         {children}
       </main>
 
