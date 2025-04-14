@@ -6,7 +6,7 @@ import os
 from datetime import datetime, timezone
 import subprocess # <--- Add this import
 
-def format_notebook(path: str) -> None:
+def format_jupyter(path: str) -> None:
     """
     Cleans and updates metadata for a Jupyter Notebook.
     - Removes empty code/markdown cells.
