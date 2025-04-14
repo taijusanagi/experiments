@@ -3,6 +3,7 @@ repos:
     hooks:
       - id: update-notebook-metadata
         name: Update notebook metadata
-        entry: python notes/update_metadata.py
-        language: system
+        entry: notes/update-notebook-metadata.py
+        language: script
         files: \.ipynb$
+        exclude: ^\.ipynb_checkpoints/
