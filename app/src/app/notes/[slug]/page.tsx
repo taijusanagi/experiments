@@ -8,7 +8,7 @@ import "katex/dist/katex.min.css"; // Keep KaTeX CSS import
 import { convertNotebookToMarkdown } from "@/lib/convertNotebookToMarkdown";
 // Import the new client component
 import MarkdownRenderer from "@/components/MarkdownRenderer";
-// Note: We removed SanagiLayout import here because it's applied in app/layout.tsx
+// Note: We removed Layout import here because it's applied in app/layout.tsx
 
 const notebookDir = path.resolve(process.cwd(), "../notes/src"); // Adjust path as needed
 
@@ -50,7 +50,7 @@ export default async function NotebookPage({
   // No need to define components here anymore
 
   return (
-    // The SanagiLayout is applied by the root layout (app/layout.tsx)
+    // The Layout is applied by the root layout (app/layout.tsx)
     // Pass the fetched content and slug to the client component
     <>
       {/* You might want a page-specific title outside the markdown content */}

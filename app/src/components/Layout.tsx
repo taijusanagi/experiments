@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext"; // Adjust path if needed
 
-export default function SanagiLayout({ children }: { children: ReactNode }) {
+export default function Layout({ children }: { children: ReactNode }) {
   // Get theme state and toggle function from context
   const { darkMode, toggleDarkMode } = useTheme();
 
