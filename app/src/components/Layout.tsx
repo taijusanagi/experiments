@@ -1,18 +1,18 @@
-"use client";
+"use client"; // Keep this if it uses client-side hooks like useTheme
 
-import React, { useState, useEffect, ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { Sun, Moon } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext"; // Adjust path if needed
 
 export default function SanagiLayout({ children }: { children: ReactNode }) {
-  const [darkMode, setDarkMode] = useState(true);
-
-  useEffect(() => {
-    document.body.classList.remove("dark", "light");
-    document.body.classList.add(darkMode ? "dark" : "light");
-  }, [darkMode]);
+  // Get theme state and toggle function from context
+  const { darkMode, toggleDarkMode } = useTheme();
 
   return (
     <div
+      // The background/text colors are now primarily controlled by the class
+      // applied to the <body> tag via ThemeContext, but you can keep
+      // these gradients if you like the specific effect.
       className={`min-h-screen flex flex-col transition-colors duration-500 ${
         darkMode
           ? "bg-gradient-to-br from-neutral-900 to-neutral-800 text-neutral-100"
@@ -20,10 +20,10 @@ export default function SanagiLayout({ children }: { children: ReactNode }) {
       }`}
     >
       {/* Header */}
-      <header className="w-full p-4 flex justify-between items-center">
+      <header className="w-full p-4 flex justify-between items-center sticky top-0 z-10 backdrop-blur-md bg-opacity-80">
         <span className="text-sm font-mono opacity-50">Sanagi Labs</span>
         <button
-          onClick={() => setDarkMode(!darkMode)}
+          onClick={toggleDarkMode} // Use the function from context
           className={`p-2 rounded-full border transition-all duration-300 ${
             darkMode
               ? "bg-neutral-800 border-teal-800 text-teal-400 hover:bg-neutral-700"
@@ -40,7 +40,8 @@ export default function SanagiLayout({ children }: { children: ReactNode }) {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+      {/* Removed justify-center from default layout to better suit notes pages */}
+      <main className="flex-1 flex flex-col items-center px-4 sm:px-6 py-8 sm:py-12 w-full">
         {children}
       </main>
 
@@ -50,7 +51,7 @@ export default function SanagiLayout({ children }: { children: ReactNode }) {
           darkMode ? "text-neutral-600" : "text-neutral-500"
         }`}
       >
-        © 2025 Taiju Sanagi. All experiments welcome.
+        © {new Date().getFullYear()} Taiju Sanagi. All experiments welcome.
       </footer>
     </div>
   );

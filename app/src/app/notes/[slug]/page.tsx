@@ -3,22 +3,17 @@ import path from "path";
 import fs from "fs";
 import { notFound } from "next/navigation";
 import React from "react";
-import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
-import rehypeRaw from "rehype-raw";
-import "katex/dist/katex.min.css";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-// import { materialLight } from "react-syntax-highlighter/dist/esm/styles/prism"; // or another light theme
+import "katex/dist/katex.min.css"; // Keep KaTeX CSS import
 
 import { convertNotebookToMarkdown } from "@/lib/convertNotebookToMarkdown";
-const notebookDir = path.resolve(process.cwd(), "../notes/src");
+// Import the new client component
+import MarkdownRenderer from "@/components/MarkdownRenderer";
+// Note: We removed SanagiLayout import here because it's applied in app/layout.tsx
 
-import Layout from "@/components/Layout";
+const notebookDir = path.resolve(process.cwd(), "../notes/src"); // Adjust path as needed
 
+// generateStaticParams remains the same
 export async function generateStaticParams() {
-  // ... (generateStaticParams remains the same)
   const files = fs.readdirSync(notebookDir);
   return files
     .filter((file) => file.endsWith(".ipynb"))
@@ -33,49 +28,36 @@ export default async function NotebookPage({
   params: { slug: string };
 }) {
   const slug = params.slug;
-  const notebookPath = path.join("../notes/src", `${slug}.ipynb`);
-  const content = convertNotebookToMarkdown(notebookPath);
+  // Construct the correct path relative to the server process CWD
+  const notebookPath = path.join(notebookDir, `${slug}.ipynb`);
 
-  if (!content) notFound();
+  let content: string | null = null;
+  try {
+    // Check if file exists before attempting conversion
+    if (fs.existsSync(notebookPath)) {
+      content = convertNotebookToMarkdown(notebookPath);
+    } else {
+      console.error(`Notebook file not found at: ${notebookPath}`);
+    }
+  } catch (error) {
+    console.error(`Error processing notebook ${slug}:`, error);
+  }
 
-  // Define the custom renderer for code blocks
-  const components = {
-    pre({ children }: any) {
-      return <div className="not-prose">{children}</div>;
-    },
-    code({ node, inline, className, children, ...props }: any) {
-      const match = /language-(\w+)/.exec(className || "");
-      return !inline && match ? (
-        <SyntaxHighlighter
-          style={materialDark}
-          language={match[1]}
-          // PreTag="div"
-          {...props}
-        >
-          {String(children).replace(/\n$/, "")}
-        </SyntaxHighlighter>
-      ) : (
-        // Inline code or code blocks without language
-        // will still get typography styles (usually desired)
-        <code className={className} {...props}>
-          {children}
-        </code>
-      );
-    },
-  };
+  if (!content) {
+    notFound(); // Trigger 404 if content is null or empty
+  }
+
+  // No need to define components here anymore
 
   return (
-    <Layout>
-      <article className="prose dark:prose-invert p-4 transition-colors duration-300">
-        <h1>{slug}</h1>
-        <ReactMarkdown
-          remarkPlugins={[remarkMath]}
-          rehypePlugins={[rehypeRaw, rehypeKatex]}
-          components={components}
-        >
-          {content}
-        </ReactMarkdown>
-      </article>
-    </Layout>
+    // The SanagiLayout is applied by the root layout (app/layout.tsx)
+    // Pass the fetched content and slug to the client component
+    <>
+      {/* You might want a page-specific title outside the markdown content */}
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        {slug.replace(/[-_]/g, " ")}
+      </h1>
+      <MarkdownRenderer content={content} slug={slug} />
+    </>
   );
 }
