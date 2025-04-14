@@ -20,7 +20,7 @@ import {
   extractMarkdownContentAndMetadata,
 } from "@/lib/notes";
 
-const notesDirectory = path.resolve(process.cwd(), "../notes/src");
+const notesDirectory = path.resolve(process.cwd(), "../notes/jupyter");
 
 // --- generateStaticParams, generateMetadata, formatDate (remain the same) ---
 export async function generateStaticParams() {
@@ -99,7 +99,7 @@ export default async function NotebookPage({ params }: Props) {
   const GITHUB_USERNAME = "taijusanagi";
   const REPO_NAME = "sanagi-labs"; // Keep this as is, or adjust if needed
   const BRANCH = "main";
-  const NOTEBOOK_DIR_PATH = "notes/src"; // Path from repo root
+  const NOTEBOOK_DIR_PATH = "notes/jupyter"; // Path from repo root
   const colabUrl = `https://colab.research.google.com/github/${GITHUB_USERNAME}/${REPO_NAME}/blob/${BRANCH}/${NOTEBOOK_DIR_PATH}/${slug}.ipynb`;
   // --------------------------------
 

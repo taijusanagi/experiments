@@ -44,7 +44,7 @@ export interface NoteInfo {
 }
 
 // --- Constants and Helpers (remain the same) ---
-const notesDirectory = path.resolve(process.cwd(), "../notes/src");
+const notesDirectory = path.resolve(process.cwd(), "../notes/jupyter");
 
 export function formatSlugToTitle(slug: string): string {
   return slug
