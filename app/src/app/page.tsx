@@ -8,7 +8,7 @@ export default function Home() {
   const { darkMode } = useTheme(); // Get theme if needed for specific element styles
 
   return (
-    // The outer div with bg/text colors is handled by Layout and body class
+    // The outer div with bg/text colors is handled by SanagiLayout and body class
     // We center the content specific to the home page here
     <div className="flex flex-col items-center justify-center text-center flex-1">
       {/* Logo */}

@@ -49,15 +49,5 @@ export default async function NotebookPage({
 
   // No need to define components here anymore
 
-  return (
-    // The Layout is applied by the root layout (app/layout.tsx)
-    // Pass the fetched content and slug to the client component
-    <>
-      {/* You might want a page-specific title outside the markdown content */}
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        {slug.replace(/[-_]/g, " ")}
-      </h1>
-      <MarkdownRenderer content={content} slug={slug} />
-    </>
-  );
+  return <MarkdownRenderer content={content} slug={slug} />;
 }

@@ -9,8 +9,8 @@ import rehypeRaw from "rehype-raw";
 import "katex/dist/katex.min.css";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
-  materialDark,
-  materialLight, // Import a light theme
+  oneLight,
+  oneDark, // Import a light theme
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useTheme } from "@/context/ThemeContext"; // Adjust path
 
@@ -36,7 +36,7 @@ export default function MarkdownRenderer({
       return !inline && match ? (
         <SyntaxHighlighter
           // Conditionally select the theme based on darkMode state
-          style={darkMode ? materialDark : materialLight}
+          style={darkMode ? oneDark : oneLight}
           language={match[1]}
           // PreTag="div" // Usually not needed, SyntaxHighlighter renders a <pre>
           {...props}
@@ -57,9 +57,9 @@ export default function MarkdownRenderer({
     // The prose classes now work correctly because the ThemeProvider
     // puts 'dark' or 'light' on the body tag.
     // Ensure your tailwind.config.js has darkMode: 'class'
-    <article className="prose dark:prose-invert max-w-none w-full p-4 transition-colors duration-300">
+    <article className="prose dark:prose-invert max-w-none w-full p-4">
       {/* You might want the title outside the markdown rendering for better control */}
-      {/* <h1>{slug}</h1> */}
+      <h1> {slug.replace(/[-_]/g, " ")}</h1>
       <ReactMarkdown
         remarkPlugins={[remarkMath]}
         rehypePlugins={[rehypeRaw, rehypeKatex]}

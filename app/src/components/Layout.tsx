@@ -3,6 +3,7 @@
 import React, { ReactNode } from "react";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext"; // Adjust path if needed
+import Link from "next/link";
 
 export default function Layout({ children }: { children: ReactNode }) {
   // Get theme state and toggle function from context
@@ -21,7 +22,9 @@ export default function Layout({ children }: { children: ReactNode }) {
     >
       {/* Header */}
       <header className="w-full p-4 flex justify-between items-center sticky top-0 z-10 backdrop-blur-md bg-opacity-80">
-        <span className="text-sm font-mono opacity-50">Sanagi Labs</span>
+        <Link href="/" className="text-sm font-mono opacity-50 hover:underline">
+          Sanagi Labs
+        </Link>
         <button
           onClick={toggleDarkMode} // Use the function from context
           className={`p-2 rounded-full border transition-all duration-300 ${
