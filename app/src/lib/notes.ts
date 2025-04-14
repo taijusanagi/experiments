@@ -7,8 +7,14 @@ interface JupyterCell {
   source: string[] | string;
 }
 
+interface JupyterMetadata {
+  updated?: string | null;
+  created?: string | null;
+}
+
 interface JupyterNotebook {
   cells: JupyterCell[];
+  metadata: JupyterMetadata;
 }
 
 // Resolve the notes directory relative to the current working directory (project root)
@@ -34,36 +40,36 @@ export function getSortedNotesData(): NoteInfo[] {
     fileNames = fs.readdirSync(notesDirectory);
   } catch (error) {
     console.error("Error reading notes directory:", notesDirectory, error);
-    return []; // Return empty if directory doesn't exist or isn't readable
+    return [];
   }
 
   const allNotesData = fileNames
-    .filter((fileName) => fileName.endsWith(".ipynb")) // Ensure we only process notebook files
+    .filter((fileName) => fileName.endsWith(".ipynb"))
     .map((fileName) => {
-      // Remove ".ipynb" from file name to get slug
       const slug = fileName.replace(/\.ipynb$/, "");
       const title = formatSlugToTitle(slug);
+      const fullPath = path.join(notesDirectory, fileName);
 
-      // Optional: Get modification time
-      // try {
-      //   const fullPath = path.join(notesDirectory, fileName);
-      //   const stats = fs.statSync(fullPath);
-      //   return { slug, title, mtime: stats.mtime };
-      // } catch (statError) {
-      //   console.error(`Could not get stats for ${fileName}`, statError);
-      //   return { slug, title };
-      // }
-
-      return { slug, title };
+      try {
+        const raw = fs.readFileSync(fullPath, "utf8");
+        const json: JupyterNotebook = JSON.parse(raw);
+        const updated = json.metadata.updated || null;
+        return { slug, title, updated };
+      } catch (err) {
+        console.warn(`Could not parse metadata for ${fileName}`, err);
+        return { slug, title };
+      }
     });
 
-  // Sort notes by slug (alphabetically)
-  // Replace with date sort if mtime is added and desired:
-  // return allNotesData.sort((a, b) => (a.mtime && b.mtime ? (a.mtime < b.mtime ? 1 : -1) : 0));
-  return allNotesData.sort((a, b) => a.slug.localeCompare(b.slug));
+  return allNotesData.sort((a, b) => {
+    if (!a.updated || !b.updated) return 0;
+    return new Date(b.updated).getTime() - new Date(a.updated).getTime();
+  });
 }
 
-export function convertNotebookToMarkdown(notebookPath: string): string | null {
+export function extractMarkdownContentAndMetadata(
+  notebookPath: string
+): { content: string; metadata: JupyterMetadata } | null {
   try {
     const fullPath = path.resolve(process.cwd(), notebookPath);
 
@@ -74,7 +80,7 @@ export function convertNotebookToMarkdown(notebookPath: string): string | null {
 
     console.log("notebookData", notebookData);
 
-    return notebookData.cells
+    const content = notebookData.cells
       .map((cell) => {
         const content = Array.isArray(cell.source)
           ? cell.source.join("")
@@ -85,6 +91,8 @@ export function convertNotebookToMarkdown(notebookPath: string): string | null {
         return "";
       })
       .join("\n\n");
+
+    return { content, metadata: notebookData.metadata };
   } catch (err) {
     console.error("Failed to parse notebook:", err);
     return null;
