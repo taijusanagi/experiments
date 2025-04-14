@@ -20,8 +20,10 @@
     "react-syntax-highlighter": "^15.6.1",
     "rehype-katex": "^7.0.1",
     "rehype-raw": "^7.0.0",
+    "remark": "^15.0.1",
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
+    "strip-markdown": "^6.0.0",
     "tailwind-merge": "^3.2.0",
     "tw-animate-css": "^1.2.5"
   },
