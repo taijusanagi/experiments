@@ -109,6 +109,7 @@ const ColabIcon = () => (
 
 export default async function NotebookPage({ params }: Props) {
   const { slug } = await params;
+  // ... (data fetching logic remains the same) ...
   const notebookPath = path.join(notesDirectory, `${slug}.ipynb`);
   const noteData = extractMarkdownContentAndMetadata(notebookPath);
 
@@ -122,14 +123,11 @@ export default async function NotebookPage({ params }: Props) {
   const displayTitle = extractedTitle || formatSlugToTitle(slug);
   const { prev, next } = getNavigation(slug);
 
-  // --- Construct the Colab URL ---
-  // **UPDATED GITHUB_USERNAME**
   const GITHUB_USERNAME = "taijusanagi";
-  const REPO_NAME = "sanagi-labs"; // Keep this as is, or adjust if needed
+  const REPO_NAME = "sanagi-labs";
   const BRANCH = "main";
-  const NOTEBOOK_DIR_PATH = "notes/jupyter"; // Path from repo root
+  const NOTEBOOK_DIR_PATH = "notes/jupyter";
   const colabUrl = `https://colab.research.google.com/github/${GITHUB_USERNAME}/${REPO_NAME}/blob/${BRANCH}/${NOTEBOOK_DIR_PATH}/${slug}.ipynb`;
-  // --------------------------------
 
   return (
     <div className="w-full flex flex-col items-center px-4 py-8 md:py-12">
@@ -138,9 +136,10 @@ export default async function NotebookPage({ params }: Props) {
         <div className="mb-6 md:mb-8">
           <Link
             href="/notes"
-            className="inline-flex items-center text-sm text-neutral-600 dark:text-neutral-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors group"
+            className="inline-flex items-center text-sm text-neutral-600 dark:text-neutral-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors duration-300 ease-in-out group" // Standardized transition, removed translate
           >
-            <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
+            <ArrowLeft className="w-4 h-4 mr-2 transition-transform duration-300 ease-in-out group-hover:-translate-x-1" />{" "}
+            {/* Keep transform only on icon if desired */}
             Back to Notes
           </Link>
         </div>
@@ -148,44 +147,49 @@ export default async function NotebookPage({ params }: Props) {
         <article className="mb-16">
           {/* --- Page Header --- */}
           <header className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-neutral-800 dark:text-neutral-100 mb-3">
+            <h1 className="text-3xl md:text-4xl font-bold text-neutral-800 dark:text-neutral-100 mb-3 transition-colors duration-300 ease-in-out">
+              {" "}
+              {/* Added transition */}
               {displayTitle}
             </h1>
-            {/* --- UPDATED: Date and Colab Link Container --- */}
-            {/* Use flex, justify-between, items-center */}
-            <div className="flex justify-between items-center flex-wrap gap-y-2 text-sm text-neutral-500 dark:text-neutral-400">
+            <div className="flex justify-between items-center flex-wrap gap-y-2 text-sm text-neutral-500 dark:text-neutral-400 transition-colors duration-300 ease-in-out">
+              {" "}
+              {/* Added transition */}
               {formattedDate && (
                 <div className="flex items-center">
                   <CalendarDays className="w-4 h-4 mr-1.5 opacity-80" />
                   <span>{formattedDate}</span>
                 </div>
               )}
-              {/* If no date, add an empty div to maintain justify-between spacing */}
-              {!formattedDate && <div></div>}
-
-              {/* --- Open in Colab Link/Button (styling unchanged) --- */}
+              {!formattedDate && <div></div>} {/* Keep for spacing */}
+              {/* --- Open in Colab Link/Button --- */}
               <Link
                 href={colabUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors shadow-sm"
+                className="inline-flex items-center px-2.5 py-1 rounded-md border border-transparent
+                           bg-neutral-100 dark:bg-neutral-800/80
+                           hover:bg-neutral-200 dark:hover:bg-neutral-700/90
+                           hover:border-neutral-300 dark:hover:border-neutral-600/80
+                           text-neutral-700 dark:text-neutral-300
+                           hover:text-neutral-900 dark:hover:text-neutral-100
+                           transition-all duration-300 ease-in-out shadow-sm" // Added border on hover, standardized transition
                 aria-label="Open notebook in Google Colab"
               >
                 <ColabIcon />
                 Open in Colab
               </Link>
-              {/* ---------------------------------------- */}
             </div>
-            {/* ------------------------------------ */}
           </header>
 
           {/* --- Markdown Content --- */}
+          {/* Assuming prose styles handle internal transitions if any */}
           <div className="prose prose-lg lg:prose-xl dark:prose-invert max-w-none">
             <MarkdownRenderer content={content} />
           </div>
         </article>
 
-        {/* --- Revised Bottom Navigation Section (remains the same) --- */}
+        {/* --- Revised Bottom Navigation Section --- */}
         {(prev || next) && (
           <nav className="w-full pt-6 flex justify-between items-start gap-6 sm:gap-8">
             {/* Previous Link Area */}
@@ -193,13 +197,14 @@ export default async function NotebookPage({ params }: Props) {
               {prev && (
                 <Link
                   href={`/notes/${prev.slug}`}
+                  // Removed: p-2 -m-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors
                   className="group inline-block"
                 >
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors block mb-1">
+                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-300 ease-in-out block mb-1">
                     <ChevronLeft className="inline w-4 h-4 mr-1 align-text-bottom" />
                     Previous
                   </span>
-                  <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors block">
+                  <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors duration-300 ease-in-out block">
                     {prev.title}
                   </span>
                 </Link>
@@ -210,13 +215,14 @@ export default async function NotebookPage({ params }: Props) {
               {next && (
                 <Link
                   href={`/notes/${next.slug}`}
+                  // Removed: p-2 -m-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors
                   className="group inline-block"
                 >
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors block mb-1">
+                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-300 ease-in-out block mb-1">
                     Next
                     <ChevronRight className="inline w-4 h-4 ml-1 align-text-bottom" />
                   </span>
-                  <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors block">
+                  <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors duration-300 ease-in-out block">
                     {next.title}
                   </span>
                 </Link>
