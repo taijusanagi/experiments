@@ -8,12 +8,14 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import "katex/dist/katex.min.css";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { materialDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import { convertNotebookToMarkdown } from "@/lib/convertNotebookToMarkdown";
-
 const notebookDir = path.resolve(process.cwd(), "../notes/src");
 
 export async function generateStaticParams() {
+  // ... (generateStaticParams remains the same)
   const files = fs.readdirSync(notebookDir);
   return files
     .filter((file) => file.endsWith(".ipynb"))
@@ -31,18 +33,45 @@ export default async function NotebookPage({
   const notebookPath = path.join("../notes/src", `${slug}.ipynb`);
   const content = convertNotebookToMarkdown(notebookPath);
 
-  if (!content) {
-    notFound(); // 👈 this will render the 404 page
-  }
+  if (!content) notFound();
+
+  // Define the custom renderer for code blocks
+  const components = {
+    pre({ children }: any) {
+      return <div className="not-prose">{children}</div>;
+    },
+    code({ node, inline, className, children, ...props }: any) {
+      const match = /language-(\w+)/.exec(className || "");
+      return !inline && match ? (
+        <SyntaxHighlighter
+          style={materialDark}
+          language={match[1]}
+          // PreTag="div"
+          {...props}
+        >
+          {String(children).replace(/\n$/, "")}
+        </SyntaxHighlighter>
+      ) : (
+        // Inline code or code blocks without language
+        // will still get typography styles (usually desired)
+        <code className={className} {...props}>
+          {children}
+        </code>
+      );
+    },
+  };
 
   return (
-    <main className="prose dark:prose-invert mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">{slug}</h1>
+    <article className="prose mx-auto p-4">
+      {/* Typography styles applied here */}
+      <h1>{slug}</h1>
       <ReactMarkdown
         remarkPlugins={[remarkMath]}
-        rehypePlugins={[rehypeKatex, rehypeRaw]}
-        children={content}
-      />
-    </main>
+        rehypePlugins={[rehypeRaw, rehypeKatex]}
+        components={components} // Use the modified components
+      >
+        {content}
+      </ReactMarkdown>
+    </article>
   );
 }
