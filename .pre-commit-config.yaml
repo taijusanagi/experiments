@@ -1,15 +1,10 @@
 repos:
   - repo: local
     hooks:
-      - id: update-notebook-metadata
-        name: Update notebook metadata
-        entry: notes/update-notebook-metadata.py
-        language: script
-        files: \.ipynb$
-        exclude: ^\.ipynb_checkpoints/
-      - id: clean-notebook
-        name: Clean Jupyter notebook
-        entry: python notes/clean-notebook.py
-        language: system # Or "python" if you want pre-commit to manage dependencies
-        files: \.ipynb$
-        exclude: ^\.ipynb_checkpoints/
+      - id: format-jupyter-notebooks # Renamed ID
+        name: Format Jupyter Notebooks # Renamed Name
+        entry: python notes/format_notebook.py # Updated script name
+        language: system # Or python if you have specific dependencies like nbformat
+        types: [jupyter]
+        # You might need to specify nbformat if using language: python
+        # additional_dependencies: [nbformat]
