@@ -105,23 +105,6 @@ export default async function NotebookPage({ params }: Props) {
       {/* Main content article */}
       <article className="w-full max-w-3xl mb-12">
         {" "}
-        {/* Adjusted max-width */}
-        {/* Page Title */}
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-neutral-900 dark:text-neutral-100 mb-4 leading-tight">
-          {pageTitle}
-        </h1>
-        {/* Date/Metadata */}
-        {updated && (
-          <div className="text-base text-neutral-500 dark:text-neutral-400 mb-8">
-            Last updated:{" "}
-            {new Date(updated).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-            {/* Consider adding author or reading time here if available */}
-          </div>
-        )}
         {/* Markdown Content with Prose styling */}
         {/* Apply prose classes for automatic typography styling */}
         <div className="prose prose-lg lg:prose-xl dark:prose-invert max-w-none">
