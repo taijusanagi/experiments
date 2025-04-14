@@ -32,8 +32,7 @@ export default function Home() {
       {/* Tagline */}
       {/* Rely on inherited text color, prose classes, or specify if needed */}
       <p className="text-lg sm:text-xl mb-10 font-light text-neutral-500 dark:text-neutral-400">
-        Sanagi Labs is a space for learning, building, and soft experiments in
-        AI
+        a space for learning, building, and soft experiments in AI
       </p>
 
       {/* CTA Button */}
