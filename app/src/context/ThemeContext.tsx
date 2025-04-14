@@ -20,7 +20,7 @@ interface ThemeContextProps {
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
 // 3. Define the default theme: ALWAYS LIGHT mode on initial load
-const DEFAULT_THEME_IS_DARK = false;
+const DEFAULT_THEME_IS_DARK = true;
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   // 4. Initialize state with the default (LIGHT mode)
@@ -30,7 +30,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // This effect runs on the client after initial render and whenever darkMode changes.
     // It ensures the body class matches the current state.
-    const bodyClassList = document.body.classList;
+    const bodyClassList = document.documentElement.classList;
     bodyClassList.remove(darkMode ? "light" : "dark");
     bodyClassList.add(darkMode ? "dark" : "light");
 
