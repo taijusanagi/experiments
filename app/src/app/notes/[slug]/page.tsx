@@ -37,7 +37,7 @@ export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const slug = params.slug;
+  const { slug } = await params;
   const pageTitleForMetadata = formatSlugToTitle(slug);
   return {
     title: `${pageTitleForMetadata} | Sanagi Labs`,
@@ -58,7 +58,7 @@ function formatDate(dateString: string | null): string | null {
 }
 
 export default async function NotebookPage({ params }: Props) {
-  const slug = params.slug;
+  const { slug } = await params;
   const notebookPath = path.join(notesDirectory, `${slug}.ipynb`);
   const noteData = extractMarkdownContentAndMetadata(notebookPath);
 
