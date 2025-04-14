@@ -1,0 +1,11 @@
+repos:
+  - repo: local
+    hooks:
+      - id: update-notebook-metadata
+        name: Update notebook metadata
+        entry: notes/update-notebook-metadata.py # Make sure this path is correct!
+        language: python # <--- Change back
+        # Optional: Specify python version if needed
+        # python_version: python3.9
+        files: \.ipynb$
+        exclude: ^\.ipynb_checkpoints/
