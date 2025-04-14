@@ -10,7 +10,7 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react"; // Add Chevron icons
+} from "lucide-react";
 
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import {
@@ -53,6 +53,32 @@ function formatDate(dateString: string | null): string | null {
   }
 }
 
+// --- Simple Colab SVG Icon Component (remains the same) ---
+const ColabIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 350 350"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="inline-block mr-1.5 align-text-bottom"
+  >
+    <path
+      d="M175 350C271.65 350 350 271.65 350 175C350 78.3502 271.65 0 175 0C78.3502 0 0 78.3502 0 175C0 271.65 78.3502 350 175 350Z"
+      fill="#FBC02D"
+    ></path>
+    <path
+      d="M175 281.25C234.226 281.25 281.25 234.226 281.25 175C281.25 115.774 234.226 68.75 175 68.75C115.774 68.75 68.75 115.774 68.75 175C68.75 234.226 115.774 281.25 175 281.25Z"
+      fill="#fff"
+    ></path>
+    <path
+      d="M175 237.5C209.518 237.5 237.5 209.518 237.5 175C237.5 140.482 209.518 112.5 175 112.5C140.482 112.5 112.5 140.482 112.5 175C112.5 209.518 140.482 237.5 175 237.5Z"
+      fill="#E65100"
+    ></path>
+  </svg>
+);
+// ----------------------------------------
+
 export default async function NotebookPage({ params }: Props) {
   const { slug } = await params;
   const notebookPath = path.join(notesDirectory, `${slug}.ipynb`);
@@ -68,10 +94,19 @@ export default async function NotebookPage({ params }: Props) {
   const displayTitle = extractedTitle || formatSlugToTitle(slug);
   const { prev, next } = getNavigation(slug);
 
+  // --- Construct the Colab URL ---
+  // **UPDATED GITHUB_USERNAME**
+  const GITHUB_USERNAME = "taijusanagi";
+  const REPO_NAME = "sanagi-labs"; // Keep this as is, or adjust if needed
+  const BRANCH = "main";
+  const NOTEBOOK_DIR_PATH = "notes/src"; // Path from repo root
+  const colabUrl = `https://colab.research.google.com/github/${GITHUB_USERNAME}/${REPO_NAME}/blob/${BRANCH}/${NOTEBOOK_DIR_PATH}/${slug}.ipynb`;
+  // --------------------------------
+
   return (
     <div className="w-full flex flex-col items-center px-4 py-8 md:py-12">
       <div className="w-full max-w-4xl">
-        {/* --- Top Nav (Back Link) remains the same --- */}
+        {/* --- Top Nav (Back Link) --- */}
         <div className="mb-6 md:mb-8">
           <Link
             href="/notes"
@@ -83,42 +118,57 @@ export default async function NotebookPage({ params }: Props) {
         </div>
 
         <article className="mb-16">
-          {/* --- Page Header (Title, Date) remains the same --- */}
+          {/* --- Page Header --- */}
           <header className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-neutral-800 dark:text-neutral-100 mb-3">
               {displayTitle}
             </h1>
-            {formattedDate && (
-              <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400">
-                <CalendarDays className="w-4 h-4 mr-1.5 opacity-80" />
-                <span>Updated on {formattedDate}</span>
-              </div>
-            )}
+            {/* --- UPDATED: Date and Colab Link Container --- */}
+            {/* Use flex, justify-between, items-center */}
+            <div className="flex justify-between items-center flex-wrap gap-y-2 text-sm text-neutral-500 dark:text-neutral-400">
+              {formattedDate && (
+                <div className="flex items-center">
+                  <CalendarDays className="w-4 h-4 mr-1.5 opacity-80" />
+                  <span>{formattedDate}</span>
+                </div>
+              )}
+              {/* If no date, add an empty div to maintain justify-between spacing */}
+              {!formattedDate && <div></div>}
+
+              {/* --- Open in Colab Link/Button (styling unchanged) --- */}
+              <Link
+                href={colabUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors shadow-sm"
+                aria-label="Open notebook in Google Colab"
+              >
+                <ColabIcon />
+                Open in Colab
+              </Link>
+              {/* ---------------------------------------- */}
+            </div>
+            {/* ------------------------------------ */}
           </header>
 
-          {/* --- Markdown Content remains the same --- */}
+          {/* --- Markdown Content --- */}
           <div className="prose prose-lg lg:prose-xl dark:prose-invert max-w-none">
             <MarkdownRenderer content={content} />
           </div>
         </article>
 
-        {/* --- Revised Bottom Navigation Section --- */}
+        {/* --- Revised Bottom Navigation Section (remains the same) --- */}
         {(prev || next) && (
-          // Remove border-t, adjust padding-top (e.g., pt-6), use items-start for vertical alignment
           <nav className="w-full pt-6 flex justify-between items-start gap-6 sm:gap-8">
             {/* Previous Link Area */}
             <div className="flex-1 text-left">
-              {" "}
-              {/* Ensure text aligns left */}
               {prev && (
-                // Simpler Link: remove card styles (bg, border, padding, rounded, h-full)
                 <Link
                   href={`/notes/${prev.slug}`}
                   className="group inline-block"
                 >
                   <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors block mb-1">
-                    <ChevronLeft className="inline w-4 h-4 mr-1 align-text-bottom" />{" "}
-                    {/* Add icon */}
+                    <ChevronLeft className="inline w-4 h-4 mr-1 align-text-bottom" />
                     Previous
                   </span>
                   <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors block">
@@ -127,21 +177,16 @@ export default async function NotebookPage({ params }: Props) {
                 </Link>
               )}
             </div>
-
             {/* Next Link Area */}
             <div className="flex-1 text-right">
-              {" "}
-              {/* Ensure text aligns right */}
               {next && (
-                // Simpler Link: remove card styles
                 <Link
                   href={`/notes/${next.slug}`}
                   className="group inline-block"
                 >
                   <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors block mb-1">
                     Next
-                    <ChevronRight className="inline w-4 h-4 ml-1 align-text-bottom" />{" "}
-                    {/* Add icon */}
+                    <ChevronRight className="inline w-4 h-4 ml-1 align-text-bottom" />
                   </span>
                   <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors block">
                     {next.title}

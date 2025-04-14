@@ -56,7 +56,7 @@ export default function NotesIndexPage() {
                   {formattedDate && (
                     <div className="flex items-center text-xs text-neutral-500 dark:text-neutral-400 mb-3">
                       <CalendarDays className="w-3.5 h-3.5 mr-1.5 opacity-70 flex-shrink-0" />
-                      <span>Updated: {formattedDate}</span>
+                      <span>{formattedDate}</span>
                     </div>
                   )}
 
