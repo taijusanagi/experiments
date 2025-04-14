@@ -7,9 +7,9 @@ repos:
         language: script
         files: \.ipynb$
         exclude: ^\.ipynb_checkpoints/
-
-  - repo: https://github.com/kynan/nbstripout
-    rev: 0.8.1
-    hooks:
-      - id: nbstripout
-        args: ['--keep-output', '--drop-empty-cells']
+      - id: clean-notebook
+        name: Clean Jupyter notebook
+        entry: python notes/clean-notebook.py
+        language: system # Or "python" if you want pre-commit to manage dependencies
+        files: \.ipynb$
+        exclude: ^\.ipynb_checkpoints/

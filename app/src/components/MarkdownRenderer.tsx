@@ -63,6 +63,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
         remarkPlugins={[remarkMath]}
         rehypePlugins={[rehypeRaw, rehypeKatex]}
         components={components}
+        urlTransform={(value: string) => value}
       >
         {content}
       </ReactMarkdown>
