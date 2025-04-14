@@ -7,3 +7,9 @@ repos:
         language: script
         files: \.ipynb$
         exclude: ^\.ipynb_checkpoints/
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.8.1
+    hooks:
+      - id: nbstripout
+        args: ['--keep-output', '--drop-empty-cells']
