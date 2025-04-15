@@ -139,7 +139,7 @@ export default async function VibePage({ params }: Props) {
 
   return (
     <div className="w-full flex flex-col items-center px-4 py-8 md:py-12">
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-6xl">
         {/* Top Nav (Back Link) */}
         <div className="mb-6 md:mb-8">
           <Link
@@ -210,7 +210,43 @@ export default async function VibePage({ params }: Props) {
         {(prev || next) && (
           <nav className="w-full pt-6 flex justify-between items-start gap-6 sm:gap-8">
             {" "}
-            {/* ... Nav content ... */}{" "}
+            {/* Added border-top */}
+            {/* Previous Link Area */}
+            <div className="flex-1 text-left">
+              {prev && (
+                <Link
+                  href={`/vibes/${prev.slug}`} // Use /vibes/ path
+                  className="group inline-block" // Consistent with notes
+                >
+                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-300 ease-in-out block mb-1">
+                    <ChevronLeft className="inline w-4 h-4 mr-1 align-text-bottom" />
+                    Previous
+                  </span>
+                  <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors duration-300 ease-in-out block">
+                    {/* Use prev.title (assuming getVibeNavigation provides it) */}
+                    {prev.title || formatSlugToTitle(prev.slug)}
+                  </span>
+                </Link>
+              )}
+            </div>
+            {/* Next Link Area */}
+            <div className="flex-1 text-right">
+              {next && (
+                <Link
+                  href={`/vibes/${next.slug}`} // Use /vibes/ path
+                  className="group inline-block" // Consistent with notes
+                >
+                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-300 ease-in-out block mb-1">
+                    Next
+                    <ChevronRight className="inline w-4 h-4 ml-1 align-text-bottom" />
+                  </span>
+                  <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors duration-300 ease-in-out block">
+                    {/* Use next.title (assuming getVibeNavigation provides it) */}
+                    {next.title || formatSlugToTitle(next.slug)}
+                  </span>
+                </Link>
+              )}
+            </div>
           </nav>
         )}
       </div>
