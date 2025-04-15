@@ -5,7 +5,7 @@ import { Sun, Moon } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext"; // Adjust path if needed
 import Link from "next/link";
 
-export default function Layout({ children }: { children: ReactNode }) {
+export function DefaultLayout({ children }: { children: ReactNode }) {
   // Get theme state and toggle function from context
   const { darkMode, toggleDarkMode } = useTheme();
 

@@ -12,7 +12,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+
 import {
   getSortedNotesData,
   getNavigation,

@@ -1,7 +1,7 @@
 import { ThemeProvider } from "@/context/ThemeContext";
 import "./globals.css";
 import { Noto_Sans } from "next/font/google";
-import Layout from "@/components/Layout";
+import { DefaultLayout } from "@/components/DefaultLayout";
 
 const noto = Noto_Sans({
   subsets: ["latin"],
@@ -33,7 +33,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${noto.className} antialiased`}>
         <ThemeProvider>
-          <Layout>{children}</Layout>
+          <DefaultLayout>{children}</DefaultLayout>
         </ThemeProvider>
       </body>
     </html>

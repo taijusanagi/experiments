@@ -18,7 +18,7 @@ interface MarkdownRendererProps {
   content: string;
 }
 
-export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
+export function MarkdownRenderer({ content }: MarkdownRendererProps) {
   const { darkMode } = useTheme(); // Get the current theme state
 
   // Define the custom renderer for code blocks inside the client component
