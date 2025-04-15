@@ -1,7 +1,6 @@
 // src/app/vibes/[slug]/page.tsx
 import fs from "fs"; // Use Node.js fs module for reading directories
 import path from "path";
-import { notFound } from "next/navigation";
 import React from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -42,10 +41,10 @@ export async function generateStaticParams() {
 }
 
 // --- Props Type (Simplified for this page) ---
-type Props = { params: { slug: string } };
+type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // ... (logic to get title remains the same)
-  const { slug } = params;
+  const { slug } = await params;
   const displayTitle = `Vibe: ${formatSlugToTitle(slug)}`;
   return {
     title: `${displayTitle} | Your Site Name`,
@@ -55,8 +54,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 // --- The Page Component ---
-export default function VibePage({ params }: Props) {
-  const { slug } = params;
+export default async function VibePage({ params }: Props) {
+  const { slug } = await params;
   const displayTitle = `Vibe: ${formatSlugToTitle(slug)}`;
   const iframeSrc = `/vibes/${slug}/index.html`;
 

@@ -4,10 +4,13 @@ import React, { ReactNode } from "react";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext"; // Adjust path if needed
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function DefaultLayout({ children }: { children: ReactNode }) {
   // Get theme state and toggle function from context
   const { darkMode, toggleDarkMode } = useTheme();
+  const pathname = usePathname();
+  const hideFooter = pathname?.startsWith("/vibes/");
 
   return (
     <div
@@ -49,13 +52,15 @@ export function DefaultLayout({ children }: { children: ReactNode }) {
       </main>
 
       {/* Footer */}
-      <footer
-        className={`w-full text-sm text-center font-light py-4 ${
-          darkMode ? "text-neutral-600" : "text-neutral-500"
-        }`}
-      >
-        © {new Date().getFullYear()} Taiju Sanagi. All experiments welcome.
-      </footer>
+      {!hideFooter && (
+        <footer
+          className={`w-full text-sm text-center font-light py-4 ${
+            darkMode ? "text-neutral-600" : "text-neutral-500"
+          }`}
+        >
+          © {new Date().getFullYear()} Taiju Sanagi. All experiments welcome.
+        </footer>
+      )}
     </div>
   );
 }
