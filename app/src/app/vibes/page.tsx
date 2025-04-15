@@ -79,7 +79,7 @@ export default async function VibesIndexPage() {
                 </div>
 
                 {/* Bottom Link Area */}
-                <div className="flex items-center text-sm font-medium text-teal-600 dark:text-teal-400 mt-auto pt-2 group-hover:underline transition-colors duration-300 ease-in-out">
+                <div className="flex items-center text-sm font-medium text-teal-600 dark:text-teal-400 mt-auto pt-2 transition-colors duration-300 ease-in-out">
                   <ArrowUpRightSquare className="w-4 h-4 mr-2 opacity-80 flex-shrink-0" />
                   View Vibe
                 </div>

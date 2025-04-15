@@ -21,23 +21,23 @@ export function DefaultLayout({ children }: { children: ReactNode }) {
       }`}
     >
       {/* Header */}
-      <header className="w-full p-4 flex justify-between items-center dark:border-neutral-800">
-        {/* Left side: Logo */}
+      <header className="w-full p-4 flex justify-between items-center">
+        {/* Left side: Logo - make styling consistent with nav items */}
         <Link
           href="/"
-          className="text-sm font-mono opacity-60 hover:opacity-100 transition-opacity"
+          className={`text-sm font-medium opacity-60 transition-colors duration-300 ease-in-out ${
+            darkMode
+              ? "text-neutral-300 hover:text-teal-400"
+              : "text-neutral-700 hover:text-teal-600"
+          }`}
         >
           Sanagi Labs
         </Link>
 
         {/* Right side: Navigation + Theme Toggle */}
         <div className="flex items-center gap-6">
-          {" "}
-          {/* Container for right elements, adjust gap as needed */}
           <nav>
             <ul className="flex items-center gap-5">
-              {" "}
-              {/* Spacing between nav links */}
               <li>
                 <Link
                   href="/notes"
@@ -64,10 +64,10 @@ export function DefaultLayout({ children }: { children: ReactNode }) {
               </li>
             </ul>
           </nav>
-          {/* Theme Toggle Button (Now part of the right-side group) */}
+          {/* Theme Toggle Button remains the same */}
           <button
             onClick={toggleDarkMode} // Use the function from context
-            className={`p-2 rounded-full border transition-all duration-300 ${
+            className={`p-2 rounded-full border transition-all duration-300 cursor-pointer ${
               darkMode
                 ? "bg-neutral-800 border-teal-800 text-teal-400 hover:bg-neutral-700"
                 : "bg-neutral-100 border-teal-200 text-teal-600 hover:bg-neutral-200"
@@ -82,12 +82,10 @@ export function DefaultLayout({ children }: { children: ReactNode }) {
           </button>
         </div>
       </header>
-
       {/* Main content */}
       <main className="flex-1 flex flex-col items-center w-full">
         {children}
       </main>
-
       {/* Footer */}
       <footer
         className={`w-full text-sm text-center font-light py-4 mt-8 ${

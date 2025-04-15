@@ -68,7 +68,7 @@ export default function NotesIndexPage() {
                 </div>
 
                 {/* Bottom section: Read link */}
-                <div className="flex items-center text-sm font-medium text-teal-600 dark:text-teal-400 mt-auto pt-2 group-hover:underline transition-colors duration-300 ease-in-out">
+                <div className="flex items-center text-sm font-medium text-teal-600 dark:text-teal-400 mt-auto pt-2 transition-colors duration-300 ease-in-out">
                   {" "}
                   {/* Standard hover (underline), added transition */}
                   <BookOpenText className="w-4 h-4 mr-2 opacity-80 flex-shrink-0" />
