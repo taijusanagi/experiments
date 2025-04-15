@@ -37,7 +37,7 @@ export default async function VibesIndexPage() {
           {/* Destructure 'updated' */}
           {allVibes.map(({ slug, title, updated }) => {
             const detailUrl = `/vibes/${slug}`;
-            const iframeSrc = `/vibes-standalone/${slug}/index.html`;
+            const iframeSrc = `/vibes-standalone/${slug}`;
             const formattedDate = formatDate(updated);
 
             return (
