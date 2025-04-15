@@ -36,7 +36,11 @@ export async function getVibeDataFromHtml(
     return { title: title || fallbackTitle, updated: updated };
   } catch (error) {
     // Basic error logging, returns fallback
-    // console.warn(`[getVibeDataFromHtml] Error for slug "${slug}": ${error instanceof Error ? error.message : String(error)}`);
+    console.warn(
+      `[getVibeDataFromHtml] Error for slug "${slug}": ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
     return { title: fallbackTitle, updated: null };
   }
 }
@@ -107,29 +111,6 @@ export async function getVibeNavigation(slug: string): Promise<{
     prev: prevVibe ? { slug: prevVibe.slug, title: prevVibe.title } : null,
     next: nextVibe ? { slug: nextVibe.slug, title: nextVibe.title } : null,
   };
-}
-
-// --- Helper to read file content safely ---
-async function readFileContent(filePath: string): Promise<string | null> {
-  try {
-    // Check if file exists before attempting to read
-    if (!fs.existsSync(filePath)) {
-      return null; // Return null if file doesn't exist
-    }
-    return await fs.promises.readFile(filePath, "utf-8");
-  } catch (error) {
-    // Log errors other than file not found (ENOENT handled by existsSync)
-    if (
-      !(error instanceof Error && "code" in error && error.code === "ENOENT")
-    ) {
-      console.warn(
-        `Error reading file ${filePath}: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-    }
-    return null; // Return null on error
-  }
 }
 
 // --- DEDENT HELPER FUNCTION ---

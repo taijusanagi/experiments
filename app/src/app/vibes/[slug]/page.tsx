@@ -49,11 +49,13 @@ export async function generateStaticParams() {
 }
 
 // Props type... (unchanged)
-type Props = { params: { slug: string } };
+type Props = {
+  params: Promise<{ slug: string }>;
+};
 
 // generateMetadata... (implementation unchanged, already fetches title/date)
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = params;
+  const { slug } = await params;
   // Note: getVibeDataFromHtml is called again here, unavoidable without changing SSG structure significantly
   const { title: actualTitle, updated } = await getVibeDataFromHtml(slug);
   const siteName = "Sanagi Labs";
@@ -94,7 +96,7 @@ function formatDate(dateString: string | null): string | null {
  * using code extracted directly from index.html.
  */
 export default async function VibePage({ params }: Props) {
-  const { slug } = params;
+  const { slug } = await params;
 
   // Fetch metadata (title, date) and navigation data
   // Note: getVibeDataFromHtml might re-read the file, could optimize later if needed
