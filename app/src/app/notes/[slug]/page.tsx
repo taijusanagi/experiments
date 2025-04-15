@@ -109,7 +109,7 @@ export default async function NotebookPage({ params }: Props) {
   const { prev, next } = getNavigation(slug);
 
   const GITHUB_USERNAME = "taijusanagi";
-  const REPO_NAME = "sanagi-labs";
+  const REPO_NAME = "labs";
   const BRANCH = "main";
   const NOTEBOOK_DIR_PATH = "notes/jupyter";
   const colabUrl = `https://colab.research.google.com/github/${GITHUB_USERNAME}/${REPO_NAME}/blob/${BRANCH}/${NOTEBOOK_DIR_PATH}/${slug}.ipynb`;
