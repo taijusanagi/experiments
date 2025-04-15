@@ -23,7 +23,7 @@ export async function getVibeDataFromHtml(
   const htmlFilePath = path.join(
     process.cwd(),
     "public",
-    "vibes",
+    "vibes-standalone",
     slug,
     "index.html"
   );
@@ -48,7 +48,7 @@ export async function getVibeDataFromHtml(
 // getSortedVibesData function... (as before, ensure it's exported)
 export async function getSortedVibesData(): Promise<VibeData[]> {
   // ... implementation unchanged
-  const vibesDirectory = path.join(process.cwd(), "public", "vibes");
+  const vibesDirectory = path.join(process.cwd(), "public", "vibes-standalone");
   try {
     if (!fs.existsSync(vibesDirectory)) return [];
     const dirents = await fs.promises.readdir(vibesDirectory, {
@@ -201,7 +201,7 @@ export async function getVibeCodeForPrefill(slug: string): Promise<{
   const htmlPath = path.join(
     process.cwd(),
     "public",
-    "vibes",
+    "vibes-standalone",
     slug,
     "index.html"
   );

@@ -106,7 +106,7 @@ export default async function VibePage({ params }: Props) {
 
   const { title: displayTitle, updated: updatedDate } = vibeData;
   const formattedDate = formatDate(updatedDate);
-  const iframeSrc = `/vibes/${slug}/index.html`;
+  const iframeSrc = `/vibes-standalone/${slug}/index.html`;
 
   // --- Prepare JSON data for CodePen ---
   let jsonStringData: string | null = null;

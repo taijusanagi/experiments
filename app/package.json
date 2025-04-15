@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "cpx \"../vibes/html/**/*\" public/vibes && tsx src/scripts/ogp/generate.tsx",
+    "prebuild": "cpx \"../vibes/html/**/*\" public/vibes-standalone && tsx src/scripts/ogp/generate.tsx",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
