@@ -8,3 +8,8 @@ repos:
         types: [jupyter]
         # You might need to specify nbformat if using language: python
         # additional_dependencies: [nbformat]
+      - id: format_html
+        name: Format HTML
+        entry: node vibes/formatHtml.js
+        language: system
+        types: [html]
