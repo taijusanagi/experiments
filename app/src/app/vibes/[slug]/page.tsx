@@ -18,28 +18,8 @@ import {
   getSortedVibesData,
   getVibeCodeForPrefill,
 } from "@/lib/vibes";
-
-// --- NEW: CodePen Icon Component ---
-const CodePenIcon = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 100 100"
-    fill="none" // Use fill="none" and stroke="currentColor" for outline logos
-    stroke="currentColor" // Use currentColor for stroke
-    strokeWidth="7" // Adjust stroke width as needed
-    xmlns="http://www.w3.org/2000/svg"
-    className="inline-block mr-1.5 align-text-bottom" // Match ColabIcon classes
-  >
-    {/* CodePen Logo Outline Path Data - more standard representation */}
-    <path d="M50 92.5L6.2 63.1V36.9L50 7.5l43.8 29.4v26.2L50 92.5z" />
-    <path d="M50 68.1L6.2 38.7l43.8-29.4 43.8 29.4-43.8 29.4z" />
-    <path d="M50 7.5v29.4" />
-    <path d="M50 68.1v24.4" />
-    <path d="M93.8 36.9L50 52.5 6.2 36.9" />
-  </svg>
-);
-// ---------------------------------
+import { formatDate } from "@/lib/utils";
+import { CodePenIcon } from "@/components/CodePenIcon";
 
 // generateStaticParams... (implementation unchanged)
 export async function generateStaticParams() {
@@ -56,39 +36,49 @@ type Props = {
 // generateMetadata... (implementation unchanged, already fetches title/date)
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  // Note: getVibeDataFromHtml is called again here, unavoidable without changing SSG structure significantly
-  const { title: actualTitle, updated } = await getVibeDataFromHtml(slug);
   const siteName = "Sanagi Labs";
-  const pageTitle = `${actualTitle} | ${siteName}`;
-  const description = `Explore the interactive vibe '${actualTitle}' on ${siteName}. Updated: ${
-    updated ? formatDate(updated) : "N/A"
-  }.`;
+  const baseUrl = "https://taijusanagi.com"; // Replace with your actual domain
+
+  // Fetch Vibe data (title is essential for metadata)
+  const { title: actualTitle } = await getVibeDataFromHtml(slug);
+
+  // Use fetched title or create a fallback
+  const titleForMeta = actualTitle || formatSlugToTitle(slug);
+  const pageTitle = `${titleForMeta} | ${siteName}`;
+  const pageDescription = `Explore the interactive vibe '${titleForMeta}' on ${siteName}.`;
+  const pageUrl = `${baseUrl}/vibes/${slug}`;
+  const ogImageUrl = `${baseUrl}/ogp/${slug}.png`; // Assumes OGP image exists at this path
+
   return {
-    title: pageTitle,
-    description: description,
+    title: pageTitle, // For browser tab
+    description: pageDescription,
     openGraph: {
-      /* ... */
+      title: titleForMeta, // Title shown in social previews
+      description: pageDescription,
+      url: pageUrl,
+      siteName: siteName,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200, // Standard OGP image width
+          height: 630, // Standard OGP image height
+          alt: `${titleForMeta} OGP Image`,
+        },
+      ],
+      locale: "en_US", // Optional: Specify locale
+      type: "website", // 'website' is suitable for interactive pages/demos
     },
     twitter: {
-      /* ... */
+      card: "summary_large_image",
+      title: titleForMeta, // Title for Twitter card
+      description: pageDescription,
+      images: [ogImageUrl], // Image for Twitter card
+      // creator: "@YourTwitterHandle", // Optional: Add your Twitter handle
     },
+    // alternates: { // Optional: Add canonical URL
+    //   canonical: pageUrl,
+    // },
   };
-}
-
-// formatDate helper... (implementation unchanged)
-function formatDate(dateString: string | null): string | null {
-  // ...
-  if (!dateString) return null;
-  try {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch (e) {
-    console.error("Error formatting date:", dateString, e);
-    return null;
-  }
 }
 
 /**

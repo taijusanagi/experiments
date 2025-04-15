@@ -6,32 +6,12 @@ import { ArrowUpRightSquare, CalendarDays } from "lucide-react";
 import type { Metadata } from "next";
 // Import the data fetching function from the lib file
 import { getSortedVibesData } from "@/lib/vibes"; // Correct import
-
-// Removed VibeData interface definition
-
-// Helper Function: Format Date (Keep here or move to a shared utils file)
-function formatDate(dateString: string | null): string | null {
-  if (!dateString) return null;
-  try {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch (e) {
-    console.error("Error formatting date:", dateString, e);
-    return null;
-  }
-}
-
-// Removed getSortedVibesData function definition
+import { formatDate } from "@/lib/utils";
 
 // Metadata remains the same
 export const metadata: Metadata = {
   title: "Vibes | Sanagi Labs",
-  description:
-    "A collection of interactive web experiments and vibes by Sanagi Labs.",
-  // ... rest of metadata
+  description: "A collection of vibes by Sanagi Labs.",
 };
 
 /**

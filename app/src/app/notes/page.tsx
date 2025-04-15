@@ -3,20 +3,13 @@ import React from "react";
 import Link from "next/link";
 import { getSortedNotesData } from "@/lib/notes";
 import { BookOpenText, CalendarDays } from "lucide-react";
+import { formatDate } from "@/lib/utils";
+import { Metadata } from "next";
 
-function formatDate(dateString: string | null): string | null {
-  if (!dateString) return null;
-  try {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch (e) {
-    console.error("Error formatting date:", dateString, e);
-    return null;
-  }
-}
+export const metadata: Metadata = {
+  title: "Notes | Sanagi Labs",
+  description: "A collection of notes by Sanagi Labs.",
+};
 
 export default function NotesIndexPage() {
   const allNotes = getSortedNotesData();

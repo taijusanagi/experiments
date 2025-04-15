@@ -20,6 +20,8 @@ import {
   formatSlugToTitle,
   extractMarkdownContentAndMetadata,
 } from "@/lib/notes";
+import { formatDate } from "@/lib/utils";
+import { ColabIcon } from "@/components/ColabIcon";
 
 const notesDirectory = path.resolve(process.cwd(), "../notes/jupyter");
 
@@ -34,79 +36,61 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug } = await params; // Removed await as params is likely not a Promise here
+  const siteName = "Sanagi Labs"; // Define siteName
+  const baseUrl = "https://taijusanagi.com"; // Replace with your actual domain
 
   const notebookPath = path.join(notesDirectory, `${slug}.ipynb`);
   const noteData = extractMarkdownContentAndMetadata(notebookPath);
 
   if (!noteData) {
+    // Consider logging an error before calling notFound if helpful
+    console.error(
+      `Metadata generation failed: No note data found for slug "${slug}"`
+    );
     notFound();
   }
 
-  const pageTitleForMetadata =
-    noteData.extractedTitle || formatSlugToTitle(slug);
+  const titleForMeta = noteData.extractedTitle || formatSlugToTitle(slug);
+  // Use noteData.excerpt for description if available and preferred, otherwise generate one
+  const pageDescription = `Read the note '${titleForMeta}' on ${siteName}.`;
+  const pageUrl = `${baseUrl}/notes/${slug}`;
+  const ogImageUrl = `${baseUrl}/ogp/${slug}.png`; // Assumes OGP image exists
 
   return {
-    title: `${pageTitleForMetadata} | Sanagi Labs`,
+    title: `${titleForMeta} | ${siteName}`, // Full title for browser tab
+    description: pageDescription, // *** Corrected semicolon to comma here ***
     openGraph: {
-      title: pageTitleForMetadata,
-      type: "article",
-      url: `https://taijusanagi.com/notes/${slug}`,
+      title: titleForMeta, // Title shown in social previews
+      description: pageDescription,
+      url: pageUrl,
+      siteName: siteName,
       images: [
         {
-          url: `/ogp/${slug}.png`,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: `${pageTitleForMetadata} OGP`,
+          alt: `${titleForMeta} OGP Image`,
         },
       ],
+      locale: "en_US", // Optional
+      type: "article", // 'article' is suitable for notes/blog posts
+      // Optional: Add author, published_time etc. if available in noteData.metadata
+      // publishedTime: noteData.metadata?.updated || noteData.metadata?.created || undefined,
+      // authors: ['Taiju Sanagi'], // Or fetch from metadata
     },
     twitter: {
       card: "summary_large_image",
-      title: pageTitleForMetadata,
-      images: [`/ogp/${slug}.png`],
+      title: titleForMeta, // Title for Twitter card
+      description: pageDescription,
+      images: [ogImageUrl], // Image for Twitter card
+      // creator: "@YourTwitterHandle", // Optional
     },
+    // alternates: { // Optional: Add canonical URL
+    //   canonical: pageUrl,
+    // },
   };
 }
-function formatDate(dateString: string | null): string | null {
-  if (!dateString) return null;
-  try {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch (e) {
-    console.error("Error formatting date:", dateString, e);
-    return null;
-  }
-}
-
-// --- Simple Colab SVG Icon Component (remains the same) ---
-const ColabIcon = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 350 350"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="inline-block mr-1.5 align-text-bottom"
-  >
-    <path
-      d="M175 350C271.65 350 350 271.65 350 175C350 78.3502 271.65 0 175 0C78.3502 0 0 78.3502 0 175C0 271.65 78.3502 350 175 350Z"
-      fill="#FBC02D"
-    ></path>
-    <path
-      d="M175 281.25C234.226 281.25 281.25 234.226 281.25 175C281.25 115.774 234.226 68.75 175 68.75C115.774 68.75 68.75 115.774 68.75 175C68.75 234.226 115.774 281.25 175 281.25Z"
-      fill="#fff"
-    ></path>
-    <path
-      d="M175 237.5C209.518 237.5 237.5 209.518 237.5 175C237.5 140.482 209.518 112.5 175 112.5C140.482 112.5 112.5 140.482 112.5 175C112.5 209.518 140.482 237.5 175 237.5Z"
-      fill="#E65100"
-    ></path>
-  </svg>
-);
-// ----------------------------------------
 
 export default async function NotebookPage({ params }: Props) {
   const { slug } = await params;
