@@ -131,7 +131,7 @@ export default async function VibePage({ params }: Props) {
 
   return (
     <div className="w-full flex flex-col items-center px-4 py-8 md:py-12">
-      <div className="w-full max-w-6xl">
+      <div className="w-full max-w-4xl">
         {/* Top Nav (Back Link) */}
         <div className="mb-6 md:mb-8">
           <Link

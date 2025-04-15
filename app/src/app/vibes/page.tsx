@@ -22,7 +22,7 @@ export default async function VibesIndexPage() {
   const allVibes = await getSortedVibesData();
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-8 md:py-12">
+    <div className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12">
       <h1 className="text-4xl font-bold mb-10 text-center text-neutral-800 dark:text-neutral-100 transition-colors duration-300 ease-in-out">
         Vibes
       </h1>
