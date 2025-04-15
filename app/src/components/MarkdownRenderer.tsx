@@ -32,7 +32,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
     code({ inline, className, children, ...props }: any) {
       const match = /language-(\w+)/.exec(className || "");
       return !inline && match ? (
-        <div className="text-xs">
+        <div className="text-sm">
           <SyntaxHighlighter
             // Conditionally select the theme based on darkMode state
             style={darkMode ? oneDark : oneLight}
@@ -58,7 +58,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
     // The prose classes now work correctly because the ThemeProvider
     // puts 'dark' or 'light' on the body tag.
     // Ensure your tailwind.config.js has darkMode: 'class'
-    <article className="prose prose-sm dark:prose-invert max-w-none w-full">
+    <article className="prose lg:prose-lg dark:prose-invert max-w-none w-full">
       <ReactMarkdown
         remarkPlugins={[remarkMath]}
         rehypePlugins={[rehypeRaw, rehypeKatex]}

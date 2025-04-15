@@ -170,10 +170,7 @@ export default async function NotebookPage({ params }: Props) {
           </header>
 
           {/* --- Markdown Content --- */}
-          {/* Assuming prose styles handle internal transitions if any */}
-          <div className="prose prose-lg lg:prose-xl dark:prose-invert max-w-none">
-            <MarkdownRenderer content={content} />
-          </div>
+          <MarkdownRenderer content={content} />
         </article>
 
         {/* --- Revised Bottom Navigation Section --- */}
