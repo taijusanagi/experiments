@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta name="updated" content="2025-04-15T23:20:22.773Z" />
-    <meta name="created" content="2025-04-15T02:47:53.798Z" />
+    <meta name="updated" content="2025-04-15T23:46:44.452Z" />
+    <meta name="created" content="2025-04-15T23:46:44.452Z" />
     <meta charset="UTF-8" />
-    <title>Test Vibe</title>
+    <title>Interactive KNN 3D Visualization</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/examples/js/controls/OrbitControls.js"></script>
     <style>
       html,
       body {
@@ -14,47 +15,385 @@
         padding: 0;
         overflow: hidden;
         height: 100%;
-        background: #111;
+        background: #1a1a1a; /* Dark background */
+        color: #eee;
+        font-family: sans-serif;
       }
       canvas {
         display: block;
       }
+      #ui-container {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 15px;
+        border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px; /* Spacing between elements */
+        align-items: flex-start; /* Align items to the start */
+      }
+      #ui-container label {
+        display: block; /* Ensure labels are on their own line */
+        margin-bottom: 5px;
+      }
+      #ui-container button {
+        padding: 8px 12px;
+        cursor: pointer;
+        border: none;
+        border-radius: 3px;
+        margin-right: 5px; /* Spacing between buttons if inline */
+        min-width: 100px; /* Ensure buttons have some width */
+      }
+      #ui-container button.active {
+        background-color: #4caf50; /* Green background for active button */
+        color: white;
+      }
+      #ui-container .button-group {
+        margin-bottom: 10px; /* Space below button groups */
+      }
+      #kValueLabel {
+        margin-left: 10px;
+        min-width: 20px; /* Ensure space for the number */
+        display: inline-block; /* Keep it next to the slider */
+      }
+      #kSlider {
+        vertical-align: middle; /* Align slider with label */
+      }
+      #status {
+        margin-top: 10px;
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
+    <div id="ui-container">
+      <div class="button-group">
+        <label>Add Point Mode:</label>
+        <button id="addTrainClass0" class="mode-button active">
+          Train Class 0
+        </button>
+        <button id="addTrainClass1" class="mode-button">Train Class 1</button>
+        <button id="addTest" class="mode-button">Test Point</button>
+      </div>
+      <div>
+        <label for="kSlider">Number of Neighbors (k):</label>
+        <input type="range" id="kSlider" min="1" max="15" value="3" step="1" />
+        <span id="kValueLabel">3</span>
+      </div>
+      <div id="status">Click on the plane to add points.</div>
+    </div>
+
     <script>
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-      );
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+      let scene, camera, renderer, controls;
+      let raycaster, mouse;
+      let plane; // Ground plane for raycasting intersections
 
-      const geometry = new THREE.BoxGeometry();
-      const material = new THREE.MeshNormalMaterial();
-      const cube = new THREE.Mesh(geometry, material);
-      scene.add(cube);
+      const trainingPoints = []; // Array to store { position: Vector3, class: number, mesh: Mesh }
+      let testPoint = null; // Object to store { position: Vector3, mesh: Mesh }
+      const voteLines = []; // Array to store line meshes for cleanup
 
-      camera.position.z = 2;
+      let kValue = 3;
+      let addMode = "train0"; // 'train0', 'train1', 'test'
 
-      function animate() {
-        requestAnimationFrame(animate);
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
-        renderer.render(scene, camera);
-      }
+      const classColors = {
+        0: 0xff8888, // Reddish for class 0
+        1: 0x8888ff, // Bluish for class 1
+        test: 0xffffff, // White for test point
+        testPredicted0: 0xffcccc, // Lighter red prediction
+        testPredicted1: 0xccccff, // Lighter blue prediction
+      };
+      const pointSize = 0.1; // Radius of the spheres
 
+      init();
       animate();
 
-      window.addEventListener("resize", () => {
+      function init() {
+        // --- Scene Setup ---
+        scene = new THREE.Scene();
+
+        // --- Camera ---
+        camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1000
+        );
+        camera.position.set(0, 5, 7); // Position camera slightly above and back
+        camera.lookAt(0, 0, 0);
+
+        // --- Renderer ---
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio); // For sharper rendering
+        renderer.setClearColor(0x1a1a1a); // Match body background
+        document.body.appendChild(renderer.domElement);
+
+        // --- Lighting ---
+        const ambientLight = new THREE.AmbientLight(0xcccccc, 0.5); // Soft ambient light
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 10, 7.5);
+        scene.add(directionalLight);
+
+        // --- Controls ---
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooths rotation/zoom
+        controls.dampingFactor = 0.05;
+        controls.screenSpacePanning = false; // Pan in the XY plane
+        controls.maxPolarAngle = Math.PI / 2 - 0.05; // Limit looking directly down or below ground
+        controls.minDistance = 1;
+        controls.maxDistance = 50;
+
+        // --- Raycasting ---
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
+
+        // --- Ground Plane (for interaction) ---
+        // Invisible plane at y=0 for placing points
+        const planeGeometry = new THREE.PlaneGeometry(20, 20);
+        const planeMaterial = new THREE.MeshBasicMaterial({
+          color: 0x444444, // Visible gray plane
+          side: THREE.DoubleSide,
+          // visible: false // Make it invisible if preferred
+        });
+        plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.rotation.x = -Math.PI / 2; // Rotate to be horizontal
+        plane.position.y = -0.01; // Slightly below points
+        scene.add(plane);
+
+        // --- UI Event Listeners ---
+        const kSlider = document.getElementById("kSlider");
+        const kValueLabel = document.getElementById("kValueLabel");
+        kSlider.addEventListener("input", (event) => {
+          kValue = parseInt(event.target.value, 10);
+          kValueLabel.textContent = kValue;
+          updateKNN(); // Recalculate when k changes
+        });
+
+        const modeButtons = document.querySelectorAll(".mode-button");
+        modeButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            modeButtons.forEach((btn) => btn.classList.remove("active")); // Deactivate others
+            button.classList.add("active"); // Activate clicked one
+            addMode = button.id; // e.g., 'addTrainClass0', 'addTest'
+            document.getElementById(
+              "status"
+            ).textContent = `Mode: ${button.textContent}. Click on the plane.`;
+          });
+        });
+
+        // --- Mouse Click Listener ---
+        window.addEventListener("click", onMouseClick, false);
+
+        // --- Window Resize Listener ---
+        window.addEventListener("resize", onWindowResize);
+
+        // --- Add Initial Demo Points ---
+        addPoint(new THREE.Vector3(-2, pointSize, -1), 0);
+        addPoint(new THREE.Vector3(-1.5, pointSize, -1.5), 0);
+        addPoint(new THREE.Vector3(-2.5, pointSize, -0.5), 0);
+        addPoint(new THREE.Vector3(1, pointSize, 1.5), 1);
+        addPoint(new THREE.Vector3(2, pointSize, 1), 1);
+        addPoint(new THREE.Vector3(1.5, pointSize, 0.5), 1);
+        addPoint(new THREE.Vector3(1.8, pointSize, 1.8), 1);
+
+        // Add an initial test point
+        addPoint(new THREE.Vector3(0, pointSize, 0), -1, true); // Class -1 indicates test point
+
+        updateKNN(); // Initial calculation
+      }
+
+      function addPoint(position, classId, isTest = false) {
+        const geometry = new THREE.SphereGeometry(pointSize, 16, 16);
+        let color;
+        if (isTest) {
+          color = classColors.test;
+        } else {
+          color = classColors[classId];
+        }
+        const material = new THREE.MeshStandardMaterial({
+          color: color,
+          roughness: 0.7,
+        });
+        const sphere = new THREE.Mesh(geometry, material);
+        sphere.position.copy(position);
+        // Ensure points are visually slightly above the plane
+        sphere.position.y = Math.max(sphere.position.y, pointSize);
+
+        scene.add(sphere);
+
+        if (isTest) {
+          // Remove previous test point if exists
+          if (testPoint && testPoint.mesh) {
+            scene.remove(testPoint.mesh);
+            testPoint.mesh.geometry.dispose();
+            testPoint.mesh.material.dispose();
+          }
+          testPoint = { position: sphere.position, mesh: sphere };
+        } else {
+          trainingPoints.push({
+            position: sphere.position,
+            class: classId,
+            mesh: sphere,
+          });
+          // Ensure k slider max is not more than available training points
+          const kSlider = document.getElementById("kSlider");
+          kSlider.max = Math.max(1, trainingPoints.length); // At least 1
+          if (kValue > trainingPoints.length) {
+            kValue = trainingPoints.length;
+            kSlider.value = kValue;
+            document.getElementById("kValueLabel").textContent = kValue;
+          }
+        }
+      }
+
+      function onMouseClick(event) {
+        // Check if the click was on the UI, if so, ignore for placing points
+        if (document.getElementById("ui-container").contains(event.target)) {
+          return;
+        }
+
+        // Calculate mouse position in normalized device coordinates (-1 to +1)
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        // Update the picking ray with the camera and mouse position
+        raycaster.setFromCamera(mouse, camera);
+
+        // Calculate objects intersecting the picking ray
+        const intersects = raycaster.intersectObject(plane); // Intersect only with the ground plane
+
+        if (intersects.length > 0) {
+          const intersectPoint = intersects[0].point; // Get the world coordinate
+
+          // Add point based on current mode
+          if (addMode === "addTrainClass0") {
+            addPoint(intersectPoint, 0);
+          } else if (addMode === "addTrainClass1") {
+            addPoint(intersectPoint, 1);
+          } else if (addMode === "addTest") {
+            addPoint(intersectPoint, -1, true); // Use -1 class for test point marker
+          }
+
+          updateKNN(); // Recalculate after adding a point
+        }
+      }
+
+      function updateKNN() {
+        clearVoteLines(); // Clear previous lines
+
+        if (!testPoint || trainingPoints.length === 0) {
+          document.getElementById("status").textContent =
+            "Add a test point and some training points.";
+          if (testPoint && testPoint.mesh) {
+            testPoint.mesh.material.color.set(classColors.test); // Reset color if no training data
+          }
+          return;
+        }
+
+        // 1. Calculate distances
+        const distances = trainingPoints.map((trainPoint) => {
+          const dist = testPoint.position.distanceTo(trainPoint.position);
+          return { point: trainPoint, distance: dist };
+        });
+
+        // 2. Sort by distance
+        distances.sort((a, b) => a.distance - b.distance);
+
+        // 3. Select k nearest neighbors
+        const neighbors = distances.slice(
+          0,
+          Math.min(kValue, trainingPoints.length)
+        ); // Ensure k isn't > trainingPoints.length
+
+        if (neighbors.length === 0) {
+          document.getElementById("status").textContent =
+            "No neighbors found (or k=0?).";
+          testPoint.mesh.material.color.set(classColors.test); // Reset color
+          return;
+        }
+
+        // 4. Vote
+        const votes = { 0: 0, 1: 0 };
+        neighbors.forEach((neighbor) => {
+          votes[neighbor.point.class]++;
+        });
+
+        let predictedClass = -1; // -1 means undecided or tie
+        if (votes[0] > votes[1]) {
+          predictedClass = 0;
+        } else if (votes[1] > votes[0]) {
+          predictedClass = 1;
+        } else {
+          // Handle tie - often pick the closest neighbor's class in case of a tie
+          if (neighbors.length > 0) {
+            predictedClass = neighbors[0].point.class;
+          }
+        }
+
+        // 5. Visualize
+        drawVoteLines(
+          testPoint,
+          neighbors.map((n) => n.point)
+        );
+
+        // Update status and test point color
+        let statusText = `Test point neighbors (k=${kValue}): Class 0: ${votes[0]}, Class 1: ${votes[1]}. `;
+        if (predictedClass !== -1) {
+          statusText += ` Predicted Class: ${predictedClass}.`;
+          // Update test point color based on prediction
+          testPoint.mesh.material.color.set(
+            predictedClass === 0
+              ? classColors.testPredicted0
+              : classColors.testPredicted1
+          );
+        } else {
+          statusText += ` Prediction: Undecided (tie).`;
+          testPoint.mesh.material.color.set(classColors.test); // Reset to default if tie
+        }
+        document.getElementById("status").textContent = statusText;
+      }
+
+      function drawVoteLines(targetPoint, neighborPoints) {
+        const material = new THREE.LineBasicMaterial({
+          color: 0x00ff00,
+          linewidth: 2,
+        }); // Green lines
+
+        neighborPoints.forEach((neighbor) => {
+          const points = [];
+          points.push(targetPoint.position); // Start at test point
+          points.push(neighbor.position); // End at neighbor
+
+          const geometry = new THREE.BufferGeometry().setFromPoints(points);
+          const line = new THREE.Line(geometry, material);
+          scene.add(line);
+          voteLines.push(line); // Store for later removal
+        });
+      }
+
+      function clearVoteLines() {
+        voteLines.forEach((line) => {
+          scene.remove(line);
+          line.geometry.dispose();
+          line.material.dispose();
+        });
+        voteLines.length = 0; // Clear the array
+      }
+
+      function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-      });
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update(); // Only required if controls.enableDamping = true
+        renderer.render(scene, camera);
+      }
     </script>
   </body>
 </html>
