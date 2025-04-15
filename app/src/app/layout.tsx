@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@/context/ThemeContext";
 import "./globals.css";
 import { Noto_Sans } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { DefaultLayout } from "@/components/DefaultLayout";
 
 const noto = Noto_Sans({
@@ -35,6 +36,7 @@ export default function RootLayout({
         <ThemeProvider>
           <DefaultLayout>{children}</DefaultLayout>
         </ThemeProvider>
+        <GoogleAnalytics gaId="G-W9Q0NSFK9F" />
       </body>
     </html>
   );
