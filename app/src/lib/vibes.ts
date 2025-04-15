@@ -3,24 +3,23 @@ import fs from "fs";
 import path from "path";
 import * as cheerio from "cheerio";
 
-// --- Define VibeData interface here ---
+// Interface VibeData (ensure it's exported or accessible)
 export interface VibeData {
   slug: string;
   title: string;
   updated: string | null;
 }
 
-// --- Helper Function: Format Slug to Title (Fallback) ---
-// (Keep this if it's used elsewhere, otherwise it could be removed if only getVibeDataFromHtml uses it internally)
+// formatSlugToTitle function... (as before)
 export function formatSlugToTitle(slug: string): string {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
-// --- Helper Function: Get Title AND Updated Date from Vibe's HTML ---
-// (This remains largely the same)
+// getVibeDataFromHtml function... (as before)
 export async function getVibeDataFromHtml(
   slug: string
 ): Promise<{ title: string; updated: string | null }> {
+  // ... implementation unchanged
   const htmlFilePath = path.join(
     process.cwd(),
     "public",
@@ -28,76 +27,42 @@ export async function getVibeDataFromHtml(
     slug,
     "index.html"
   );
-  const fallbackTitle = formatSlugToTitle(slug); // Use formatted slug as default title
-
+  const fallbackTitle = formatSlugToTitle(slug);
   try {
     const htmlContent = await fs.promises.readFile(htmlFilePath, "utf-8");
     const $ = cheerio.load(htmlContent);
     const title = $("title").first().text().trim();
     const updated = $('meta[name="updated"]').attr("content")?.trim() || null;
-
-    return {
-      title: title || fallbackTitle,
-      updated: updated,
-    };
+    return { title: title || fallbackTitle, updated: updated };
   } catch (error) {
-    if (error instanceof Error && "code" in error && error.code !== "ENOENT") {
-      console.warn(
-        `[getVibeDataFromHtml] Error reading or parsing data for vibe "${slug}": ${error.message}` // Added function context
-      );
-    } else if (
-      !(error instanceof Error && "code" in error && error.code === "ENOENT")
-    ) {
-      console.warn(
-        `[getVibeDataFromHtml] Non-standard error reading/parsing data for vibe "${slug}":`, // Added function context
-        error
-      );
-    }
+    // Basic error logging, returns fallback
+    // console.warn(`[getVibeDataFromHtml] Error for slug "${slug}": ${error instanceof Error ? error.message : String(error)}`);
     return { title: fallbackTitle, updated: null };
   }
 }
 
-// --- MOVED & EXPORTED: Fetches and SORTS vibe data by date ---
-/**
- * Fetches data for all vibes, including titles and updated dates,
- * and sorts them by date (newest first).
- */
+// getSortedVibesData function... (as before, ensure it's exported)
 export async function getSortedVibesData(): Promise<VibeData[]> {
+  // ... implementation unchanged
   const vibesDirectory = path.join(process.cwd(), "public", "vibes");
   try {
-    // Check if directory exists
-    if (!fs.existsSync(vibesDirectory)) {
-      console.warn(
-        `[getSortedVibesData] Vibes directory not found: ${vibesDirectory}`
-      );
-      return [];
-    }
-
+    if (!fs.existsSync(vibesDirectory)) return [];
     const dirents = await fs.promises.readdir(vibesDirectory, {
       withFileTypes: true,
     });
     const directories = dirents.filter((dirent) => dirent.isDirectory());
-
-    if (directories.length === 0) {
-      console.log(
-        `[getSortedVibesData] No subdirectories found in ${vibesDirectory}`
-      );
-      return [];
-    }
+    if (directories.length === 0) return [];
 
     const vibeDataPromises = directories.map(
       async (dirent): Promise<VibeData> => {
         const slug = dirent.name;
-        // Calls the other helper function in this library file
         const { title, updated } = await getVibeDataFromHtml(slug);
         return { slug, title, updated };
       }
     );
-
     const allVibesData = await Promise.all(vibeDataPromises);
-
-    // Sorting Logic (same as before)
     allVibesData.sort((a, b) => {
+      // Sort logic unchanged
       if (a.updated && !b.updated) return -1;
       if (!a.updated && b.updated) return 1;
       if (a.updated && b.updated) {
@@ -107,15 +72,39 @@ export async function getSortedVibesData(): Promise<VibeData[]> {
       }
       return a.title.localeCompare(b.title);
     });
-
     return allVibesData;
   } catch (error) {
     console.error(
-      `[getSortedVibesData] Error fetching vibes data: ${
-        // Updated log source
+      `[getSortedVibesData] Error: ${
         error instanceof Error ? error.message : String(error)
       }`
     );
-    return []; // Return empty array on error
+    return [];
   }
+}
+
+// --- NEW: getVibeNavigation ---
+/**
+ * Gets the previous and next vibe based on the sorted list (by date).
+ */
+export async function getVibeNavigation(slug: string): Promise<{
+  prev: { slug: string; title: string } | null;
+  next: { slug: string; title: string } | null;
+}> {
+  const allVibes = await getSortedVibesData(); // Get vibes sorted by date
+  const currentIndex = allVibes.findIndex((vibe) => vibe.slug === slug);
+
+  if (currentIndex === -1) {
+    console.warn(`[getVibeNavigation] Slug "${slug}" not found.`);
+    return { prev: null, next: null };
+  }
+
+  const prevVibe = currentIndex > 0 ? allVibes[currentIndex - 1] : null;
+  const nextVibe =
+    currentIndex < allVibes.length - 1 ? allVibes[currentIndex + 1] : null;
+
+  return {
+    prev: prevVibe ? { slug: prevVibe.slug, title: prevVibe.title } : null,
+    next: nextVibe ? { slug: nextVibe.slug, title: nextVibe.title } : null,
+  };
 }
