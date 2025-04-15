@@ -152,16 +152,18 @@ export default async function NotebookPage({ params }: Props) {
                 href={colabUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                // Key classes for internal alignment: inline-flex items-center
                 className="inline-flex items-center px-2.5 py-1 rounded-md border border-transparent
-                           bg-neutral-100 dark:bg-neutral-800/80
-                           hover:bg-neutral-200 dark:hover:bg-neutral-700/90
-                           hover:border-neutral-300 dark:hover:border-neutral-600/80
-                           text-neutral-700 dark:text-neutral-300
-                           hover:text-neutral-900 dark:hover:text-neutral-100
-                           transition-all duration-300 ease-in-out shadow-sm" // Added border on hover, standardized transition
+                          bg-neutral-100 dark:bg-neutral-800/80
+                          hover:bg-neutral-200 dark:hover:bg-neutral-700/90
+                          hover:border-neutral-300 dark:hover:border-neutral-600/80
+                          text-neutral-700 dark:text-neutral-300
+                          hover:text-neutral-900 dark:hover:text-neutral-100
+                          transition-all duration-300 ease-in-out shadow-sm"
                 aria-label="Open notebook in Google Colab"
               >
-                <ColabIcon />
+                {/* Pass size and margin class, NO align-text-bottom needed here */}
+                <ColabIcon className="w-5 h-5 mr-1.5 transform -translate-y-[-0.5px]" />
                 Open in Colab
               </Link>
             </div>
