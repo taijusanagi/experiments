@@ -132,7 +132,78 @@ async function readFileContent(filePath: string): Promise<string | null> {
   }
 }
 
-// --- NEW: Function to get code snippets for CodePen Prefill ---
+// --- DEDENT HELPER FUNCTION ---
+/**
+ * Removes common leading whitespace from each line of a multiline string.
+ * Handles cases where some lines might have less indentation (e.g., blank lines).
+ */
+function dedent(str: string | null): string | null {
+  if (!str) return null;
+
+  const lines = str.split("\n");
+  let minIndent: number | null = null;
+
+  // First pass: find the minimum indentation of non-blank lines
+  lines.forEach((line) => {
+    const match = line.match(/^(\s*)\S/); // Find leading whitespace before first non-whitespace char
+    if (match) {
+      // If the line has non-whitespace content
+      const indentLength = match[1].length;
+      if (minIndent === null || indentLength < minIndent) {
+        minIndent = indentLength;
+      }
+    }
+  });
+
+  // If no common indentation found (minIndent is null or 0)
+  if (minIndent === null || minIndent === 0) {
+    // Trim only leading/trailing blank lines
+    let firstLine = 0;
+    while (firstLine < lines.length && lines[firstLine].match(/^\s*$/)) {
+      firstLine++;
+    }
+    let lastLine = lines.length - 1;
+    while (lastLine >= firstLine && lines[lastLine].match(/^\s*$/)) {
+      lastLine--;
+    }
+    // Handle case where all lines were blank
+    if (firstLine > lastLine) return "";
+    // Return original content, but vertically trimmed
+    return lines.slice(firstLine, lastLine + 1).join("\n");
+  }
+
+  // Second pass: remove the minimum indentation from each line
+  const dedentedLines = lines.map((line) => {
+    // --- FIX for TypeScript ---
+    // Check if the line starts with whitespace before slicing.
+    // The slice method itself handles lines shorter than minIndent in JS,
+    // but this check makes the intent clearer and might satisfy stricter TS rules.
+    if (line.match(/^\s/)) {
+      // Slice off the calculated minimum indentation
+      return line.slice(minIndent as number);
+    }
+    // Otherwise (blank lines, lines already at margin), return as is
+    return line;
+    // --- END FIX ---
+  });
+
+  // Trim leading/trailing blank lines potentially left by split/dedent
+  let firstLine = 0;
+  while (
+    firstLine < dedentedLines.length &&
+    dedentedLines[firstLine].match(/^\s*$/)
+  ) {
+    firstLine++;
+  }
+  let lastLine = dedentedLines.length - 1;
+  while (lastLine >= firstLine && dedentedLines[lastLine].match(/^\s*$/)) {
+    lastLine--;
+  }
+  // Handle case where all lines became blank after dedent
+  if (firstLine > lastLine) return "";
+
+  return dedentedLines.slice(firstLine, lastLine + 1).join("\n");
+}
 /**
  * Reads a vibe's index.html file and extracts content for CodePen prefill:
  * - HTML: Inner HTML of the <body> tag, *with all <script> tags removed*.
@@ -141,9 +212,9 @@ async function readFileContent(filePath: string): Promise<string | null> {
  * - JS External: Semicolon-separated URLs from <script src="..."> tags.
  */
 export async function getVibeCodeForPrefill(slug: string): Promise<{
-  htmlBodyContent: string | null; // Body HTML *without* scripts
-  css: string | null;
-  js: string | null;
+  htmlBodyContent: string | null;
+  css: string | null; // Will be dedented CSS
+  js: string | null; // Will be dedented JS
   js_external: string | null;
 }> {
   const htmlPath = path.join(
@@ -155,46 +226,53 @@ export async function getVibeCodeForPrefill(slug: string): Promise<{
   );
 
   let htmlBodyContent: string | null = null;
-  let css: string | null = null;
-  let js: string | null = null; // Will hold embedded script content
+  let rawCss: string | null = null; // Store raw CSS
+  let css: string | null = null; // Store final dedented CSS
+  let rawJs: string | null = null; // Store raw JS
+  let js: string | null = null; // Store final dedented JS
   const jsExternalUrls: string[] = [];
 
   try {
-    // Check if file exists first
     if (!fs.existsSync(htmlPath)) {
       console.warn(`[getVibeCodeForPrefill] HTML file not found: ${htmlPath}`);
-      return { htmlBodyContent: null, css: null, js: null, js_external: null };
+      return { htmlBodyContent: "", css: null, js: null, js_external: null };
     }
 
     const htmlContent = await fs.promises.readFile(htmlPath, "utf-8");
     const $ = cheerio.load(htmlContent);
 
-    // 1. Extract CSS (from first <style> tag) - Do this first
-    css = $("style").first().html()?.trim() || null;
+    // 1. Extract RAW CSS (using .text())
+    rawCss = $("style").first().text() || null;
 
-    // 2. Extract JS (from first embedded <script>) and external URLs - Do this second
+    // --- Apply dedent to CSS ---
+    css = dedent(rawCss);
+    // ---------------------------
+
+    // 2. Extract RAW JS and external URLs
     $("script").each((index, element) => {
       const scriptElement = $(element);
       const src = scriptElement.attr("src");
       if (src) {
         jsExternalUrls.push(src);
-      } else if (js === null) {
-        // Store the first embedded script's content
-        js = scriptElement.html()?.trim() || null;
+      } else if (rawJs === null) {
+        rawJs = scriptElement.text() || null;
       }
     });
+
+    // --- Apply dedent to JS ---
+    js = dedent(rawJs);
+    // --------------------------
 
     // 3. Prepare HTML body content *without* any script tags
     const bodyElement = $("body");
     if (bodyElement.length > 0) {
-      const clonedBody = bodyElement.clone(); // Clone the body element
-      clonedBody.find("script").remove(); // Find and remove ALL script tags within the clone
-      htmlBodyContent = clonedBody.html()?.trim() ?? ""; // Get HTML of the modified clone, default to empty string if null/undefined
+      const clonedBody = bodyElement.clone();
+      clonedBody.find("script").remove();
+      htmlBodyContent = clonedBody.html() ?? "";
     } else {
-      htmlBodyContent = ""; // Default to empty string if no body tag found
+      htmlBodyContent = "";
     }
   } catch (error) {
-    // Handle errors during file reading or parsing
     if (
       !(error instanceof Error && "code" in error && error.code === "ENOENT")
     ) {
@@ -204,13 +282,17 @@ export async function getVibeCodeForPrefill(slug: string): Promise<{
         }`
       );
     }
-    return { htmlBodyContent: null, css: null, js: null, js_external: null }; // Return nulls on error
+    return { htmlBodyContent: "", css: null, js: null, js_external: null };
   }
 
-  // 4. Format external JS URLs
   const js_external =
     jsExternalUrls.length > 0 ? jsExternalUrls.join(";") : null;
 
-  // Return extracted CSS, embedded JS, external JS, and the *cleaned* body HTML
-  return { htmlBodyContent, css, js, js_external };
+  // Return extracted *dedented* CSS, *dedented* JS, external JS, and cleaned body HTML
+  return {
+    htmlBodyContent: htmlBodyContent || "",
+    css: css, // Use the processed (dedented) CSS
+    js: js, // Use the processed (dedented) JS
+    js_external,
+  };
 }
