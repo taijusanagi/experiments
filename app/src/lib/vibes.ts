@@ -108,3 +108,109 @@ export async function getVibeNavigation(slug: string): Promise<{
     next: nextVibe ? { slug: nextVibe.slug, title: nextVibe.title } : null,
   };
 }
+
+// --- Helper to read file content safely ---
+async function readFileContent(filePath: string): Promise<string | null> {
+  try {
+    // Check if file exists before attempting to read
+    if (!fs.existsSync(filePath)) {
+      return null; // Return null if file doesn't exist
+    }
+    return await fs.promises.readFile(filePath, "utf-8");
+  } catch (error) {
+    // Log errors other than file not found (ENOENT handled by existsSync)
+    if (
+      !(error instanceof Error && "code" in error && error.code === "ENOENT")
+    ) {
+      console.warn(
+        `Error reading file ${filePath}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+    return null; // Return null on error
+  }
+}
+
+// --- NEW: Function to get code snippets for CodePen Prefill ---
+/**
+ * Reads a vibe's index.html file and extracts content for CodePen prefill:
+ * - HTML: Inner HTML of the <body> tag, *with all <script> tags removed*.
+ * - CSS: Content of the first <style> tag.
+ * - JS: Content of the first embedded <script> tag (no src).
+ * - JS External: Semicolon-separated URLs from <script src="..."> tags.
+ */
+export async function getVibeCodeForPrefill(slug: string): Promise<{
+  htmlBodyContent: string | null; // Body HTML *without* scripts
+  css: string | null;
+  js: string | null;
+  js_external: string | null;
+}> {
+  const htmlPath = path.join(
+    process.cwd(),
+    "public",
+    "vibes",
+    slug,
+    "index.html"
+  );
+
+  let htmlBodyContent: string | null = null;
+  let css: string | null = null;
+  let js: string | null = null; // Will hold embedded script content
+  const jsExternalUrls: string[] = [];
+
+  try {
+    // Check if file exists first
+    if (!fs.existsSync(htmlPath)) {
+      console.warn(`[getVibeCodeForPrefill] HTML file not found: ${htmlPath}`);
+      return { htmlBodyContent: null, css: null, js: null, js_external: null };
+    }
+
+    const htmlContent = await fs.promises.readFile(htmlPath, "utf-8");
+    const $ = cheerio.load(htmlContent);
+
+    // 1. Extract CSS (from first <style> tag) - Do this first
+    css = $("style").first().html()?.trim() || null;
+
+    // 2. Extract JS (from first embedded <script>) and external URLs - Do this second
+    $("script").each((index, element) => {
+      const scriptElement = $(element);
+      const src = scriptElement.attr("src");
+      if (src) {
+        jsExternalUrls.push(src);
+      } else if (js === null) {
+        // Store the first embedded script's content
+        js = scriptElement.html()?.trim() || null;
+      }
+    });
+
+    // 3. Prepare HTML body content *without* any script tags
+    const bodyElement = $("body");
+    if (bodyElement.length > 0) {
+      const clonedBody = bodyElement.clone(); // Clone the body element
+      clonedBody.find("script").remove(); // Find and remove ALL script tags within the clone
+      htmlBodyContent = clonedBody.html()?.trim() ?? ""; // Get HTML of the modified clone, default to empty string if null/undefined
+    } else {
+      htmlBodyContent = ""; // Default to empty string if no body tag found
+    }
+  } catch (error) {
+    // Handle errors during file reading or parsing
+    if (
+      !(error instanceof Error && "code" in error && error.code === "ENOENT")
+    ) {
+      console.error(
+        `[getVibeCodeForPrefill] Error processing HTML for slug "${slug}": ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+    return { htmlBodyContent: null, css: null, js: null, js_external: null }; // Return nulls on error
+  }
+
+  // 4. Format external JS URLs
+  const js_external =
+    jsExternalUrls.length > 0 ? jsExternalUrls.join(";") : null;
+
+  // Return extracted CSS, embedded JS, external JS, and the *cleaned* body HTML
+  return { htmlBodyContent, css, js, js_external };
+}

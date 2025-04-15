@@ -16,6 +16,7 @@ import {
   formatSlugToTitle,
   getVibeNavigation,
   getSortedVibesData,
+  getVibeCodeForPrefill,
 } from "@/lib/vibes";
 
 // --- NEW: CodePen Icon Component ---
@@ -89,29 +90,58 @@ function formatDate(dateString: string | null): string | null {
 }
 
 /**
- * Renders the individual vibe page with CodePen button.
+ * Renders the individual vibe page with CodePen Prefill Form button,
+ * using code extracted directly from index.html.
  */
 export default async function VibePage({ params }: Props) {
   const { slug } = params;
-  // Fetch title, date, AND codepenUrl
+
+  // Fetch metadata (title, date) and navigation data
+  // Note: getVibeDataFromHtml might re-read the file, could optimize later if needed
   const vibeData = await getVibeDataFromHtml(slug);
   const { prev, next } = await getVibeNavigation(slug);
 
+  // --- Fetch Parsed Code Content for Prefill ---
+  const { htmlBodyContent, css, js, js_external } = await getVibeCodeForPrefill(
+    slug
+  );
+  // ---------------------------------------------
+
   if (!vibeData) {
+    // Check basic data first
     notFound();
   }
 
-  // Destructure all needed data
   const { title: displayTitle, updated: updatedDate } = vibeData;
   const formattedDate = formatDate(updatedDate);
   const iframeSrc = `/vibes/${slug}/index.html`;
 
+  // --- Prepare JSON data for CodePen ---
+  let jsonStringData: string | null = null;
+  // Check if we have *any* code content to send before stringifying
+  if (htmlBodyContent || css || js || js_external) {
+    const prefillData = {
+      title: displayTitle || formatSlugToTitle(slug), // Use fetched title
+      html: htmlBodyContent || "", // Use extracted body HTML
+      css: css || "", // Use extracted <style> content
+      js: js || "", // Use extracted embedded <script> content
+      js_external: js_external || "", // Pass semicolon-separated external script URLs
+    };
+    try {
+      // Ensure quotes within the code are handled correctly by JSON.stringify
+      jsonStringData = JSON.stringify(prefillData);
+    } catch (e) {
+      console.error("Failed to stringify prefill data for CodePen:", e);
+      jsonStringData = null;
+    }
+  }
+  // -----------------------------------
+
   return (
     <div className="w-full flex flex-col items-center px-4 py-8 md:py-12">
       <div className="w-full max-w-4xl">
-        {/* Top Nav (Back Link) - unchanged */}
+        {/* Top Nav (Back Link) */}
         <div className="mb-6 md:mb-8">
-          {/* ... Back Link ... */}
           <Link
             href="/vibes"
             className="inline-flex items-center text-sm text-neutral-600 dark:text-neutral-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors duration-300 ease-in-out group"
@@ -121,52 +151,49 @@ export default async function VibePage({ params }: Props) {
         </div>
 
         <article className="mb-16">
-          {/* Page Header - unchanged structure */}
+          {/* Page Header */}
           <header className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-neutral-800 dark:text-neutral-100 mb-3 transition-colors duration-300 ease-in-out">
               {displayTitle}
             </h1>
-            {/* Header Meta Row - Date and CodePen Button */}
+            {/* Header Meta Row */}
             <div className="flex justify-between items-center flex-wrap gap-y-2 text-sm text-neutral-500 dark:text-neutral-400 transition-colors duration-300 ease-in-out">
-              {/* Date Display - unchanged */}
+              {/* Date Display */}
               {formattedDate && (
                 <div className="flex items-center">
                   <CalendarDays className="w-4 h-4 mr-1.5 opacity-80" />
                   <span>{formattedDate}</span>
                 </div>
               )}
-              {/* Placeholder for spacing if date missing */}
               {!formattedDate && <div className="h-[20px]"></div>}
 
-              {/* --- Open in CodePen Link/Button --- */}
-              {true ? ( // Conditionally render if URL exists
-                <Link
-                  href={"/"}
+              {/* --- CodePen Prefill Form Button --- */}
+              {jsonStringData ? ( // Render only if we successfully prepared the JSON data
+                <form
+                  action="https://codepen.io/pen/define"
+                  method="POST"
                   target="_blank"
-                  rel="noopener noreferrer"
-                  // --- EXACT styling from Note page's Colab button ---
-                  className="inline-flex items-center px-2.5 py-1 rounded-md border border-transparent
-                             bg-neutral-100 dark:bg-neutral-800/80
-                             hover:bg-neutral-200 dark:hover:bg-neutral-700/90
-                             hover:border-neutral-300 dark:hover:border-neutral-600/80
-                             text-neutral-700 dark:text-neutral-300
-                             hover:text-neutral-900 dark:hover:text-neutral-100
-                             transition-all duration-300 ease-in-out shadow-sm"
-                  // ----------------------------------------------------
-                  aria-label="Open vibe in CodePen"
+                  className="inline-block"
                 >
-                  <CodePenIcon /> {/* Use the new icon */}
-                  Open in CodePen
-                </Link>
+                  <input type="hidden" name="data" value={jsonStringData} />
+                  <button
+                    type="submit"
+                    className="inline-flex items-center px-2.5 py-1 rounded-md border border-transparent bg-neutral-100 dark:bg-neutral-800/80 hover:bg-neutral-200 dark:hover:bg-neutral-700/90 hover:border-neutral-300 dark:hover:border-neutral-600/80 text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-all duration-300 ease-in-out shadow-sm"
+                    aria-label="Create a new CodePen with this vibe's code"
+                  >
+                    <CodePenIcon />
+                    Open in CodePen
+                  </button>
+                </form>
               ) : (
-                // If no codepenUrl, render empty div to maintain layout spacing
+                // Fallback if no code found or stringify failed
                 <div></div>
               )}
               {/* ------------------------------------ */}
             </div>
           </header>
 
-          {/* Main Content Area: Iframe - unchanged */}
+          {/* Main Content Area: Iframe */}
           <div className="mt-8">
             <div className="w-full aspect-video rounded-lg overflow-hidden shadow-lg bg-neutral-100 dark:bg-neutral-900">
               <iframe
@@ -179,47 +206,11 @@ export default async function VibePage({ params }: Props) {
           </div>
         </article>
 
-        {/* Bottom Navigation - unchanged */}
+        {/* Bottom Navigation */}
         {(prev || next) && (
           <nav className="w-full pt-6 flex justify-between items-start gap-6 sm:gap-8">
-            {/* Previous Link Area */}
-            <div className="flex-1 text-left">
-              {prev && (
-                <Link
-                  href={`/vibes/${prev.slug}`}
-                  className="group inline-block"
-                >
-                  {" "}
-                  {/* ... Prev link content ... */}{" "}
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-300 ease-in-out block mb-1">
-                    <ChevronLeft className="inline w-4 h-4 mr-1 align-text-bottom" />
-                    Previous
-                  </span>
-                  <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors duration-300 ease-in-out block">
-                    {prev.title}
-                  </span>
-                </Link>
-              )}
-            </div>
-            {/* Next Link Area */}
-            <div className="flex-1 text-right">
-              {next && (
-                <Link
-                  href={`/vibes/${next.slug}`}
-                  className="group inline-block"
-                >
-                  {" "}
-                  {/* ... Next link content ... */}{" "}
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-300 ease-in-out block mb-1">
-                    Next
-                    <ChevronRight className="inline w-4 h-4 ml-1 align-text-bottom" />
-                  </span>
-                  <span className="text-lg font-semibold text-neutral-700 dark:text-neutral-200 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors duration-300 ease-in-out block">
-                    {next.title}
-                  </span>
-                </Link>
-              )}
-            </div>
+            {" "}
+            {/* ... Nav content ... */}{" "}
           </nav>
         )}
       </div>
