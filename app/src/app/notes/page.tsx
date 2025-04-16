@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { getSortedNotesData } from "@/lib/notes";
 import { BookOpenText, CalendarDays } from "lucide-react";
-import { formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/date";
 import { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/metadata";
 

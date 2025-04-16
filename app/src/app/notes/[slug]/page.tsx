@@ -20,8 +20,8 @@ import {
   formatSlugToTitle,
   extractMarkdownContentAndMetadata,
 } from "@/lib/notes";
-import { formatDate } from "@/lib/utils";
-import { ColabIcon } from "@/components/ColabIcon";
+import { formatDate } from "@/lib/date";
+import { ColabIcon } from "@/components/Icons";
 import { buildPageMetadata } from "@/lib/metadata";
 
 const notesDirectory = path.resolve(process.cwd(), "../notes/jupyter");

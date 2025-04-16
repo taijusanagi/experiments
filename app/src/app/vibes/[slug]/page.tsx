@@ -18,8 +18,8 @@ import {
   getSortedVibesData,
   getVibeCodeForPrefill,
 } from "@/lib/vibes";
-import { formatDate } from "@/lib/utils";
-import { CodePenIcon } from "@/components/CodePenIcon";
+import { formatDate } from "@/lib/date";
+import { CodePenIcon } from "@/components/Icons";
 import { buildPageMetadata } from "@/lib/metadata";
 
 // generateStaticParams... (implementation unchanged)

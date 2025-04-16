@@ -6,7 +6,7 @@ import { ArrowUpRightSquare, CalendarDays } from "lucide-react";
 import type { Metadata } from "next";
 // Import the data fetching function from the lib file
 import { getSortedVibesData } from "@/lib/vibes"; // Correct import
-import { formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/date";
 import { buildPageMetadata } from "@/lib/metadata";
 
 // Metadata remains the same

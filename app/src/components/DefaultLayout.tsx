@@ -6,30 +6,29 @@ import { useTheme } from "@/context/ThemeContext"; // Adjust path if needed
 import Link from "next/link";
 
 export function DefaultLayout({ children }: { children: ReactNode }) {
-  // Get theme state and toggle function from context
+  // We still need context for:
+  // 1. The toggle function itself (onClick)
+  // 2. Knowing which icon (Sun/Moon) to display
   const { darkMode, toggleDarkMode } = useTheme();
 
   // Get the current year
   const currentYear = new Date().getFullYear();
 
   return (
+    // Apply base (light mode) styles and dark: prefixed styles
     <div
-      className={`min-h-screen flex flex-col transition-colors duration-500 ${
-        darkMode
-          ? "bg-[#1e1e1e] text-[#e5e5e5]" // Slightly softer dark bg and text
-          : "bg-[#fdfdfd] text-[#1a1a1a]" // Cleaner light mode contrast
-      }`}
+      className="min-h-screen flex flex-col transition-colors duration-500
+                 bg-[#fdfdfd] text-[#1a1a1a]
+                 dark:bg-[#1e1e1e] dark:text-[#e5e5e5]"
     >
       {/* Header */}
       <header className="w-full p-4 flex justify-between items-center">
-        {/* Left side: Logo - make styling consistent with nav items */}
+        {/* Left side: Logo */}
         <Link
           href="/"
-          className={`text-sm font-medium opacity-60 transition-colors duration-300 ease-in-out ${
-            darkMode
-              ? "text-neutral-300 hover:text-teal-400"
-              : "text-neutral-700 hover:text-teal-600"
-          }`}
+          className="text-sm font-medium opacity-60 transition-colors duration-300 ease-in-out
+                     text-neutral-700 hover:text-teal-600
+                     dark:text-neutral-300 dark:hover:text-teal-400"
         >
           Sanagi Labs
         </Link>
@@ -41,11 +40,9 @@ export function DefaultLayout({ children }: { children: ReactNode }) {
               <li>
                 <Link
                   href="/notes"
-                  className={`text-sm font-medium transition-colors duration-300 ease-in-out ${
-                    darkMode
-                      ? "text-neutral-300 hover:text-teal-400"
-                      : "text-neutral-700 hover:text-teal-600"
-                  }`}
+                  className="text-sm font-medium transition-colors duration-300 ease-in-out
+                             text-neutral-700 hover:text-teal-600
+                             dark:text-neutral-300 dark:hover:text-teal-400"
                 >
                   Notes
                 </Link>
@@ -53,27 +50,24 @@ export function DefaultLayout({ children }: { children: ReactNode }) {
               <li>
                 <Link
                   href="/vibes"
-                  className={`text-sm font-medium transition-colors duration-300 ease-in-out ${
-                    darkMode
-                      ? "text-neutral-300 hover:text-teal-400"
-                      : "text-neutral-700 hover:text-teal-600"
-                  }`}
+                  className="text-sm font-medium transition-colors duration-300 ease-in-out
+                             text-neutral-700 hover:text-teal-600
+                             dark:text-neutral-300 dark:hover:text-teal-400"
                 >
                   Vibes
                 </Link>
               </li>
             </ul>
           </nav>
-          {/* Theme Toggle Button remains the same */}
+          {/* Theme Toggle Button */}
           <button
-            onClick={toggleDarkMode} // Use the function from context
-            className={`p-2 rounded-full border transition-all duration-300 cursor-pointer ${
-              darkMode
-                ? "bg-neutral-800 border-teal-800 text-teal-400 hover:bg-neutral-700"
-                : "bg-neutral-100 border-teal-200 text-teal-600 hover:bg-neutral-200"
-            }`}
+            onClick={toggleDarkMode} // This function MUST now toggle the 'dark' class on <html> or <body>
+            className="p-2 rounded-full border transition-all duration-300 cursor-pointer
+                       bg-neutral-100 border-teal-200 text-teal-600 hover:bg-neutral-200
+                       dark:bg-neutral-800 dark:border-teal-800 dark:text-teal-400 dark:hover:bg-neutral-700"
             aria-label="Toggle dark mode"
           >
+            {/* Icon display still needs the darkMode state from context */}
             {darkMode ? (
               <Sun className="w-5 h-5" />
             ) : (
@@ -88,10 +82,9 @@ export function DefaultLayout({ children }: { children: ReactNode }) {
       </main>
       {/* Footer */}
       <footer
-        className={`w-full text-sm text-center font-light py-4 mt-8 ${
-          // Added margin-top for spacing
-          darkMode ? "text-neutral-600" : "text-neutral-500"
-        }`}
+        className="w-full text-sm text-center font-light py-4 mt-8
+                   text-neutral-500
+                   dark:text-neutral-600" // Added margin-top for spacing
       >
         © {currentYear} Taiju Sanagi. All experiments welcome.
       </footer>
