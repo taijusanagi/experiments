@@ -496,13 +496,15 @@ export function extractNotebookContentAndMetadata(notebookSlug: string): {
 export async function getContentTypeAndBaseMeta(slug: string): Promise<{
   type: "notebook" | "htmlPage" | "notFound";
   title: string;
-  description?: string;
+  description: string;
 }> {
   const notebookPath = path.join(NOTEBOOKS_DIR, `${slug}.ipynb`);
   if (fs.existsSync(notebookPath)) {
     const noteData = extractNotebookContentAndMetadata(slug);
     const title = noteData?.extractedTitle || formatSlugToTitle(slug);
-    const description = `Detailed notes on '${title}'. Explore insights and technical learnings.`;
+
+    const description = `AI/ML Experiments: Some notes and ideas on '${title}' shared by Taiju Sanagi.`;
+
     return { type: "notebook", title, description };
   }
 
@@ -512,11 +514,16 @@ export async function getContentTypeAndBaseMeta(slug: string): Promise<{
       htmlPath
     );
     const title = extractedTitle || formatSlugToTitle(slug);
-    const description = `Explore '${title}', an interactive demo/vibe.`;
+    const description = `AI/ML Experiments: Play with '${title}', an interactive demo made by Taiju Sanagi`;
+
     return { type: "htmlPage", title, description };
   }
 
-  return { type: "notFound", title: formatSlugToTitle(slug) };
+  return {
+    type: "notFound",
+    title: `Not Found: ${formatSlugToTitle(slug)}`,
+    description: "Not Found",
+  };
 }
 
 export async function getAllSortedContent(): Promise<CombinedContentItem[]> {

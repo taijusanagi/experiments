@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return buildPageMetadata({
     title: title,
-    description: description || `Explore content related to ${title}.`,
+    description: description,
     pagePath: pagePath,
     ogType: ogType,
   });
@@ -436,7 +436,7 @@ export default async function SlugPage({ params }: Props) {
             className="inline-flex items-center text-sm text-neutral-500 hover:text-teal-400 transition-colors duration-200 ease-in-out group"
           >
             <ArrowLeft className="w-4 h-4 mr-1.5 transition-transform duration-200 ease-in-out group-hover:-translate-x-0.5" />
-            Back to Dev Hub
+            Back to Experiments
           </Link>
         </div>
         <article className="mb-16">

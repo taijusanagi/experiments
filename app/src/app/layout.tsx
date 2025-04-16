@@ -27,7 +27,7 @@ export default function RootLayout({
               href="/"
               className="text-sm font-medium transition-colors duration-200 ease-in-out text-neutral-400 hover:text-teal-400"
             >
-              Sanagi Labs
+              Taiju Sanagi: Experiments
             </Link>
           </header>
           <main className="flex-1 flex flex-col items-center w-full">

@@ -25,9 +25,8 @@ interface ContentItem {
 }
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Content Hub",
   description:
-    "Explore interactive demos, technical notes, software experiments, and reflections.",
+    "Playing with AI/ML: Explore Taiju Sanagi's experiments, interactive bits, and dev notes.",
   pagePath: "/",
   ogType: "website",
 });

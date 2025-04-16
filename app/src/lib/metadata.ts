@@ -1,7 +1,7 @@
 // lib/metadata.ts
 import { Metadata } from "next";
 
-const SITE_NAME = "Sanagi Labs";
+const SITE_NAME = "Taiju Sanagi: Experiments";
 const BASE_URL = "https://taijusanagi.com";
 const DEFAULT_LOCALE = "en_US";
 const OGP_IMAGE_WIDTH = 1200;
