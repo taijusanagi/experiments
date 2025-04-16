@@ -50,7 +50,8 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
         </code>
       );
     },
-    a({ node, href, children, ...props }: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    a({ href, children, ...props }: any) {
       const basePattern = "https://taijusanagi.com/vibes/";
       // Check if the href exists and starts with the base pattern
       if (href && href.startsWith(basePattern)) {
