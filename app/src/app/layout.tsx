@@ -1,12 +1,21 @@
 // src/app/layout.tsx
 import "./globals.css";
-import { Noto_Sans } from "next/font/google";
+import { Inter, IBM_Plex_Mono } from "next/font/google";
+
 import { GoogleAnalytics } from "@next/third-parties/google";
 import Link from "next/link";
 
-const noto = Noto_Sans({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-mono",
+  display: "swap",
 });
 
 export default function RootLayout({
@@ -19,21 +28,22 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${noto.className} antialiased selection:bg-teal-400/30`}
+        className={`${inter.variable} ${plexMono.variable} font-sans antialiased selection:bg-emerald-400/40`}
       >
-        <div className="min-h-screen flex flex-col bg-neutral-950 text-neutral-300 overflow-x-hidden">
-          <header className="w-full px-4 py-3 flex justify-between items-center border-b border-neutral-800/60 sticky top-0 bg-neutral-950/85 backdrop-blur-sm z-10">
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-neutral-950 via-neutral-900 to-black text-neutral-300 overflow-x-hidden">
+          <header className="w-full px-5 py-4 flex justify-between items-center border-b border-neutral-800/50 sticky top-0 bg-neutral-950/90 backdrop-blur-md z-10">
             <Link
               href="/"
-              className="text-sm font-medium transition-colors duration-200 ease-in-out text-neutral-400 hover:text-teal-400"
+              className="font-mono text-base font-bold tracking-tight transition-colors duration-200 ease-in-out text-neutral-200 hover:text-emerald-400"
             >
-              Taiju Sanagi: Experiments
+              Taiju Sanagi:{" "}
+              <span className="opacity-80 font-medium">Experiments</span>
             </Link>
           </header>
           <main className="flex-1 flex flex-col items-center w-full">
             {children}
           </main>
-          <footer className="w-full text-xs text-center font-normal py-4 mt-10 text-neutral-600 border-t border-neutral-800/60">
+          <footer className="w-full text-xs text-center font-normal py-5 mt-12 text-neutral-500 border-t border-neutral-800/50">
             © {currentYear} Taiju Sanagi. Experiments in progress...
           </footer>
         </div>

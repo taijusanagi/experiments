@@ -20,7 +20,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import remarkMath from "remark-math";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"; // Reverted theme
 
 import {
   extractMetadataFromHtmlFile,
@@ -145,16 +145,16 @@ export default async function SlugPage({ params }: Props) {
 
       if (codeNode?.tagName === "code" && match && codeContent) {
         return (
-          <div className="relative my-6 group">
+          <div className="relative my-6 group shadow-lg shadow-black/20">
             <SyntaxHighlighter
               style={vscDarkPlus}
               language={match[1]}
               PreTag="div"
-              className="!p-4 !bg-neutral-900/80 border border-neutral-800 rounded-md overflow-x-auto text-sm"
+              className="!p-4 !bg-neutral-900/80 border border-neutral-800 rounded-lg overflow-x-auto text-sm leading-relaxed"
             >
               {String(codeContent).replace(/\n$/, "")}
             </SyntaxHighlighter>
-            <div className="absolute top-2 right-2">
+            <div className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <CopyButton textToCopy={codeContent} />
             </div>
           </div>
@@ -162,7 +162,7 @@ export default async function SlugPage({ params }: Props) {
       } else {
         return (
           <pre
-            className="p-4 bg-neutral-900/80 border border-neutral-800 rounded-md overflow-x-auto text-sm my-6"
+            className="p-4 bg-neutral-800/50 border border-neutral-700/60 rounded-lg overflow-x-auto text-sm my-6 font-mono text-neutral-300"
             {...props}
           >
             {children}
@@ -174,7 +174,7 @@ export default async function SlugPage({ params }: Props) {
       if (inline) {
         return (
           <code
-            className="bg-neutral-700/50 text-neutral-300 px-1 py-0.5 rounded-sm text-[0.9em] font-mono"
+            className="bg-neutral-700/60 text-neutral-200 px-1.5 py-0.5 rounded-md text-[0.85em] font-mono mx-0.5"
             {...props}
           >
             {children}
@@ -195,7 +195,7 @@ export default async function SlugPage({ params }: Props) {
         ) {
           const iframeSrc = `https://taijusanagi.com/standalone/${slugPart}`;
           return (
-            <div className="my-6 w-full aspect-video rounded-md overflow-hidden shadow-xl shadow-black/30 bg-black/20 border border-neutral-800">
+            <div className="my-8 w-full aspect-video rounded-lg overflow-hidden shadow-xl shadow-black/40 bg-black/30 border border-neutral-700/80">
               <iframe
                 src={iframeSrc}
                 width="100%"
@@ -212,34 +212,22 @@ export default async function SlugPage({ params }: Props) {
         href && (href.startsWith("http") || href.startsWith("//"));
       const isInternal = href && href.startsWith("/");
 
-      if (isInternal) {
-        return (
-          <Link
-            href={href}
-            className="text-teal-400 hover:text-teal-300 hover:underline underline-offset-2 transition-colors duration-150"
-            {...props}
-          >
-            {children}
-          </Link>
-        );
-      }
-
       return (
-        <a
-          href={href}
+        <Link
+          href={href || "#"}
           target={isExternal ? "_blank" : undefined}
           rel={isExternal ? "noopener noreferrer" : undefined}
-          className="text-teal-400 hover:text-teal-300 hover:underline underline-offset-2 transition-colors duration-150"
+          className="text-emerald-400 hover:text-emerald-300 hover:underline underline-offset-4 decoration-emerald-400/50 hover:decoration-emerald-300 transition-colors duration-150 font-medium"
           {...props}
         >
           {children}
-        </a>
+        </Link>
       );
     },
     h1({ node, children, ...props }: any) {
       return (
         <h1
-          className="text-3xl font-semibold text-neutral-100 mt-10 mb-4"
+          className="font-mono text-3xl font-bold text-neutral-100 mt-12 mb-5 border-b border-neutral-700/50 pb-3"
           {...props}
         >
           {children}
@@ -249,7 +237,7 @@ export default async function SlugPage({ params }: Props) {
     h2({ node, children, ...props }: any) {
       return (
         <h2
-          className="text-2xl font-semibold text-neutral-100 mt-8 mb-3"
+          className="font-mono text-2xl font-semibold text-neutral-100 mt-10 mb-4"
           {...props}
         >
           {children}
@@ -259,7 +247,7 @@ export default async function SlugPage({ params }: Props) {
     h3({ node, children, ...props }: any) {
       return (
         <h3
-          className="text-xl font-semibold text-neutral-200 mt-6 mb-2"
+          className="font-mono text-xl font-semibold text-neutral-200 mt-8 mb-3"
           {...props}
         >
           {children}
@@ -289,7 +277,10 @@ export default async function SlugPage({ params }: Props) {
         }
       }
       return (
-        <p className="text-neutral-300 leading-relaxed my-5" {...props}>
+        <p
+          className="text-neutral-300 leading-relaxed my-5 text-base"
+          {...props}
+        >
           {children}
         </p>
       );
@@ -297,7 +288,7 @@ export default async function SlugPage({ params }: Props) {
     ul({ node, children, ...props }: any) {
       return (
         <ul
-          className="list-disc list-outside pl-6 my-5 space-y-2 text-neutral-300"
+          className="list-disc list-outside pl-5 my-5 space-y-2.5 text-neutral-300"
           {...props}
         >
           {children}
@@ -307,7 +298,7 @@ export default async function SlugPage({ params }: Props) {
     ol({ node, children, ...props }: any) {
       return (
         <ol
-          className="list-decimal list-outside pl-6 my-5 space-y-2 text-neutral-300"
+          className="list-decimal list-outside pl-5 my-5 space-y-2.5 text-neutral-300"
           {...props}
         >
           {children}
@@ -324,7 +315,7 @@ export default async function SlugPage({ params }: Props) {
     blockquote({ node, children, ...props }: any) {
       return (
         <blockquote
-          className="border-l-4 border-neutral-700 pl-4 py-2 my-6 text-neutral-400 italic"
+          className="border-l-4 border-emerald-500/70 pl-5 pr-4 py-3 my-7 bg-neutral-800/30 rounded-r-md text-neutral-300 italic shadow-inner shadow-black/10"
           {...props}
         >
           {children}
@@ -332,11 +323,11 @@ export default async function SlugPage({ params }: Props) {
       );
     },
     hr({ node, ...props }: any) {
-      return <hr className="border-neutral-700 my-8" {...props} />;
+      return <hr className="border-neutral-700/60 my-10" {...props} />;
     },
     strong({ node, children, ...props }: any) {
       return (
-        <strong className="font-semibold text-neutral-200" {...props}>
+        <strong className="font-semibold text-neutral-100" {...props}>
           {children}
         </strong>
       );
@@ -350,16 +341,16 @@ export default async function SlugPage({ params }: Props) {
     },
     img({ node, src, alt, ...props }: any) {
       return (
-        <figure className="my-6">
+        <figure className="my-8">
           <img
             src={src}
             alt={alt || ""}
-            className="max-w-full h-auto rounded-md border border-neutral-800 block mx-auto"
+            className="max-w-full h-auto rounded-lg border border-neutral-700/80 block mx-auto shadow-md shadow-black/25"
             loading="lazy"
             {...props}
           />
           {alt && (
-            <figcaption className="text-center text-xs text-neutral-500 mt-2 italic">
+            <figcaption className="text-center text-xs text-neutral-500 mt-3 italic">
               {alt}
             </figcaption>
           )}
@@ -368,9 +359,9 @@ export default async function SlugPage({ params }: Props) {
     },
     table({ node, children, ...props }: any) {
       return (
-        <div className="overflow-x-auto my-6">
+        <div className="overflow-x-auto my-7 border border-neutral-700/70 rounded-lg shadow-md shadow-black/20">
           <table
-            className="w-full text-sm text-left border-collapse border border-neutral-700"
+            className="w-full text-sm text-left border-collapse"
             {...props}
           >
             {children}
@@ -381,7 +372,7 @@ export default async function SlugPage({ params }: Props) {
     thead({ node, children, ...props }: any) {
       return (
         <thead
-          className="bg-neutral-800/50 text-neutral-300 uppercase text-xs"
+          className="bg-neutral-800/60 text-neutral-300 uppercase text-xs tracking-wider"
           {...props}
         >
           {children}
@@ -391,7 +382,7 @@ export default async function SlugPage({ params }: Props) {
     th({ node, children, ...props }: any) {
       return (
         <th
-          className="border border-neutral-700 px-3 py-2 font-medium"
+          className="border-b border-neutral-700/70 px-4 py-3 font-semibold text-left"
           {...props}
         >
           {children}
@@ -400,7 +391,7 @@ export default async function SlugPage({ params }: Props) {
     },
     tbody({ node, children, ...props }: any) {
       return (
-        <tbody className="divide-y divide-neutral-800" {...props}>
+        <tbody className="divide-y divide-neutral-800/50" {...props}>
           {children}
         </tbody>
       );
@@ -408,7 +399,7 @@ export default async function SlugPage({ params }: Props) {
     tr({ node, children, ...props }: any) {
       return (
         <tr
-          className="hover:bg-neutral-800/40 transition-colors duration-100"
+          className="hover:bg-neutral-800/50 transition-colors duration-150"
           {...props}
         >
           {children}
@@ -417,10 +408,7 @@ export default async function SlugPage({ params }: Props) {
     },
     td({ node, children, ...props }: any) {
       return (
-        <td
-          className="border border-neutral-700 px-3 py-2 text-neutral-300 align-top"
-          {...props}
-        >
+        <td className="px-4 py-3 text-neutral-300 align-top" {...props}>
           {children}
         </td>
       );
@@ -428,49 +416,53 @@ export default async function SlugPage({ params }: Props) {
   };
 
   return (
-    <div className="w-full flex flex-col items-center px-4 py-8 md:py-12 bg-neutral-950">
+    <div className="w-full flex flex-col items-center px-4 py-10 md:py-14 bg-neutral-950">
       <div className="w-full max-w-3xl min-w-0">
-        <div className="mb-6 md:mb-8">
+        <div className="mb-8 md:mb-10">
           <Link
             href="/"
-            className="inline-flex items-center text-sm text-neutral-500 hover:text-teal-400 transition-colors duration-200 ease-in-out group"
+            className="inline-flex items-center text-sm text-neutral-500 hover:text-emerald-400 transition-colors duration-200 ease-in-out group"
           >
-            <ArrowLeft className="w-4 h-4 mr-1.5 transition-transform duration-200 ease-in-out group-hover:-translate-x-0.5" />
+            <ArrowLeft className="w-4 h-4 mr-2 transition-transform duration-200 ease-in-out group-hover:-translate-x-1" />
             Back to Experiments
           </Link>
         </div>
-        <article className="mb-16">
-          <header className="mb-6 border-b border-neutral-800/60 pb-6">
-            <h1 className="text-3xl md:text-4xl font-semibold text-neutral-100 mb-4 leading-tight">
+        <article className="mb-16 md:mb-20 prose prose-invert prose-neutral max-w-none prose-pre:bg-transparent prose-pre:p-0">
+          <header className="mb-8 border-b border-neutral-800/70 pb-6">
+            <h1 className="text-3xl md:text-4xl font-mono font-bold text-neutral-50 mb-4 leading-tight tracking-tight">
               {displayTitle}
             </h1>
-            <div className="flex justify-between items-center flex-wrap gap-y-3 text-xs text-neutral-500">
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center">
+            <div className="flex justify-between items-center flex-wrap gap-y-3 text-xs text-neutral-400">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center px-2 py-0.5 rounded-full bg-neutral-800/70 border border-neutral-700/50">
                   {contentType === "notebook" ? (
-                    <NotebookText className="w-3.5 h-3.5 mr-1 opacity-70" />
+                    <NotebookText className="w-3.5 h-3.5 mr-1.5 opacity-70 text-emerald-400" />
                   ) : (
-                    <CodeXml className="w-3.5 h-3.5 mr-1 opacity-70" />
+                    <CodeXml className="w-3.5 h-3.5 mr-1.5 opacity-70 text-emerald-400" />
                   )}
-                  <span>{contentType === "notebook" ? "Note" : "Demo"}</span>
+                  <span className="font-medium">
+                    {contentType === "notebook" ? "Note" : "Demo"}
+                  </span>
                 </div>
                 {formattedDate && (
                   <div className="flex items-center">
-                    <CalendarDays className="w-3.5 h-3.5 mr-1 opacity-70" />
-                    <span>Updated: {formattedDate}</span>
+                    <CalendarDays className="w-3.5 h-3.5 mr-1.5 opacity-60 flex-shrink-0" />
+                    <span className="text-neutral-500">
+                      Updated: {formattedDate}
+                    </span>
                   </div>
                 )}
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2.5">
                 {contentType === "notebook" && colabUrl && (
                   <Link
                     href={colabUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center px-2 py-1 rounded border border-neutral-700 bg-neutral-800/70 hover:bg-neutral-750/90 hover:border-neutral-600 text-neutral-300 hover:text-teal-300 transition-all duration-200 ease-in-out text-xs shadow-sm"
+                    className="inline-flex items-center px-2.5 py-1 rounded-md border border-neutral-700 bg-neutral-800/80 hover:bg-neutral-750 hover:border-neutral-600 text-neutral-300 hover:text-emerald-300 transition-all duration-200 ease-in-out text-xs shadow-sm font-medium"
                     aria-label="Open notebook in Google Colab"
                   >
-                    <ColabIcon className="w-4 h-4 mr-1" />
+                    <ColabIcon className="w-4 h-4 mr-1.5" />
                     Colab
                   </Link>
                 )}
@@ -484,10 +476,10 @@ export default async function SlugPage({ params }: Props) {
                     <input type="hidden" name="data" value={jsonStringData} />
                     <button
                       type="submit"
-                      className="inline-flex items-center px-2 py-1 rounded border border-neutral-700 bg-neutral-800/70 hover:bg-neutral-750/90 hover:border-neutral-600 text-neutral-300 hover:text-teal-300 transition-all duration-200 ease-in-out text-xs shadow-sm cursor-pointer"
+                      className="inline-flex items-center px-2.5 py-1 rounded-md border border-neutral-700 bg-neutral-800/80 hover:bg-neutral-750 hover:border-neutral-600 text-neutral-300 hover:text-emerald-300 transition-all duration-200 ease-in-out text-xs shadow-sm cursor-pointer font-medium"
                       aria-label="Create a new CodePen with this code"
                     >
-                      <CodePenIcon className="w-4 h-4 mr-1" /> CodePen
+                      <CodePenIcon className="w-4 h-4 mr-1.5" /> CodePen
                     </button>
                   </form>
                 )}
@@ -509,7 +501,7 @@ export default async function SlugPage({ params }: Props) {
           )}
           {contentType === "htmlPage" && iframeSrc && (
             <div className="mt-8">
-              <div className="w-full aspect-video rounded-md overflow-hidden shadow-xl shadow-black/30 bg-black/20 border border-neutral-800">
+              <div className="w-full aspect-video rounded-lg overflow-hidden shadow-xl shadow-black/40 bg-black/30 border border-neutral-700/80">
                 <iframe
                   src={iframeSrc}
                   title={displayTitle}
@@ -521,18 +513,18 @@ export default async function SlugPage({ params }: Props) {
           )}
         </article>
         {(prev || next) && (
-          <nav className="w-full pt-6 border-t border-neutral-800/60 flex justify-between items-start gap-4 sm:gap-6">
+          <nav className="w-full pt-8 mt-8 border-t border-neutral-800/70 flex justify-between items-start gap-4 sm:gap-8">
             <div className="flex-1 text-left max-w-[48%] min-w-0">
               {prev && (
                 <Link
                   href={`/${prev.slug}`}
-                  className="group inline-block w-full"
+                  className="group inline-block w-full p-3 rounded-md hover:bg-neutral-800/40 transition-colors duration-200 ease-in-out"
                 >
-                  <span className="text-xs font-medium text-neutral-500 group-hover:text-teal-400 transition-colors duration-200 ease-in-out block mb-1">
-                    <ChevronLeft className="inline w-3.5 h-3.5 mr-0.5 align-middle relative -top-px" />
+                  <div className="flex items-center text-xs font-medium text-neutral-500 group-hover:text-emerald-400 transition-colors duration-200 ease-in-out block mb-1.5">
+                    <ChevronLeft className="inline w-4 h-4 mr-1 align-middle relative -top-px transition-transform group-hover:-translate-x-0.5" />
                     Previous
-                  </span>
-                  <span className="text-base font-medium text-neutral-200 group-hover:text-teal-300 transition-colors duration-200 ease-in-out block leading-snug">
+                  </div>
+                  <span className="text-base font-medium text-neutral-200 group-hover:text-emerald-300 transition-colors duration-200 ease-in-out block leading-snug font-mono">
                     {prev.title || formatSlugToTitle(prev.slug)}
                   </span>
                 </Link>
@@ -542,13 +534,13 @@ export default async function SlugPage({ params }: Props) {
               {next && (
                 <Link
                   href={`/${next.slug}`}
-                  className="group inline-block w-full"
+                  className="group inline-block w-full p-3 rounded-md hover:bg-neutral-800/40 transition-colors duration-200 ease-in-out"
                 >
-                  <span className="text-xs font-medium text-neutral-500 group-hover:text-teal-400 transition-colors duration-200 ease-in-out block mb-1">
+                  <div className="flex items-center justify-end text-xs font-medium text-neutral-500 group-hover:text-emerald-400 transition-colors duration-200 ease-in-out block mb-1.5">
                     Next
-                    <ChevronRight className="inline w-3.5 h-3.5 ml-0.5 align-middle relative -top-px" />
-                  </span>
-                  <span className="text-base font-medium text-neutral-200 group-hover:text-teal-300 transition-colors duration-200 ease-in-out block leading-snug">
+                    <ChevronRight className="inline w-4 h-4 ml-1 align-middle relative -top-px transition-transform group-hover:translate-x-0.5" />
+                  </div>
+                  <span className="text-base font-medium text-neutral-200 group-hover:text-emerald-300 transition-colors duration-200 ease-in-out block leading-snug font-mono">
                     {next.title || formatSlugToTitle(next.slug)}
                   </span>
                 </Link>
