@@ -1,6 +1,8 @@
 // src/app/page.tsx
 import React from "react";
 import Link from "next/link";
+import type { Metadata } from "next";
+
 import {
   ArrowUpRightSquare,
   BookOpenText,
@@ -8,7 +10,7 @@ import {
   CodeXml,
   NotebookText,
 } from "lucide-react";
-import type { Metadata } from "next";
+
 import { getSortedHtmlPagesData, getSortedNotebooksData } from "@/lib/content";
 import { formatDate } from "@/lib/date";
 import { buildPageMetadata } from "@/lib/metadata";
@@ -66,9 +68,6 @@ export default async function IndexPage() {
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12">
-      <h1 className="text-4xl font-bold mb-10 text-center text-neutral-100">
-        Content Hub
-      </h1>
       {allContent.length === 0 ? (
         <p className="text-center text-neutral-400">No content found yet.</p>
       ) : (

@@ -6,7 +6,6 @@ import { remark } from "remark";
 import strip from "strip-markdown";
 
 // --- Constants ---
-// Assumes 'contents' and 'public/standalone' are at the project root relative to process.cwd()
 const NOTEBOOKS_DIR = path.resolve(process.cwd(), "../contents");
 const HTML_PAGES_BASE_DIR = path.join(process.cwd(), "public", "standalone");
 
@@ -20,6 +19,7 @@ export interface HtmlPageData {
 export interface JupyterMetadata {
   updated?: string | null;
   created?: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 

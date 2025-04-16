@@ -1,3 +1,4 @@
+// src/app/layout.tsx
 import "./globals.css";
 import { Noto_Sans } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
