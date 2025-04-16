@@ -1,8 +1,7 @@
 // src/app/[slug]/page.tsx
 import "katex/dist/katex.min.css";
 
-import path from "path"; // Keep if needed elsewhere, otherwise remove if only for CodeBlock logic
-
+import path from "path";
 import React from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -35,12 +34,8 @@ import {
 } from "@/lib/content";
 import { formatDate } from "@/lib/date";
 import { buildPageMetadata } from "@/lib/metadata";
-
-// Removed CodeBlock import
 import { CodePenIcon, ColabIcon } from "@/components/Icons";
-import { CopyButton } from "@/components/CopyButton"; // Import CopyButton
-
-// --- (generateStaticParams, generateMetadata remain the same) ---
+import { CopyButton } from "@/components/CopyButton";
 
 export async function generateStaticParams() {
   const notes = getSortedNotebooksData();
@@ -59,7 +54,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { type, title, description } = await getContentTypeAndBaseMeta(slug);
 
   if (type === "notFound") {
-    // Log error or handle appropriately
     console.error(
       `Metadata generation failed: Content not found for slug "${slug}"`
     );
@@ -150,7 +144,6 @@ export default async function SlugPage({ params }: Props) {
       const codeContent = codeNode?.children?.[0]?.value || "";
 
       if (codeNode?.tagName === "code" && match && codeContent) {
-        // Replace CodeBlock component usage with direct implementation
         return (
           <div className="relative my-6 group">
             <SyntaxHighlighter
@@ -167,7 +160,6 @@ export default async function SlugPage({ params }: Props) {
           </div>
         );
       } else {
-        // Default pre rendering for non-highlighted code or other pre tags
         return (
           <pre
             className="p-4 bg-neutral-900/80 border border-neutral-800 rounded-md overflow-x-auto text-sm my-6"
@@ -189,7 +181,6 @@ export default async function SlugPage({ params }: Props) {
           </code>
         );
       }
-      // Let the `pre` renderer handle block code
       return null;
     },
     a({ node, href, children, ...props }: any) {
@@ -275,16 +266,13 @@ export default async function SlugPage({ params }: Props) {
       );
     },
     p({ node, children, ...props }: any) {
-      // Check if the paragraph only contains an image
       if (
         node &&
         node.children.length === 1 &&
         node.children[0].tagName === "img"
       ) {
-        // Render only the image (handled by the 'img' component)
         return <>{children}</>;
       }
-      // Otherwise, render as a normal paragraph
       return (
         <p className="text-neutral-300 leading-relaxed my-5" {...props}>
           {children}
@@ -493,14 +481,13 @@ export default async function SlugPage({ params }: Props) {
             </div>
           </header>
 
-          {/* Content Rendering Area */}
           {contentType === "notebook" && (
             <div className="w-full">
               <ReactMarkdown
                 remarkPlugins={[remarkMath]}
                 rehypePlugins={[rehypeRaw, rehypeKatex]}
                 components={components}
-                urlTransform={(value: string) => value} // Keep this if you need URL transformations
+                urlTransform={(value: string) => value}
               >
                 {pageData.content}
               </ReactMarkdown>
@@ -520,7 +507,6 @@ export default async function SlugPage({ params }: Props) {
           )}
         </article>
 
-        {/* Navigation */}
         {(prev || next) && (
           <nav className="w-full pt-6 border-t border-neutral-800/60 flex justify-between items-start gap-4 sm:gap-6">
             <div className="flex-1 text-left max-w-[48%]">

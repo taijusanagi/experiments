@@ -14,7 +14,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const currentYear = 2025;
+  const currentYear = 2025; // Note: Consider using `new Date().getFullYear()` for dynamic year
 
   return (
     <html lang="en" className="dark">
