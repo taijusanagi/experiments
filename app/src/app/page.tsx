@@ -65,7 +65,7 @@ export default async function IndexPage() {
   });
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-10 md:py-16">
+    <div className="w-full max-w-6xl mx-auto px-4 py-8 md:py-12">
       {allContent.length === 0 ? (
         <p className="text-center text-neutral-500">No content found yet.</p>
       ) : (

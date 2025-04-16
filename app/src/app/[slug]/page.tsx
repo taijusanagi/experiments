@@ -239,7 +239,7 @@ export default async function SlugPage({ params }: Props) {
     h1({ node, children, ...props }: any) {
       return (
         <h1
-          className="text-3xl font-semibold text-neutral-100 mt-10 mb-4" // Removed border-b border-neutral-700 pb-2
+          className="text-3xl font-semibold text-neutral-100 mt-10 mb-4"
           {...props}
         >
           {children}
@@ -249,7 +249,7 @@ export default async function SlugPage({ params }: Props) {
     h2({ node, children, ...props }: any) {
       return (
         <h2
-          className="text-2xl font-semibold text-neutral-100 mt-8 mb-3" // Removed border-b border-neutral-800 pb-1
+          className="text-2xl font-semibold text-neutral-100 mt-8 mb-3"
           {...props}
         >
           {children}
