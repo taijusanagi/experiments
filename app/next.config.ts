@@ -6,8 +6,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/vibes-standalone/:slug",
-        destination: "/vibes-standalone/:slug/index.html",
+        source: "/standalone/:slug",
+        destination: "/standalone/:slug.html",
       },
     ];
   },

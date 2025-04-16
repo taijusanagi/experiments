@@ -15,8 +15,8 @@ import playwright, { Browser, Page, BrowserContext } from "playwright";
 
 // --- Data Fetching Functions ---
 // Adjust these paths to match your project structure if needed.
-import { getSortedNotesData } from "@/lib/notes"; // Assuming sync
-import { getSortedVibesData } from "@/lib/vibes"; // Assuming async based on prev code
+import { getSortedNotebooksData } from "@/lib/content"; // Assuming sync
+import { getSortedHtmlPagesData } from "@/lib/content"; // Assuming async based on prev code
 
 // --- Configuration ---
 const BASE_URL: string = "http://localhost:3000"; // URL of the running static server
@@ -169,7 +169,7 @@ async function main(): Promise<void> {
     // We still ensure this base exists, static pages section might have done it already
     fs.mkdirSync(notesBaseOutputDir, { recursive: true });
 
-    const allNotes = getSortedNotesData();
+    const allNotes = getSortedNotebooksData();
     console.log(`   Found ${allNotes.length} notes.`);
 
     for (const note of allNotes) {
@@ -220,7 +220,7 @@ async function main(): Promise<void> {
     // We still ensure this base exists, static pages section might have done it already
     fs.mkdirSync(vibesBaseOutputDir, { recursive: true });
 
-    const allVibes = await getSortedVibesData();
+    const allVibes = await getSortedHtmlPagesData();
     console.log(`   Found ${allVibes.length} vibes.`);
 
     for (const vibe of allVibes) {

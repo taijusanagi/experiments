@@ -3,13 +3,13 @@ repos:
     hooks:
       - id: format_jupyter # Renamed ID
         name: Format Jupyter # Renamed Name
-        entry: python notes/format_jupyter.py # Updated script name
+        entry: python format_jupyter.py # Updated script name
         language: system # Or python if you have specific dependencies like nbformat
         types: [jupyter]
         # You might need to specify nbformat if using language: python
         # additional_dependencies: [nbformat]
       - id: format_html
         name: Format HTML
-        entry: node vibes/formatHtml.js
+        entry: node formatHtml.js
         language: system
         types: [html]

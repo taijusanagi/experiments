@@ -41,5 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 # OGP
-public/ogp/
-public/vibes-standalone/
+public/standalone/
