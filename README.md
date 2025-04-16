@@ -1,4 +1,4 @@
-# Sanagi Labs
+# Taiju Sanagi: Experiments
 
 A space for learning, building, and soft experiments in AI.
 

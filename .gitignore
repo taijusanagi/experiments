@@ -2,5 +2,8 @@
 .vscode
 .idea
 
+# Notebooks
+.ipynb_checkpoints
+
 # Local
 .DS_Store

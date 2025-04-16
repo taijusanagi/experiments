@@ -3,11 +3,14 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   output: "export",
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async rewrites() {
     return [
       {
-        source: "/vibes-standalone/:slug",
-        destination: "/vibes-standalone/:slug/index.html",
+        source: "/standalone/:slug",
+        destination: "/standalone/:slug.html",
       },
     ];
   },

@@ -2,11 +2,9 @@ export const CodePenIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
-    fill="currentColor" // Keep fill if you want it to inherit text color
-    // Use passed className for size/margin. Default internal classes don't need vertical-align.
+    fill="currentColor"
     className={`inline-block ${className}`}
   >
-    {/* Path data... */}
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -19,11 +17,8 @@ export const ColabIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 48 48"
-    // Use passed className for size/margin. Default internal classes don't need vertical-align.
     className={`inline-block ${className}`}
-    // Removed fill="currentColor" if not desired, Colab has specific fills
   >
-    {/* Path data... */}
     <path
       fill="#ffb300"
       d="M33.5,10C26.044,10,20,16.044,20,23.5C20,30.956,26.044,37,33.5,37S47,30.956,47,23.5 C47,16.044,40.956,10,33.5,10z M33.5,30c-3.59,0-6.5-2.91-6.5-6.5s2.91-6.5,6.5-6.5s6.5,2.91,6.5,6.5S37.09,30,33.5,30z"
