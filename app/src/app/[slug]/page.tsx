@@ -202,10 +202,15 @@ export default async function SlugPage({ params }: Props) {
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     a({ href, children, ...props }: any) {
-      const basePattern = "https://taijusanagi.com/vibes/";
+      const basePattern = "https://taijusanagi.com/";
       if (href && href.startsWith(basePattern)) {
         const slug = href.substring(basePattern.length);
-        if (slug && slug.length > 0 && !slug.includes("/")) {
+        if (
+          slug &&
+          slug.length > 0 &&
+          !slug.includes("/") &&
+          slug.endsWith("-viz")
+        ) {
           const iframeSrc = `https://taijusanagi.com/standalone/${slug}`;
           return (
             <iframe
