@@ -112,7 +112,7 @@ export default async function SlugPage({ params }: Props) {
 
   if (contentType === "notebook") {
     const GITHUB_USERNAME = "taijusanagi";
-    const REPO_NAME = "labs";
+    const REPO_NAME = "experiments";
     const BRANCH = "main";
     const NOTEBOOK_DIR_PATH = "contents";
     colabUrl = `https://colab.research.google.com/github/${GITHUB_USERNAME}/${REPO_NAME}/blob/${BRANCH}/${NOTEBOOK_DIR_PATH}/${slug}.ipynb`;
