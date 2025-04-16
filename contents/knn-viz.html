@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta name="updated" content="2025-04-16T23:41:03.830Z" />
+    <meta name="updated" content="2025-04-16T23:55:26.257Z" />
     <meta name="created" content="2025-04-16T00:16:04.150Z" />
     <meta charset="UTF-8" />
-    <title>K-Nearest Neighbors (KNN) Viz</title>
+    <title>K-Nearest Neighbors (KNN) Viz with Generative Sound</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/examples/js/controls/OrbitControls.js"></script>
@@ -35,6 +35,7 @@
         align-items: flex-start;
         border: 1px solid rgba(80, 100, 130, 0.5);
         max-width: 250px;
+        z-index: 10;
       }
       #ui-container label,
       #ui-container .label-like {
@@ -78,9 +79,32 @@
         width: 100%;
         margin: 5px 0;
       }
+      #audio-toggle-button {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background-color: rgba(50, 60, 80, 0.9);
+        color: #e0e8f8;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-size: 0.8em;
+        text-align: center;
+        cursor: pointer;
+        z-index: 100;
+        border: 1px solid rgba(100, 120, 160, 0.7);
+        min-width: 80px;
+      }
+      #audio-toggle-button:hover {
+        background-color: rgba(70, 80, 100, 0.95);
+      }
       @media (max-width: 600px) {
         #ui-container {
           display: none;
+        }
+        #audio-toggle-button {
+          font-size: 0.75em;
+          padding: 6px 10px;
+          min-width: 70px;
         }
       }
     </style>
@@ -92,7 +116,6 @@
         <input type="range" id="kSlider" min="1" max="15" value="3" step="1" />
         <span id="kValueLabel">3</span>
       </div>
-
       <div>
         <label for="playSpeedSlider">Play Speed:</label>
         <input
@@ -105,9 +128,7 @@
         />
         <span id="playSpeedValueLabel">1.00x</span>
       </div>
-
       <hr />
-
       <div>
         <span class="label-like">Training Data Distribution:</span>
         <div class="radio-group">
@@ -121,6 +142,8 @@
         </div>
       </div>
     </div>
+
+    <div id="audio-toggle-button">Enable Sound</div>
 
     <script>
       let scene, camera, renderer, controls;
@@ -181,6 +204,67 @@
       const clusterSpread = 3.5;
       const randomSpread = 9.0;
 
+      let audioContext;
+      let isAudioReady = false;
+      let isSoundMuted = true;
+      const baseVolume = 0.18;
+
+      const Notes = {
+        C4: 261.63,
+        D4: 293.66,
+        E4: 329.63,
+        F4: 349.23,
+        G4: 392.0,
+        A4: 440.0,
+        B4: 493.88,
+        C5: 523.25,
+        D5: 587.33,
+        E5: 659.25,
+        F5: 698.46,
+        G5: 783.99,
+        A5: 880.0,
+        B5: 987.77,
+        C6: 1046.5,
+        D6: 1174.66,
+        E6: 1318.51,
+        F6: 1396.91,
+        G6: 1567.98,
+        A6: 1760.0,
+        B6: 1975.53,
+      };
+
+      const scaleNotes = {
+        0: [Notes["C5"], Notes["E5"], Notes["G5"], Notes["A5"], Notes["C6"]],
+        1: [Notes["G4"], Notes["B4"], Notes["D5"], Notes["E5"], Notes["G5"]],
+        2: [Notes["F5"], Notes["A5"], Notes["C6"], Notes["D6"], Notes["F6"]],
+      };
+
+      const beamOscillatorTypes = {
+        0: "sine",
+        1: "triangle",
+        2: "sine",
+      };
+
+      const beamSoundBaseSettings = {
+        baseDuration: 0.06,
+        volMult: 0.9,
+        minDuration: 0.03,
+      };
+      const beamDistanceEffect = { maxDist: 18.0 };
+
+      const landingSoundSettings = {
+        freq: 110,
+        duration: 0.15,
+        type: "sine",
+        volMult: 1.0,
+      };
+      const resultSoundSettings = {
+        0: { freq: Notes["C4"], duration: 0.6, type: "sine", volMult: 1.0 },
+        1: { freq: Notes["E4"], duration: 0.6, type: "sine", volMult: 1.0 },
+        2: { freq: Notes["G4"], duration: 0.6, type: "sine", volMult: 1.0 },
+        "-1": { freq: 160, duration: 0.4, type: "square", volMult: 0.7 },
+      };
+
       init();
       animate();
 
@@ -220,9 +304,8 @@
         controls.minDistance = 2;
         controls.maxDistance = 50;
         controls.target.set(0, 1, 0);
-
         controls.autoRotate = true;
-        controls.autoRotateSpeed = 2.0;
+        controls.autoRotateSpeed = 0.4;
 
         createDecisionBoundaryPlane();
 
@@ -232,10 +315,134 @@
         setupPlaySpeedSlider();
         setupDataModeRadios();
 
+        setupAudioToggleButton();
+
         window.addEventListener("resize", onWindowResize);
 
         resetSeed();
         regenerateTrainingData(true);
+      }
+
+      function initAudioContext() {
+        if (!audioContext) {
+          try {
+            window.AudioContext =
+              window.AudioContext || window.webkitAudioContext;
+            audioContext = new AudioContext();
+            isAudioReady = audioContext.state === "running";
+
+            if (audioContext.state === "suspended") {
+              // Return promise to handle async resume
+              return audioContext
+                .resume()
+                .then(() => {
+                  isAudioReady = true;
+                  console.log("AudioContext resumed.");
+                  return true; // Indicate success
+                })
+                .catch((e) => {
+                  console.error("Error resuming AudioContext:", e);
+                  isAudioReady = false;
+                  return false; // Indicate failure
+                });
+            } else if (isAudioReady) {
+              console.log("AudioContext already running.");
+              return Promise.resolve(true); // Already ready
+            }
+          } catch (e) {
+            console.error(
+              "Web Audio API is not supported or context creation failed:",
+              e
+            );
+            isAudioReady = false;
+            return Promise.resolve(false); // Indicate failure
+          }
+        } else if (audioContext.state === "suspended") {
+          // If context exists but is suspended, try resuming
+          return audioContext
+            .resume()
+            .then(() => {
+              isAudioReady = true;
+              console.log("AudioContext resumed.");
+              return true;
+            })
+            .catch((e) => {
+              console.error("Error resuming existing AudioContext:", e);
+              isAudioReady = false;
+              return false;
+            });
+        }
+        // If context exists and is running
+        return Promise.resolve(true);
+      }
+
+      function setupAudioToggleButton() {
+        const button = document.getElementById("audio-toggle-button");
+        if (!button) return;
+
+        button.addEventListener("click", async () => {
+          // Always try to initialize/resume first on click if not ready
+          if (!isAudioReady) {
+            const success = await initAudioContext();
+            if (success) {
+              isSoundMuted = false; // Unmute after successful init/resume
+              button.textContent = "Mute Sound";
+              playTone(440, 0.1, "sine", 0.1); // Play confirmation sound
+            } else {
+              // Handle case where context couldn't start/resume
+              button.textContent = "Enable Sound"; // Keep initial text
+              isSoundMuted = true; // Stay muted
+              // Optionally show an error message to the user
+            }
+          } else {
+            // If audio is ready, just toggle mute state
+            isSoundMuted = !isSoundMuted;
+            button.textContent = isSoundMuted ? "Unmute Sound" : "Mute Sound";
+            // Optionally play a subtle click/toggle sound
+            if (!isSoundMuted) {
+              playTone(660, 0.05, "triangle", 0.1);
+            } else {
+              playTone(330, 0.05, "triangle", 0.1);
+            }
+          }
+        });
+      }
+
+      function playTone(freq, durationSec, type = "sine", volMultiplier = 1.0) {
+        if (
+          !isAudioReady ||
+          isSoundMuted ||
+          !audioContext ||
+          audioContext.state !== "running"
+        ) {
+          return;
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+
+        const volume = baseVolume * volMultiplier;
+        gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(
+          0.0001,
+          audioContext.currentTime + durationSec
+        );
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + durationSec);
+
+        setTimeout(() => {
+          if (oscillator && typeof oscillator.disconnect === "function")
+            oscillator.disconnect();
+          if (gainNode && typeof gainNode.disconnect === "function")
+            gainNode.disconnect();
+        }, durationSec * 1000 + 150);
       }
 
       function setupPlaySpeedSlider() {
@@ -251,7 +458,6 @@
           baseDisplayTime / playSpeedMultiplier
         );
         playSpeedValueLabel.textContent = playSpeedMultiplier.toFixed(2) + "x";
-
         playSpeedSlider.addEventListener("input", (event) => {
           playSpeedMultiplier = parseFloat(event.target.value);
           currentFallSpeed = baseFallSpeed * playSpeedMultiplier;
@@ -303,7 +509,6 @@
       function handleKChange(event) {
         const kValueLabel = document.getElementById("kValueLabel");
         if (!kValueLabel) return;
-
         kValue = parseInt(event.target.value, 10);
         kValueLabel.textContent = kValue;
         setTimeout(() => {
@@ -474,7 +679,6 @@
         const currentKValue = document.getElementById("kSlider")
           ? parseInt(document.getElementById("kSlider").value, 10)
           : kValue;
-
         for (let i = 0; i < positions.count; i++) {
           tempTestPos.fromBufferAttribute(positions, i);
           tempTestPos.applyMatrix4(matrixWorld);
@@ -515,16 +719,21 @@
           return;
         }
         const currentPointData = landedPointData;
-
         const landedPosition = currentPointData.mesh.position.clone();
         clearVoteLines();
+
+        playTone(
+          landingSoundSettings.freq,
+          landingSoundSettings.duration,
+          landingSoundSettings.type,
+          landingSoundSettings.volMult
+        );
 
         const tempLineMaterial = new THREE.LineBasicMaterial({
           color: 0x00ffff,
           transparent: false,
           linewidth: 2,
         });
-
         const sequentialDelay = 150;
 
         if (trainingPoints.length > 0) {
@@ -537,7 +746,35 @@
             const tempLine = new THREE.Line(geometry, tempLineMaterial);
             scene.add(tempLine);
 
-            const calculatedDelay = sequentialDelay / playSpeedMultiplier; // Calculate delay inside loop
+            const scale = scaleNotes[trainPoint.class] || scaleNotes[0];
+            const oscillatorType =
+              beamOscillatorTypes[trainPoint.class] || "sine";
+
+            const dist = landedPosition.distanceTo(trainPoint.position);
+            const maxDist = beamDistanceEffect.maxDist;
+            const distFactor = Math.min(dist, maxDist) / maxDist;
+            const normalizedDist = Math.pow(distFactor, 0.6);
+
+            const scaleIndex = Math.min(
+              scale.length - 1,
+              Math.floor(normalizedDist * scale.length)
+            );
+            const targetFreq = scale[scaleIndex];
+
+            const baseDuration = beamSoundBaseSettings.baseDuration;
+            const targetDuration = Math.max(
+              beamSoundBaseSettings.minDuration,
+              baseDuration * (0.7 + 0.6 * normalizedDist)
+            );
+
+            playTone(
+              targetFreq,
+              targetDuration,
+              oscillatorType,
+              beamSoundBaseSettings.volMult
+            );
+
+            const calculatedDelay = sequentialDelay / playSpeedMultiplier;
             await delay(calculatedDelay);
 
             if (currentPointData.aborted) {
@@ -545,7 +782,6 @@
               tempLine.geometry?.dispose();
               break;
             }
-
             scene.remove(tempLine);
             tempLine.geometry?.dispose();
           }
@@ -559,6 +795,15 @@
 
         const classificationResult = getKNNPrediction(landedPosition, kValue);
         const { predictedClass, neighbors } = classificationResult;
+
+        const resultSound =
+          resultSoundSettings[predictedClass] || resultSoundSettings["-1"];
+        playTone(
+          resultSound.freq,
+          resultSound.duration,
+          resultSound.type,
+          resultSound.volMult
+        );
 
         if (predictedClass !== -1) {
           if (currentPointData.mesh?.material) {
@@ -612,11 +857,9 @@
         const kSlider = document.getElementById("kSlider");
         const kValueLabel = document.getElementById("kValueLabel");
         if (!kSlider || !kValueLabel) return;
-
         const maxK = Math.max(1, trainingPoints.length);
         kSlider.max = maxK;
         let currentSliderValue = parseInt(kSlider.value);
-
         if (currentSliderValue > maxK) {
           kSlider.value = maxK;
           currentSliderValue = maxK;
@@ -641,6 +884,7 @@
       function animate(time) {
         requestAnimationFrame(animate);
         controls.update();
+
         const point = fallingTestPoint;
         if (point && point.falling) {
           const currentY = point.mesh.position.y;
@@ -648,15 +892,11 @@
           if (currentY > targetY) {
             point.mesh.position.y = Math.max(
               targetY,
-              currentY - currentFallSpeed // Fall speed IS affected immediately by slider
+              currentY - currentFallSpeed
             );
           }
 
-          if (
-            fallingTestPoint === point &&
-            point.mesh.position.y <= targetY &&
-            point.falling
-          ) {
+          if (point.mesh.position.y <= targetY && point.falling) {
             point.mesh.position.y = targetY;
             point.falling = false;
             if (!point.aborted) {
