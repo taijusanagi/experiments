@@ -1,58 +1,24 @@
-/* eslint-disable */
-
 // scripts/generate-ogp-screenshot.ts
-// Saves images to:
-// - out/ogp/og-img.png (for '/')
-// - out/ogp/notes/og-img.png (for '/notes' index)
-// - out/ogp/vibes/og-img.png (for '/vibes' index)
-// - out/ogp/notes/<slug>/og-img.png (for '/notes/<slug>') <--- UPDATED
-// - out/ogp/vibes/<slug>/og-img.png (for '/vibes/<slug>') <--- UPDATED
-// Assumes a static server is running on BASE_URL.
-
 import fs from "fs";
 import path from "path";
 import playwright, { Browser, Page, BrowserContext } from "playwright";
+import { getSortedNotebooksData } from "@/lib/content";
+import { getSortedHtmlPagesData } from "@/lib/content";
 
-// --- Data Fetching Functions ---
-// Adjust these paths to match your project structure if needed.
-import { getSortedNotebooksData } from "@/lib/content"; // Assuming sync
-import { getSortedHtmlPagesData } from "@/lib/content"; // Assuming async based on prev code
-
-// --- Configuration ---
-const BASE_URL: string = "http://localhost:3000"; // URL of the running static server
+const BASE_URL: string = "http://localhost:3000";
 const OGP_WIDTH: number = 1200;
 const OGP_HEIGHT: number = 630;
-const BASE_OUTPUT_DIR: string = path.resolve("./out/ogp"); // Now resolves to <project>/out/ogp
+const BASE_OUTPUT_DIR: string = path.resolve("./out/ogp");
 
-// --- Static Pages to Screenshot ---
 const STATIC_PAGES = [
   {
     name: "Homepage",
     pagePath: "/",
-    outputDir: BASE_OUTPUT_DIR, // Saved directly in out/ogp
-    outputFilename: "og-img.png",
-  },
-  {
-    name: "Notes Index",
-    pagePath: "/notes",
-    outputDir: path.join(BASE_OUTPUT_DIR, "notes"), // Saved in out/ogp/notes
-    outputFilename: "og-img.png",
-  },
-  {
-    name: "Vibes Index",
-    pagePath: "/vibes",
-    outputDir: path.join(BASE_OUTPUT_DIR, "vibes"), // Saved in out/ogp/vibes
+    outputDir: BASE_OUTPUT_DIR,
     outputFilename: "og-img.png",
   },
 ];
 
-/**
- * Generates an OGP screenshot for a given page URL using Playwright.
- * (Function remains the same)
- * @param pageUrl The full URL of the page to screenshot
- * @param browser A running Playwright Browser instance
- * @returns A Promise resolving to the PNG image buffer
- */
 async function generateOGScreenshot(
   pageUrl: string,
   browser: Browser
@@ -74,8 +40,6 @@ async function generateOGScreenshot(
       timeout: 30000,
     });
 
-    // await page.waitForTimeout(500); // Optional delay
-
     console.log(`  Taking screenshot...`);
     const buffer: Buffer = await page.screenshot({
       type: "png",
@@ -94,7 +58,6 @@ async function generateOGScreenshot(
     if (page && !page.isClosed()) {
       try {
         await page.close();
-        // console.log("  Page closed."); // Less verbose logging
       } catch (e: any) {
         console.error("  Error closing page:", e?.message);
       }
@@ -102,7 +65,6 @@ async function generateOGScreenshot(
     if (context) {
       try {
         await context.close();
-        // console.log("  Context closed."); // Less verbose logging
       } catch (e: any) {
         console.error("  Error closing context:", e?.message);
       }
@@ -110,9 +72,6 @@ async function generateOGScreenshot(
   }
 }
 
-/**
- * Main function to orchestrate the OGP image generation.
- */
 async function main(): Promise<void> {
   console.log(`🚀 Starting OGP screenshot generation...`);
   console.log(`   Targeting base URL: ${BASE_URL}`);
@@ -127,7 +86,6 @@ async function main(): Promise<void> {
     console.log("   Launching browser (Chromium)...");
     browser = await playwright.chromium.launch();
 
-    // --- Generate for Static Pages ---
     console.log("\n--- Generating OGP images for Static Pages ---");
     for (const staticPage of STATIC_PAGES) {
       console.log(
@@ -143,7 +101,6 @@ async function main(): Promise<void> {
         console.log(
           `   Ensuring output directory exists: ${staticPage.outputDir}`
         );
-        fs.mkdirSync(staticPage.outputDir, { recursive: true });
 
         if (!browser) throw new Error("Browser not launched");
         const buffer = await generateOGScreenshot(pageUrl, browser);
@@ -162,13 +119,7 @@ async function main(): Promise<void> {
       }
     }
 
-    // --- Generate for Notes (Individual Items) ---
     console.log("\n--- Generating OGP images for Notes ---");
-    // Base directory for all notes OGP images (e.g., out/ogp/notes)
-    const notesBaseOutputDir = path.join(BASE_OUTPUT_DIR, "notes");
-    // We still ensure this base exists, static pages section might have done it already
-    fs.mkdirSync(notesBaseOutputDir, { recursive: true });
-
     const allNotes = getSortedNotebooksData();
     console.log(`   Found ${allNotes.length} notes.`);
 
@@ -180,28 +131,24 @@ async function main(): Promise<void> {
         continue;
       }
 
-      const pageUrl: string = `${BASE_URL}/notes/${note.slug}`;
+      const pageUrl: string = `${BASE_URL}/${note.slug}`;
       const title: string = note.title || `Note: ${note.slug}`;
       console.log(`\nProcessing Note: ${note.slug} ('${title}')`);
 
-      // --- NEW PATH STRUCTURE ---
-      // Construct path like: out/ogp/notes/<slug>/og-img.png
       const outPath: string = path.join(
-        notesBaseOutputDir,
+        BASE_OUTPUT_DIR,
         note.slug,
         "og-img.png"
       );
-      // Get the directory part: out/ogp/notes/<slug>
       const noteSpecificDir = path.dirname(outPath);
 
       try {
-        // --- Ensure the specific subdirectory for this note exists ---
         console.log(`   Ensuring output directory exists: ${noteSpecificDir}`);
         fs.mkdirSync(noteSpecificDir, { recursive: true });
 
         if (!browser) throw new Error("Browser not launched");
         const buffer = await generateOGScreenshot(pageUrl, browser);
-        fs.writeFileSync(outPath, buffer); // Write to the new path
+        fs.writeFileSync(outPath, buffer);
         console.log(
           `   ✅ Generated OGP image: ${path.relative(process.cwd(), outPath)}`
         );
@@ -213,52 +160,42 @@ async function main(): Promise<void> {
       }
     }
 
-    // --- Generate for Vibes (Individual Items) ---
-    console.log("\n--- Generating OGP images for Vibes ---");
-    // Base directory for all vibes OGP images (e.g., out/ogp/vibes)
-    const vibesBaseOutputDir = path.join(BASE_OUTPUT_DIR, "vibes");
-    // We still ensure this base exists, static pages section might have done it already
-    fs.mkdirSync(vibesBaseOutputDir, { recursive: true });
+    console.log("\n--- Generating OGP images for Demos ---");
+    const allDemos = await getSortedHtmlPagesData();
+    console.log(`   Found ${allDemos.length} demos.`);
 
-    const allVibes = await getSortedHtmlPagesData();
-    console.log(`   Found ${allVibes.length} vibes.`);
-
-    for (const vibe of allVibes) {
-      if (!vibe.slug) {
+    for (const demo of allDemos) {
+      if (!demo.slug) {
         console.warn(
-          `   ⚠️ Skipping vibe with missing slug: ${JSON.stringify(vibe)}`
+          `   ⚠️ Skipping demo with missing slug: ${JSON.stringify(demo)}`
         );
         continue;
       }
 
-      const pageUrl: string = `${BASE_URL}/vibes/${vibe.slug}`;
-      const title: string = vibe.title || `Vibe: ${vibe.slug}`;
-      console.log(`\nProcessing Vibe: ${vibe.slug} ('${title}')`);
+      const pageUrl: string = `${BASE_URL}/${demo.slug}`;
+      const title: string = demo.title || `Demo: ${demo.slug}`;
+      console.log(`\nProcessing Demo: ${demo.slug} ('${title}')`);
 
-      // --- NEW PATH STRUCTURE ---
-      // Construct path like: out/ogp/vibes/<slug>/og-img.png
       const outPath: string = path.join(
-        vibesBaseOutputDir,
-        vibe.slug,
+        BASE_OUTPUT_DIR,
+        demo.slug,
         "og-img.png"
       );
-      // Get the directory part: out/ogp/vibes/<slug>
-      const vibeSpecificDir = path.dirname(outPath);
+      const demoSpecificDir = path.dirname(outPath);
 
       try {
-        // --- Ensure the specific subdirectory for this vibe exists ---
-        console.log(`   Ensuring output directory exists: ${vibeSpecificDir}`);
-        fs.mkdirSync(vibeSpecificDir, { recursive: true });
+        console.log(`   Ensuring output directory exists: ${demoSpecificDir}`);
+        fs.mkdirSync(demoSpecificDir, { recursive: true });
 
         if (!browser) throw new Error("Browser not launched");
         const buffer = await generateOGScreenshot(pageUrl, browser);
-        fs.writeFileSync(outPath, buffer); // Write to the new path
+        fs.writeFileSync(outPath, buffer);
         console.log(
           `   ✅ Generated OGP image: ${path.relative(process.cwd(), outPath)}`
         );
       } catch (error: any) {
         console.error(
-          `   ❌ FAILED OGP generation for Vibe ${vibe.slug} (${pageUrl}):`,
+          `   ❌ FAILED OGP generation for Demo ${demo.slug} (${pageUrl}):`,
           error?.message
         );
       }
@@ -286,7 +223,6 @@ async function main(): Promise<void> {
   }
 }
 
-// --- Execute Main Function ---
 main().catch((err: any) => {
   console.error(
     "\nUnhandled error during OGP script execution:",
