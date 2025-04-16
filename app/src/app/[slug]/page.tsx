@@ -194,7 +194,6 @@ export default async function SlugPage({ params }: Props) {
           slugPart.endsWith("-viz")
         ) {
           const iframeSrc = `https://taijusanagi.com/standalone/${slugPart}`;
-          // This div wrapper will be rendered instead of the 'a' tag
           return (
             <div className="my-6 w-full aspect-video rounded-md overflow-hidden shadow-xl shadow-black/30 bg-black/20 border border-neutral-800">
               <iframe
@@ -271,10 +270,8 @@ export default async function SlugPage({ params }: Props) {
       if (node && node.children.length === 1) {
         const firstChild = node.children[0];
         if (firstChild.tagName === "img") {
-          // Let the 'img' component handle rendering without a 'p' tag wrapper
           return <>{children}</>;
         }
-        // Check if the single child is an 'a' tag that our override turns into a div-wrapped iframe
         if (firstChild.tagName === "a") {
           const href = firstChild.properties?.href;
           const basePattern = "https://taijusanagi.com/";
@@ -286,14 +283,11 @@ export default async function SlugPage({ params }: Props) {
               !slugPart.includes("/") &&
               slugPart.endsWith("-viz")
             ) {
-              // This 'a' tag is rendered as a block-level div by our 'a' override.
-              // Prevent wrapping it in a 'p' tag.
               return <>{children}</>;
             }
           }
         }
       }
-      // Default paragraph rendering
       return (
         <p className="text-neutral-300 leading-relaxed my-5" {...props}>
           {children}
@@ -435,7 +429,7 @@ export default async function SlugPage({ params }: Props) {
 
   return (
     <div className="w-full flex flex-col items-center px-4 py-8 md:py-12 bg-neutral-950">
-      <div className="w-full max-w-3xl">
+      <div className="w-full max-w-3xl min-w-0">
         <div className="mb-6 md:mb-8">
           <Link
             href="/"
@@ -445,7 +439,6 @@ export default async function SlugPage({ params }: Props) {
             Back to Dev Hub
           </Link>
         </div>
-
         <article className="mb-16">
           <header className="mb-6 border-b border-neutral-800/60 pb-6">
             <h1 className="text-3xl md:text-4xl font-semibold text-neutral-100 mb-4 leading-tight">
@@ -503,7 +496,7 @@ export default async function SlugPage({ params }: Props) {
           </header>
 
           {contentType === "notebook" && (
-            <div className="w-full">
+            <div className="w-full min-w-0">
               <ReactMarkdown
                 remarkPlugins={[remarkMath]}
                 rehypePlugins={[rehypeRaw, rehypeKatex]}
@@ -527,10 +520,9 @@ export default async function SlugPage({ params }: Props) {
             </div>
           )}
         </article>
-
         {(prev || next) && (
           <nav className="w-full pt-6 border-t border-neutral-800/60 flex justify-between items-start gap-4 sm:gap-6">
-            <div className="flex-1 text-left max-w-[48%]">
+            <div className="flex-1 text-left max-w-[48%] min-w-0">
               {prev && (
                 <Link
                   href={`/${prev.slug}`}
@@ -546,7 +538,7 @@ export default async function SlugPage({ params }: Props) {
                 </Link>
               )}
             </div>
-            <div className="flex-1 text-right max-w-[48%]">
+            <div className="flex-1 text-right max-w-[48%] min-w-0">
               {next && (
                 <Link
                   href={`/${next.slug}`}

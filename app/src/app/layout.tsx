@@ -14,14 +14,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const currentYear = 2025; // Note: Consider using `new Date().getFullYear()` for dynamic year
+  const currentYear = new Date().getFullYear();
 
   return (
     <html lang="en" className="dark">
       <body
         className={`${noto.className} antialiased selection:bg-teal-400/30`}
       >
-        <div className="min-h-screen flex flex-col bg-neutral-950 text-neutral-300">
+        <div className="min-h-screen flex flex-col bg-neutral-950 text-neutral-300 overflow-x-hidden">
           <header className="w-full px-4 py-3 flex justify-between items-center border-b border-neutral-800/60 sticky top-0 bg-neutral-950/85 backdrop-blur-sm z-10">
             <Link
               href="/"
