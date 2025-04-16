@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "npx playwright install && npx playwright install-deps",
+    "postinstall": "npx playwright install",
     "dev": "next dev",
+    "vercel-build": "npx playwright install-deps && cpx \"../vibes/html/**/*\" public/vibes-standalone && next build && tsx src/scripts/generate-ogp-with-static-server.ts",
     "build": "cpx \"../vibes/html/**/*\" public/vibes-standalone && next build && tsx src/scripts/generate-ogp-with-static-server.ts",
     "start": "next start",
     "lint": "next lint"
