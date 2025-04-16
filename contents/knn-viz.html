@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta name="updated" content="2025-04-16T23:36:50.726Z" />
+    <meta name="updated" content="2025-04-16T23:41:03.830Z" />
     <meta name="created" content="2025-04-16T00:16:04.150Z" />
     <meta charset="UTF-8" />
     <title>K-Nearest Neighbors (KNN) Viz</title>
@@ -98,8 +98,8 @@
         <input
           type="range"
           id="playSpeedSlider"
-          min="0.25"
-          max="4.0"
+          min="0.5"
+          max="2.0"
           value="1.0"
           step="0.05"
         />
@@ -132,8 +132,8 @@
       let trainingDataMode = "grouped";
 
       let playSpeedMultiplier = 1.0;
-      const baseFallSpeed = 0.05;
-      const baseDisplayTime = 3000;
+      const baseFallSpeed = 0.15;
+      const baseDisplayTime = 1000;
       let currentFallSpeed = baseFallSpeed;
       let currentDisplayTime = baseDisplayTime;
       const minDisplayTime = 200;
@@ -526,7 +526,6 @@
         });
 
         const sequentialDelay = 150;
-        const calculatedDelay = sequentialDelay / playSpeedMultiplier;
 
         if (trainingPoints.length > 0) {
           for (const trainPoint of trainingPoints) {
@@ -538,6 +537,7 @@
             const tempLine = new THREE.Line(geometry, tempLineMaterial);
             scene.add(tempLine);
 
+            const calculatedDelay = sequentialDelay / playSpeedMultiplier; // Calculate delay inside loop
             await delay(calculatedDelay);
 
             if (currentPointData.aborted) {
@@ -641,26 +641,25 @@
       function animate(time) {
         requestAnimationFrame(animate);
         controls.update();
-        const point = fallingTestPoint; // Capture current point
+        const point = fallingTestPoint;
         if (point && point.falling) {
           const currentY = point.mesh.position.y;
           const targetY = point.targetY;
           if (currentY > targetY) {
             point.mesh.position.y = Math.max(
               targetY,
-              currentY - currentFallSpeed
+              currentY - currentFallSpeed // Fall speed IS affected immediately by slider
             );
           }
-          // Re-check point hasn't been cleaned up during fall calculation
+
           if (
-            fallingTestPoint === point && // Ensure it's still the same point
+            fallingTestPoint === point &&
             point.mesh.position.y <= targetY &&
             point.falling
           ) {
             point.mesh.position.y = targetY;
             point.falling = false;
             if (!point.aborted) {
-              // Check if aborted *just* before classifying
               classifyLandedPoint(point);
             }
           }
