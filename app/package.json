@@ -42,7 +42,6 @@
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/wait-on": "^5.3.4",
     "cpx": "^1.5.0",
-    "cross-port-killer": "^1.4.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.0",
     "playwright": "^1.51.1",
