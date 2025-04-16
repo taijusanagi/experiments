@@ -1,7 +1,7 @@
 // src/app/[slug]/page.tsx
 import "katex/dist/katex.min.css";
 
-import path from "path";
+import path from "path"; // Keep if needed elsewhere, otherwise remove if only for CodeBlock logic
 
 import React from "react";
 import Link from "next/link";
@@ -21,7 +21,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import remarkMath from "remark-math";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import {
   extractMetadataFromHtmlFile,
@@ -36,45 +36,11 @@ import {
 import { formatDate } from "@/lib/date";
 import { buildPageMetadata } from "@/lib/metadata";
 
-const CodePenIcon = ({ className = "" }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className={`inline-block ${className}`}
-  >
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M11.605.862a.75.75 0 0 1 .79 0l10.5 6.5A.75.75 0 0 1 23.25 8v7a.75.75 0 0 1-.314.61l-10.5 7.5a.75.75 0 0 1-.872 0l-10.5-7.5A.75.75 0 0 1 .75 15V8a.75.75 0 0 1 .355-.638l10.5-6.5ZM2.25 13.654V9.457l3.147 2.248-3.147 1.949Zm9 7.389v-5.157L6.72 12.65l-3.867 2.395 8.397 5.998Zm1.5 0v-5.157l4.53-3.236 3.867 2.395-8.397 5.998Zm-4.647-9.248L12 14.578l3.897-2.783L12 9.382l-3.897 2.413Zm10.5-.09 3.147 1.949V9.457l-3.147 2.248Zm-1.383-.855-4.47-2.768V2.846l8.397 5.199-3.927 2.805Zm-10.44 0 4.47-2.768V2.846L2.853 8.045l3.927 2.805Z"
-    />
-  </svg>
-);
+// Removed CodeBlock import
+import { CodePenIcon, ColabIcon } from "@/components/Icons";
+import { CopyButton } from "@/components/CopyButton"; // Import CopyButton
 
-const ColabIcon = ({ className = "" }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 48 48"
-    className={`inline-block ${className}`}
-  >
-    <path
-      fill="#ffb300"
-      d="M33.5,10C26.044,10,20,16.044,20,23.5C20,30.956,26.044,37,33.5,37S47,30.956,47,23.5 C47,16.044,40.956,10,33.5,10z M33.5,30c-3.59,0-6.5-2.91-6.5-6.5s2.91-6.5,6.5-6.5s6.5,2.91,6.5,6.5S37.09,30,33.5,30z"
-    />
-    <path
-      fill="#ffb300"
-      d="M19.14,28.051l0-0.003C17.96,29.252,16.318,30,14.5,30C10.91,30,8,27.09,8,23.5s2.91-6.5,6.5-6.5  c1.83,0,3.481,0.759,4.662,1.976l3.75-6.024C20.604,11.109,17.683,10,14.5,10C7.044,10,1,16.044,1,23.5C1,30.956,7.044,37,14.5,37 c3.164,0,6.067-1.097,8.369-2.919L19.14,28.051z"
-    />
-    <path
-      fill="#f57c00"
-      d="M8,23.5c0-1.787,0.722-3.405,1.889-4.58l-4.855-5.038C2.546,16.33,1,19.733,1,23.5  c0,3.749,1.53,7.14,3.998,9.586l4.934-4.964C8.74,26.944,8,25.309,8,23.5z"
-    />
-    <path
-      fill="#f57c00"
-      d="M38.13,18.941C39.285,20.114,40,21.723,40,23.5c0,3.59-2.91,6.5-6.5,6.5  c-1.826,0-3.474-0.755-4.655-1.968l-4.999,4.895C26.298,35.437,29.714,37,33.5,37C40.956,37,47,30.956,47,23.5  c0-3.684-1.479-7.019-3.871-9.455L38.13,18.941z"
-    />
-  </svg>
-);
+// --- (generateStaticParams, generateMetadata remain the same) ---
 
 export async function generateStaticParams() {
   const notes = getSortedNotebooksData();
@@ -93,6 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { type, title, description } = await getContentTypeAndBaseMeta(slug);
 
   if (type === "notFound") {
+    // Log error or handle appropriately
     console.error(
       `Metadata generation failed: Content not found for slug "${slug}"`
     );
@@ -176,101 +143,333 @@ export default async function SlugPage({ params }: Props) {
   }
 
   const components: Components = {
-    pre({ children }: any) {
-      return <div className="not-prose">{children}</div>;
+    pre({ node, children, ...props }: any) {
+      const codeNode = node?.children?.[0];
+      const className = codeNode?.properties?.className?.[0] || "";
+      const match = /language-(\w+)/.exec(className);
+      const codeContent = codeNode?.children?.[0]?.value || "";
+
+      if (codeNode?.tagName === "code" && match && codeContent) {
+        // Replace CodeBlock component usage with direct implementation
+        return (
+          <div className="relative my-6 group">
+            <SyntaxHighlighter
+              style={vscDarkPlus}
+              language={match[1]}
+              PreTag="div"
+              className="!p-4 !bg-neutral-900/80 border border-neutral-800 rounded-md overflow-x-auto text-sm"
+            >
+              {String(codeContent).replace(/\n$/, "")}
+            </SyntaxHighlighter>
+            <div className="absolute top-2 right-2">
+              <CopyButton textToCopy={codeContent} />
+            </div>
+          </div>
+        );
+      } else {
+        // Default pre rendering for non-highlighted code or other pre tags
+        return (
+          <pre
+            className="p-4 bg-neutral-900/80 border border-neutral-800 rounded-md overflow-x-auto text-sm my-6"
+            {...props}
+          >
+            {children}
+          </pre>
+        );
+      }
     },
     code({ inline, className, children, ...props }: any) {
-      const match = /language-(\w+)/.exec(className || "");
-      return !inline && match ? (
-        <div className="text-sm">
-          <SyntaxHighlighter style={oneDark} language={match[1]} {...props}>
-            {String(children).replace(/\n$/, "")}
-          </SyntaxHighlighter>
-        </div>
-      ) : (
-        <code className={className} {...props}>
-          {children}
-        </code>
-      );
+      if (inline) {
+        return (
+          <code
+            className="bg-neutral-700/50 text-neutral-300 px-1 py-0.5 rounded-sm text-[0.9em] font-mono"
+            {...props}
+          >
+            {children}
+          </code>
+        );
+      }
+      // Let the `pre` renderer handle block code
+      return null;
     },
-    a({ href, children, ...props }: any) {
+    a({ node, href, children, ...props }: any) {
       const basePattern = "https://taijusanagi.com/";
       if (href && href.startsWith(basePattern)) {
-        const slug = href.substring(basePattern.length);
+        const slugPart = href.substring(basePattern.length);
         if (
-          slug &&
-          slug.length > 0 &&
-          !slug.includes("/") &&
-          slug.endsWith("-viz")
+          slugPart &&
+          slugPart.length > 0 &&
+          !slugPart.includes("/") &&
+          slugPart.endsWith("-viz")
         ) {
-          const iframeSrc = `https://taijusanagi.com/standalone/${slug}`;
+          const iframeSrc = `https://taijusanagi.com/standalone/${slugPart}`;
           return (
             <iframe
               src={iframeSrc}
               width="100%"
               height="500px"
-              style={{ border: "none" }}
-              title={`${slug} Vibes`}
+              className="border border-neutral-800 rounded-md my-6"
+              title={`${slugPart} Visualisation`}
               loading="lazy"
             />
           );
         }
       }
+
+      const isExternal =
+        href && (href.startsWith("http") || href.startsWith("//"));
+      const isInternal = href && href.startsWith("/");
+
+      if (isInternal) {
+        return (
+          <Link
+            href={href}
+            className="text-teal-400 hover:text-teal-300 hover:underline underline-offset-2 transition-colors duration-150"
+            {...props}
+          >
+            {children}
+          </Link>
+        );
+      }
+
       return (
-        <a href={href} {...props}>
+        <a
+          href={href}
+          target={isExternal ? "_blank" : undefined}
+          rel={isExternal ? "noopener noreferrer" : undefined}
+          className="text-teal-400 hover:text-teal-300 hover:underline underline-offset-2 transition-colors duration-150"
+          {...props}
+        >
           {children}
         </a>
+      );
+    },
+    h1({ node, children, ...props }: any) {
+      return (
+        <h1
+          className="text-3xl font-semibold text-neutral-100 mt-10 mb-4 border-b border-neutral-700 pb-2"
+          {...props}
+        >
+          {children}
+        </h1>
+      );
+    },
+    h2({ node, children, ...props }: any) {
+      return (
+        <h2
+          className="text-2xl font-semibold text-neutral-100 mt-8 mb-3 border-b border-neutral-800 pb-1"
+          {...props}
+        >
+          {children}
+        </h2>
+      );
+    },
+    h3({ node, children, ...props }: any) {
+      return (
+        <h3
+          className="text-xl font-semibold text-neutral-200 mt-6 mb-2"
+          {...props}
+        >
+          {children}
+        </h3>
+      );
+    },
+    p({ node, children, ...props }: any) {
+      // Check if the paragraph only contains an image
+      if (
+        node &&
+        node.children.length === 1 &&
+        node.children[0].tagName === "img"
+      ) {
+        // Render only the image (handled by the 'img' component)
+        return <>{children}</>;
+      }
+      // Otherwise, render as a normal paragraph
+      return (
+        <p className="text-neutral-300 leading-relaxed my-5" {...props}>
+          {children}
+        </p>
+      );
+    },
+    ul({ node, children, ...props }: any) {
+      return (
+        <ul
+          className="list-disc list-outside pl-6 my-5 space-y-2 text-neutral-300"
+          {...props}
+        >
+          {children}
+        </ul>
+      );
+    },
+    ol({ node, children, ...props }: any) {
+      return (
+        <ol
+          className="list-decimal list-outside pl-6 my-5 space-y-2 text-neutral-300"
+          {...props}
+        >
+          {children}
+        </ol>
+      );
+    },
+    li({ node, children, ...props }: any) {
+      return (
+        <li className="pl-2 leading-relaxed" {...props}>
+          {children}
+        </li>
+      );
+    },
+    blockquote({ node, children, ...props }: any) {
+      return (
+        <blockquote
+          className="border-l-4 border-neutral-700 pl-4 py-2 my-6 text-neutral-400 italic"
+          {...props}
+        >
+          {children}
+        </blockquote>
+      );
+    },
+    hr({ node, ...props }: any) {
+      return <hr className="border-neutral-700 my-8" {...props} />;
+    },
+    strong({ node, children, ...props }: any) {
+      return (
+        <strong className="font-semibold text-neutral-200" {...props}>
+          {children}
+        </strong>
+      );
+    },
+    em({ node, children, ...props }: any) {
+      return (
+        <em className="italic text-neutral-300" {...props}>
+          {children}
+        </em>
+      );
+    },
+    img({ node, src, alt, ...props }: any) {
+      return (
+        <figure className="my-6">
+          <img
+            src={src}
+            alt={alt || ""}
+            className="max-w-full h-auto rounded-md border border-neutral-800 block mx-auto"
+            loading="lazy"
+            {...props}
+          />
+          {alt && (
+            <figcaption className="text-center text-xs text-neutral-500 mt-2 italic">
+              {alt}
+            </figcaption>
+          )}
+        </figure>
+      );
+    },
+    table({ node, children, ...props }: any) {
+      return (
+        <div className="overflow-x-auto my-6">
+          <table
+            className="w-full text-sm text-left border-collapse border border-neutral-700"
+            {...props}
+          >
+            {children}
+          </table>
+        </div>
+      );
+    },
+    thead({ node, children, ...props }: any) {
+      return (
+        <thead
+          className="bg-neutral-800/50 text-neutral-300 uppercase text-xs"
+          {...props}
+        >
+          {children}
+        </thead>
+      );
+    },
+    th({ node, children, ...props }: any) {
+      return (
+        <th
+          className="border border-neutral-700 px-3 py-2 font-medium"
+          {...props}
+        >
+          {children}
+        </th>
+      );
+    },
+    tbody({ node, children, ...props }: any) {
+      return (
+        <tbody className="divide-y divide-neutral-800" {...props}>
+          {children}
+        </tbody>
+      );
+    },
+    tr({ node, children, ...props }: any) {
+      return (
+        <tr
+          className="hover:bg-neutral-800/40 transition-colors duration-100"
+          {...props}
+        >
+          {children}
+        </tr>
+      );
+    },
+    td({ node, children, ...props }: any) {
+      return (
+        <td
+          className="border border-neutral-700 px-3 py-2 text-neutral-300 align-top"
+          {...props}
+        >
+          {children}
+        </td>
       );
     },
   };
 
   return (
-    <div className="w-full flex flex-col items-center px-4 py-8 md:py-12">
-      <div className="w-full max-w-4xl">
+    <div className="w-full flex flex-col items-center px-4 py-8 md:py-12 bg-neutral-950">
+      <div className="w-full max-w-3xl">
         <div className="mb-6 md:mb-8">
           <Link
             href="/"
-            className="inline-flex items-center text-sm text-neutral-400 hover:text-teal-400 transition-colors duration-300 ease-in-out group"
+            className="inline-flex items-center text-sm text-neutral-500 hover:text-teal-400 transition-colors duration-200 ease-in-out group"
           >
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to Home
+            <ArrowLeft className="w-4 h-4 mr-1.5 transition-transform duration-200 ease-in-out group-hover:-translate-x-0.5" />
+            Back to Dev Hub
           </Link>
         </div>
 
         <article className="mb-16">
-          <header className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-neutral-100 mb-3">
+          <header className="mb-6 border-b border-neutral-800/60 pb-6">
+            <h1 className="text-3xl md:text-4xl font-semibold text-neutral-100 mb-4 leading-tight">
               {displayTitle}
             </h1>
-            <div className="flex justify-between items-center flex-wrap gap-y-2 text-sm text-neutral-400">
-              <div className="flex items-center">
+            <div className="flex justify-between items-center flex-wrap gap-y-3 text-xs text-neutral-500">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center">
+                  {contentType === "notebook" ? (
+                    <NotebookText className="w-3.5 h-3.5 mr-1 opacity-70" />
+                  ) : (
+                    <CodeXml className="w-3.5 h-3.5 mr-1 opacity-70" />
+                  )}
+                  <span>{contentType === "notebook" ? "Note" : "Demo"}</span>
+                </div>
                 {formattedDate && (
-                  <CalendarDays className="w-4 h-4 mr-1.5 opacity-80" />
+                  <div className="flex items-center">
+                    <CalendarDays className="w-3.5 h-3.5 mr-1 opacity-70" />
+                    <span>Updated: {formattedDate}</span>
+                  </div>
                 )}
-                {formattedDate ? (
-                  <span>{formattedDate}</span>
-                ) : (
-                  <span className="h-[20px] inline-block"></span>
-                )}
-                <span className="mx-2 text-neutral-600">|</span>
-                {contentType === "notebook" ? (
-                  <NotebookText className="w-4 h-4 mr-1.5 opacity-80" />
-                ) : (
-                  <CodeXml className="w-4 h-4 mr-1.5 opacity-80" />
-                )}
-                <span>{contentType === "notebook" ? "Note" : "Demo"}</span>
               </div>
-              <div>
+              <div className="flex items-center space-x-2">
                 {contentType === "notebook" && colabUrl && (
                   <Link
                     href={colabUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center px-2.5 py-1 rounded-md border border-transparent bg-neutral-800/80 hover:bg-neutral-700/90 hover:border-neutral-600/80 text-neutral-300 hover:text-neutral-100 transition-all duration-300 ease-in-out shadow-sm"
+                    className="inline-flex items-center px-2 py-1 rounded border border-neutral-700 bg-neutral-800/70 hover:bg-neutral-750/90 hover:border-neutral-600 text-neutral-300 hover:text-teal-300 transition-all duration-200 ease-in-out text-xs shadow-sm"
                     aria-label="Open notebook in Google Colab"
                   >
-                    <ColabIcon className="w-5 h-5 mr-1.5 transform -translate-y-[-0.5px]" />
-                    Open in Colab
+                    <ColabIcon className="w-4 h-4 mr-1" />
+                    Colab
                   </Link>
                 )}
                 {contentType === "htmlPage" && jsonStringData && (
@@ -283,10 +482,10 @@ export default async function SlugPage({ params }: Props) {
                     <input type="hidden" name="data" value={jsonStringData} />
                     <button
                       type="submit"
-                      className="inline-flex items-center px-2.5 py-1 rounded-md border border-transparent bg-neutral-800/80 hover:bg-neutral-700/90 hover:border-neutral-600/80 text-neutral-300 hover:text-neutral-100 transition-all duration-300 ease-in-out shadow-sm cursor-pointer"
-                      aria-label="Create a new CodePen with this vibe's code"
+                      className="inline-flex items-center px-2 py-1 rounded border border-neutral-700 bg-neutral-800/70 hover:bg-neutral-750/90 hover:border-neutral-600 text-neutral-300 hover:text-teal-300 transition-all duration-200 ease-in-out text-xs shadow-sm cursor-pointer"
+                      aria-label="Create a new CodePen with this code"
                     >
-                      <CodePenIcon className="w-5 h-5 mr-1.5" /> Open in CodePen
+                      <CodePenIcon className="w-4 h-4 mr-1" /> CodePen
                     </button>
                   </form>
                 )}
@@ -294,21 +493,22 @@ export default async function SlugPage({ params }: Props) {
             </div>
           </header>
 
+          {/* Content Rendering Area */}
           {contentType === "notebook" && (
-            <article className="prose lg:prose-lg prose-invert max-w-none w-full">
+            <div className="w-full">
               <ReactMarkdown
                 remarkPlugins={[remarkMath]}
                 rehypePlugins={[rehypeRaw, rehypeKatex]}
                 components={components}
-                urlTransform={(value: string) => value}
+                urlTransform={(value: string) => value} // Keep this if you need URL transformations
               >
                 {pageData.content}
               </ReactMarkdown>
-            </article>
+            </div>
           )}
           {contentType === "htmlPage" && iframeSrc && (
             <div className="mt-8">
-              <div className="w-full aspect-video rounded-lg overflow-hidden shadow-lg bg-neutral-900">
+              <div className="w-full aspect-video rounded-md overflow-hidden shadow-xl shadow-black/30 bg-black/20 border border-neutral-800">
                 <iframe
                   src={iframeSrc}
                   title={displayTitle}
@@ -320,29 +520,36 @@ export default async function SlugPage({ params }: Props) {
           )}
         </article>
 
+        {/* Navigation */}
         {(prev || next) && (
-          <nav className="w-full pt-6 border-t border-neutral-700/80 flex justify-between items-start gap-6 sm:gap-8">
-            <div className="flex-1 text-left">
+          <nav className="w-full pt-6 border-t border-neutral-800/60 flex justify-between items-start gap-4 sm:gap-6">
+            <div className="flex-1 text-left max-w-[48%]">
               {prev && (
-                <Link href={`/${prev.slug}`} className="group inline-block">
-                  <span className="text-sm font-medium text-neutral-400 group-hover:text-teal-400 transition-colors duration-300 ease-in-out block mb-1">
-                    <ChevronLeft className="inline w-4 h-4 mr-1 align-text-bottom" />
+                <Link
+                  href={`/${prev.slug}`}
+                  className="group inline-block w-full"
+                >
+                  <span className="text-xs font-medium text-neutral-500 group-hover:text-teal-400 transition-colors duration-200 ease-in-out block mb-1">
+                    <ChevronLeft className="inline w-3.5 h-3.5 mr-0.5 align-middle relative -top-px" />
                     Previous
                   </span>
-                  <span className="text-lg font-semibold text-neutral-200 group-hover:text-teal-300 transition-colors duration-300 ease-in-out block">
+                  <span className="text-base font-medium text-neutral-200 group-hover:text-teal-300 transition-colors duration-200 ease-in-out block leading-snug">
                     {prev.title || formatSlugToTitle(prev.slug)}
                   </span>
                 </Link>
               )}
             </div>
-            <div className="flex-1 text-right">
+            <div className="flex-1 text-right max-w-[48%]">
               {next && (
-                <Link href={`/${next.slug}`} className="group inline-block">
-                  <span className="text-sm font-medium text-neutral-400 group-hover:text-teal-400 transition-colors duration-300 ease-in-out block mb-1">
+                <Link
+                  href={`/${next.slug}`}
+                  className="group inline-block w-full"
+                >
+                  <span className="text-xs font-medium text-neutral-500 group-hover:text-teal-400 transition-colors duration-200 ease-in-out block mb-1">
                     Next
-                    <ChevronRight className="inline w-4 h-4 ml-1 align-text-bottom" />
+                    <ChevronRight className="inline w-3.5 h-3.5 ml-0.5 align-middle relative -top-px" />
                   </span>
-                  <span className="text-lg font-semibold text-neutral-200 group-hover:text-teal-300 transition-colors duration-300 ease-in-out block">
+                  <span className="text-base font-medium text-neutral-200 group-hover:text-teal-300 transition-colors duration-200 ease-in-out block leading-snug">
                     {next.title || formatSlugToTitle(next.slug)}
                   </span>
                 </Link>
