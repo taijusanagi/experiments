@@ -2,11 +2,11 @@
 
 // scripts/generate-ogp-screenshot.ts
 // Saves images to:
-// - out/ogp/img.png (for '/')
-// - out/ogp/notes/img.png (for '/notes' index)
-// - out/ogp/vibes/img.png (for '/vibes' index)
-// - out/ogp/notes/<slug>/img.png (for '/notes/<slug>') <--- UPDATED
-// - out/ogp/vibes/<slug>/img.png (for '/vibes/<slug>') <--- UPDATED
+// - out/ogp/og-img.png (for '/')
+// - out/ogp/notes/og-img.png (for '/notes' index)
+// - out/ogp/vibes/og-img.png (for '/vibes' index)
+// - out/ogp/notes/<slug>/og-img.png (for '/notes/<slug>') <--- UPDATED
+// - out/ogp/vibes/<slug>/og-img.png (for '/vibes/<slug>') <--- UPDATED
 // Assumes a static server is running on BASE_URL.
 
 import fs from "fs";
@@ -30,19 +30,19 @@ const STATIC_PAGES = [
     name: "Homepage",
     pagePath: "/",
     outputDir: BASE_OUTPUT_DIR, // Saved directly in out/ogp
-    outputFilename: "img.png",
+    outputFilename: "og-img.png",
   },
   {
     name: "Notes Index",
     pagePath: "/notes",
     outputDir: path.join(BASE_OUTPUT_DIR, "notes"), // Saved in out/ogp/notes
-    outputFilename: "img.png",
+    outputFilename: "og-img.png",
   },
   {
     name: "Vibes Index",
     pagePath: "/vibes",
     outputDir: path.join(BASE_OUTPUT_DIR, "vibes"), // Saved in out/ogp/vibes
-    outputFilename: "img.png",
+    outputFilename: "og-img.png",
   },
 ];
 
@@ -185,11 +185,11 @@ async function main(): Promise<void> {
       console.log(`\nProcessing Note: ${note.slug} ('${title}')`);
 
       // --- NEW PATH STRUCTURE ---
-      // Construct path like: out/ogp/notes/<slug>/img.png
+      // Construct path like: out/ogp/notes/<slug>/og-img.png
       const outPath: string = path.join(
         notesBaseOutputDir,
         note.slug,
-        "img.png"
+        "og-img.png"
       );
       // Get the directory part: out/ogp/notes/<slug>
       const noteSpecificDir = path.dirname(outPath);
@@ -236,11 +236,11 @@ async function main(): Promise<void> {
       console.log(`\nProcessing Vibe: ${vibe.slug} ('${title}')`);
 
       // --- NEW PATH STRUCTURE ---
-      // Construct path like: out/ogp/vibes/<slug>/img.png
+      // Construct path like: out/ogp/vibes/<slug>/og-img.png
       const outPath: string = path.join(
         vibesBaseOutputDir,
         vibe.slug,
-        "img.png"
+        "og-img.png"
       );
       // Get the directory part: out/ogp/vibes/<slug>
       const vibeSpecificDir = path.dirname(outPath);
