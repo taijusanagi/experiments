@@ -29,8 +29,7 @@ import {
   formatSlugToTitle,
   getContentTypeAndBaseMeta,
   getHtmlCodeForPrefill,
-  getHtmlPageNavigation,
-  getNotebookNavigation,
+  getCombinedNavigation,
   getSortedHtmlPagesData,
   getSortedNotebooksData,
 } from "@/lib/content";
@@ -115,17 +114,13 @@ export default async function SlugPage({ params }: Props) {
   const { slug } = await params;
   const { type } = await getContentTypeAndBaseMeta(slug);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let pageData: any = null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let navigation: { prev: any; next: any } = { prev: null, next: null };
   let contentType: "notebook" | "htmlPage";
 
   if (type === "notebook") {
     contentType = "notebook";
     pageData = extractNotebookContentAndMetadata(slug);
     if (!pageData) notFound();
-    navigation = getNotebookNavigation(slug);
   } else if (type === "htmlPage") {
     contentType = "htmlPage";
     const htmlPath = path.join(
@@ -137,10 +132,10 @@ export default async function SlugPage({ params }: Props) {
     const metadata = await extractMetadataFromHtmlFile(htmlPath);
     const prefill = await getHtmlCodeForPrefill(slug);
     pageData = { ...metadata, prefill };
-    navigation = await getHtmlPageNavigation(slug);
   } else {
     notFound();
   }
+  const navigation = await getCombinedNavigation(slug);
 
   const displayTitle =
     (contentType === "notebook" ? pageData.extractedTitle : pageData.title) ||
@@ -181,11 +176,9 @@ export default async function SlugPage({ params }: Props) {
   }
 
   const components: Components = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pre({ children }: any) {
       return <div className="not-prose">{children}</div>;
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     code({ inline, className, children, ...props }: any) {
       const match = /language-(\w+)/.exec(className || "");
       return !inline && match ? (
@@ -200,7 +193,6 @@ export default async function SlugPage({ params }: Props) {
         </code>
       );
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     a({ href, children, ...props }: any) {
       const basePattern = "https://taijusanagi.com/";
       if (href && href.startsWith(basePattern)) {

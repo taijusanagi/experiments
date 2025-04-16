@@ -5,11 +5,9 @@ import * as cheerio from "cheerio";
 import { remark } from "remark";
 import strip from "strip-markdown";
 
-// --- Constants ---
 const NOTEBOOKS_DIR = path.resolve(process.cwd(), "../contents");
 const HTML_PAGES_BASE_DIR = path.join(process.cwd(), "public", "standalone");
 
-// --- Interfaces ---
 export interface HtmlPageData {
   slug: string;
   title: string;
@@ -19,7 +17,6 @@ export interface HtmlPageData {
 export interface JupyterMetadata {
   updated?: string | null;
   created?: string | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -30,12 +27,10 @@ export interface JupyterNotebookInfo {
   excerpt: string | null;
 }
 
-// Internal Types for Notebook Parsing
 interface Output {
   output_type: string;
   name?: string;
   text?: string[] | string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: { [mimeType: string]: any };
   ename?: string;
   evalue?: string;
@@ -46,33 +41,25 @@ interface JupyterCell {
   source: string[] | string;
   outputs?: Output[];
   execution_count?: number | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: { [key: string]: any };
 }
 interface JupyterNotebook {
   cells: JupyterCell[];
-  metadata: JupyterMetadata; // Use exported type
+  metadata: JupyterMetadata;
 }
 
-export interface JupyterNotebookInfo {
+export interface CombinedContentItem {
   slug: string;
   title: string;
   updated: string | null;
-  excerpt: string | null;
+  type: "notebook" | "htmlPage";
 }
 
-// --- Exported Common Helper ---
-/**
- * Formats a slug into a title-case string.
- * Exported because it's used as a fallback title in page components.
- */
 export function formatSlugToTitle(slug: string): string {
   return slug.replace(/[-_]/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
-// --- Internal Text Helpers ---
 function dedent(str: string | null): string | null {
-  // Implementation as before...
   if (!str) return null;
   const lines = str.split("\n");
   let minIndent: number | null = null;
@@ -113,7 +100,6 @@ function createExcerpt(
   markdownContent: string | null | undefined,
   maxLength: number = 150
 ): string | null {
-  // Implementation as before...
   if (!markdownContent) return null;
   try {
     const plainText = remark()
@@ -151,7 +137,6 @@ function createExcerpt(
   }
 }
 
-// --- HTML Page Data Fetching ---
 export async function getSortedHtmlPagesData(): Promise<HtmlPageData[]> {
   try {
     if (!fs.existsSync(HTML_PAGES_BASE_DIR)) return [];
@@ -169,8 +154,8 @@ export async function getSortedHtmlPagesData(): Promise<HtmlPageData[]> {
         const slug = filename.replace(/\.html$/, "");
         const fullPath = path.join(HTML_PAGES_BASE_DIR, filename);
         const { title: extractedTitle, updated: extractedUpdated } =
-          await extractMetadataFromHtmlFile(fullPath); // Use internal helper
-        const title = extractedTitle || formatSlugToTitle(slug); // Use exported helper
+          await extractMetadataFromHtmlFile(fullPath);
+        const title = extractedTitle || formatSlugToTitle(slug);
         return { slug, title, updated: extractedUpdated };
       }
     );
@@ -217,29 +202,12 @@ export async function extractMetadataFromHtmlFile(
   }
 }
 
-export async function getHtmlPageNavigation(slug: string): Promise<{
-  prev: { slug: string; title: string } | null;
-  next: { slug: string; title: string } | null;
-}> {
-  const allPages = await getSortedHtmlPagesData();
-  const currentIndex = allPages.findIndex((page) => page.slug === slug);
-  if (currentIndex === -1) return { prev: null, next: null };
-  const prevPage = currentIndex > 0 ? allPages[currentIndex - 1] : null;
-  const nextPage =
-    currentIndex < allPages.length - 1 ? allPages[currentIndex + 1] : null;
-  return {
-    prev: prevPage ? { slug: prevPage.slug, title: prevPage.title } : null,
-    next: nextPage ? { slug: nextPage.slug, title: nextPage.title } : null,
-  };
-}
-
 export async function getHtmlCodeForPrefill(slug: string): Promise<{
   htmlBodyContent: string | null;
   css: string | null;
   js: string | null;
   js_external: string | null;
 }> {
-  // Correct path to use the single HTML file
   const htmlPath = path.join(HTML_PAGES_BASE_DIR, `${slug}.html`);
 
   let htmlBodyContent: string | null = null;
@@ -292,7 +260,6 @@ export async function getHtmlCodeForPrefill(slug: string): Promise<{
   return { htmlBodyContent: htmlBodyContent || "", css, js, js_external };
 }
 
-// --- Jupyter Notebook Data Fetching ---
 export function getSortedNotebooksData(): JupyterNotebookInfo[] {
   try {
     if (!fs.existsSync(NOTEBOOKS_DIR)) return [];
@@ -421,7 +388,7 @@ export function extractNotebookContentAndMetadata(notebookSlug: string): {
           if (cell.outputs?.length) {
             const hasVisibleOutput = cell.outputs.some(
               (o) =>
-                /* visible check logic */ (o.output_type === "stream" &&
+                (o.output_type === "stream" &&
                   !!(
                     Array.isArray(o.text) ? o.text.join("") : o.text || ""
                   ).trim()) ||
@@ -446,7 +413,6 @@ export function extractNotebookContentAndMetadata(notebookSlug: string): {
                 case "display_data":
                 case "execute_result":
                   if (output.data) {
-                    /* Prioritized output rendering logic */
                     if (output.data["image/png"])
                       outputMarkdown += `\n![Output Image](data:image/png;base64,${output.data["image/png"]})\n`;
                     else if (output.data["image/jpeg"])
@@ -476,9 +442,7 @@ export function extractNotebookContentAndMetadata(notebookSlug: string): {
                           2
                         );
                         outputMarkdown += `\n\`\`\`json\n${json}\n\`\`\`\n`;
-                      } catch {
-                        /* ignore */
-                      }
+                      } catch {}
                     } else if (output.data["application/javascript"]) {
                       const js = (
                         Array.isArray(output.data["application/javascript"])
@@ -529,32 +493,6 @@ export function extractNotebookContentAndMetadata(notebookSlug: string): {
   }
 }
 
-export function getNotebookNavigation(slug: string): {
-  prev: { slug: string; title: string } | null;
-  next: { slug: string; title: string } | null;
-} {
-  const allNotebooks = getSortedNotebooksData();
-  const currentIndex = allNotebooks.findIndex((note) => note.slug === slug);
-  if (currentIndex === -1) return { prev: null, next: null };
-  const prevNotebook = currentIndex > 0 ? allNotebooks[currentIndex - 1] : null;
-  const nextNotebook =
-    currentIndex < allNotebooks.length - 1
-      ? allNotebooks[currentIndex + 1]
-      : null;
-  return {
-    prev: prevNotebook
-      ? { slug: prevNotebook.slug, title: prevNotebook.title }
-      : null,
-    next: nextNotebook
-      ? { slug: nextNotebook.slug, title: nextNotebook.title }
-      : null,
-  };
-}
-
-// --- New Combined Helper ---
-/**
- * Identifies content type and fetches basic metadata for metadata generation.
- */
 export async function getContentTypeAndBaseMeta(slug: string): Promise<{
   type: "notebook" | "htmlPage" | "notFound";
   title: string;
@@ -562,7 +500,6 @@ export async function getContentTypeAndBaseMeta(slug: string): Promise<{
 }> {
   const notebookPath = path.join(NOTEBOOKS_DIR, `${slug}.ipynb`);
   if (fs.existsSync(notebookPath)) {
-    // Minimal read just for metadata if possible, or full extract if needed
     const noteData = extractNotebookContentAndMetadata(slug);
     const title = noteData?.extractedTitle || formatSlugToTitle(slug);
     const description = `Detailed notes on '${title}'. Explore insights and technical learnings.`;
@@ -573,11 +510,89 @@ export async function getContentTypeAndBaseMeta(slug: string): Promise<{
   if (fs.existsSync(htmlPath)) {
     const { title: extractedTitle } = await extractMetadataFromHtmlFile(
       htmlPath
-    ); // Use internal helper
+    );
     const title = extractedTitle || formatSlugToTitle(slug);
     const description = `Explore '${title}', an interactive demo/vibe.`;
     return { type: "htmlPage", title, description };
   }
 
   return { type: "notFound", title: formatSlugToTitle(slug) };
+}
+
+export async function getAllSortedContent(): Promise<CombinedContentItem[]> {
+  const [notebooksData, htmlPagesData] = await Promise.all([
+    getSortedNotebooksData(),
+    getSortedHtmlPagesData(),
+  ]);
+
+  const combinedNotebooks: CombinedContentItem[] = notebooksData.map(
+    (note) => ({
+      slug: note.slug,
+      title: note.title,
+      updated: note.updated,
+      type: "notebook",
+    })
+  );
+
+  const combinedHtmlPages: CombinedContentItem[] = htmlPagesData.map(
+    (page) => ({
+      slug: page.slug,
+      title: page.title,
+      updated: page.updated,
+      type: "htmlPage",
+    })
+  );
+
+  const allContent = [...combinedNotebooks, ...combinedHtmlPages];
+
+  allContent.sort((a, b) => {
+    const aDate = a.updated ? new Date(a.updated).getTime() : null;
+    const bDate = b.updated ? new Date(b.updated).getTime() : null;
+
+    if (aDate && bDate) {
+      const dateComparison = bDate - aDate;
+      if (dateComparison !== 0) return dateComparison;
+    } else if (aDate && !bDate) {
+      return -1;
+    } else if (!aDate && bDate) {
+      return 1;
+    }
+    return a.title.localeCompare(b.title);
+  });
+
+  return allContent;
+}
+
+export async function getCombinedNavigation(slug: string): Promise<{
+  prev: { slug: string; title: string } | null;
+  next: { slug: string; title: string } | null;
+}> {
+  const allContent = await getAllSortedContent();
+  const currentIndex = allContent.findIndex((item) => item.slug === slug);
+
+  if (currentIndex === -1) {
+    console.warn(
+      `[getCombinedNavigation] Slug "${slug}" not found in combined content list.`
+    );
+    return { prev: null, next: null };
+  }
+
+  const prevItem = currentIndex > 0 ? allContent[currentIndex - 1] : null;
+  const nextItem =
+    currentIndex < allContent.length - 1 ? allContent[currentIndex + 1] : null;
+
+  return {
+    prev: prevItem
+      ? {
+          slug: prevItem.slug,
+          title: prevItem.title || formatSlugToTitle(prevItem.slug),
+        }
+      : null,
+    next: nextItem
+      ? {
+          slug: nextItem.slug,
+          title: nextItem.title || formatSlugToTitle(nextItem.slug),
+        }
+      : null,
+  };
 }
