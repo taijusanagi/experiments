@@ -62,7 +62,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
         if (slug && slug.length > 0 && !slug.includes("/")) {
           // Avoid matching deeper paths if any
           // Construct the iframe source URL
-          const iframeSrc = `http://taijusanagi.com/vibes-standalone/${slug}`;
+          const iframeSrc = `https://taijusanagi.com/vibes-standalone/${slug}`;
 
           // Render an iframe instead of the link
           return (
