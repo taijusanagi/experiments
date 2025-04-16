@@ -184,6 +184,7 @@ export default async function SlugPage({ params }: Props) {
       return null;
     },
     a({ node, href, children, ...props }: any) {
+      // Check for internal links that should render as iframes
       const basePattern = "https://taijusanagi.com/";
       if (href && href.startsWith(basePattern)) {
         const slugPart = href.substring(basePattern.length);
@@ -195,14 +196,15 @@ export default async function SlugPage({ params }: Props) {
         ) {
           const iframeSrc = `https://taijusanagi.com/standalone/${slugPart}`;
           return (
-            <iframe
-              src={iframeSrc}
-              width="100%"
-              height="500px"
-              className="border border-neutral-800 rounded-md my-6"
-              title={`${slugPart} Visualisation`}
-              loading="lazy"
-            />
+            <div className="my-6 w-full aspect-video rounded-md overflow-hidden shadow-xl shadow-black/30 bg-black/20 border border-neutral-800">
+              <iframe
+                src={iframeSrc}
+                width="100%"
+                className="w-full h-full block border-0"
+                title={`${slugPart} Visualisation`}
+                loading="lazy"
+              />
+            </div>
           );
         }
       }
