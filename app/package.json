@@ -5,8 +5,9 @@
   "scripts": {
     "postinstall": "npx playwright install",
     "dev": "next dev",
-    "vercel-build": "yum install -y alsa-lib atk cups-libs gtk3 libXcomposite libXdamage libXrandr libXScrnSaver libXtst pango libdrm libgbm nss && cpx \"../vibes/html/**/*\" public/vibes-standalone && next build && tsx src/scripts/generate-ogp-with-static-server.ts",
+    "playwright-install-deps": "yum install -y alsa-lib atk cups-libs gtk3 libXcomposite libXdamage libXrandr libXScrnSaver libXtst pango libdrm libgbm nss",
     "build": "cpx \"../vibes/html/**/*\" public/vibes-standalone && next build && tsx src/scripts/generate-ogp-with-static-server.ts",
+    "vercel-build": "npm run playwright-install-deps && npm run build",
     "start": "next start",
     "lint": "next lint"
   },
