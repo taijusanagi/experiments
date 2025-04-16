@@ -184,7 +184,6 @@ export default async function SlugPage({ params }: Props) {
       return null;
     },
     a({ node, href, children, ...props }: any) {
-      // Check for internal links that should render as iframes
       const basePattern = "https://taijusanagi.com/";
       if (href && href.startsWith(basePattern)) {
         const slugPart = href.substring(basePattern.length);
@@ -195,6 +194,7 @@ export default async function SlugPage({ params }: Props) {
           slugPart.endsWith("-viz")
         ) {
           const iframeSrc = `https://taijusanagi.com/standalone/${slugPart}`;
+          // This div wrapper will be rendered instead of the 'a' tag
           return (
             <div className="my-6 w-full aspect-video rounded-md overflow-hidden shadow-xl shadow-black/30 bg-black/20 border border-neutral-800">
               <iframe
@@ -268,13 +268,32 @@ export default async function SlugPage({ params }: Props) {
       );
     },
     p({ node, children, ...props }: any) {
-      if (
-        node &&
-        node.children.length === 1 &&
-        node.children[0].tagName === "img"
-      ) {
-        return <>{children}</>;
+      if (node && node.children.length === 1) {
+        const firstChild = node.children[0];
+        if (firstChild.tagName === "img") {
+          // Let the 'img' component handle rendering without a 'p' tag wrapper
+          return <>{children}</>;
+        }
+        // Check if the single child is an 'a' tag that our override turns into a div-wrapped iframe
+        if (firstChild.tagName === "a") {
+          const href = firstChild.properties?.href;
+          const basePattern = "https://taijusanagi.com/";
+          if (href && href.startsWith(basePattern)) {
+            const slugPart = href.substring(basePattern.length);
+            if (
+              slugPart &&
+              slugPart.length > 0 &&
+              !slugPart.includes("/") &&
+              slugPart.endsWith("-viz")
+            ) {
+              // This 'a' tag is rendered as a block-level div by our 'a' override.
+              // Prevent wrapping it in a 'p' tag.
+              return <>{children}</>;
+            }
+          }
+        }
       }
+      // Default paragraph rendering
       return (
         <p className="text-neutral-300 leading-relaxed my-5" {...props}>
           {children}
