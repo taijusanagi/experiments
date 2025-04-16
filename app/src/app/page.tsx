@@ -24,10 +24,10 @@ interface ContentItem {
 }
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Content Hub", // Or your preferred site title
+  title: "Content Hub",
   description:
     "Explore interactive demos, technical notes, software experiments, and reflections.",
-  pagePath: "/", // Root path
+  pagePath: "/",
   ogType: "website",
 });
 
@@ -39,8 +39,8 @@ export default async function IndexPage() {
     slug: page.slug,
     title: page.title,
     updated: page.updated,
-    iframeSrc: `/standalone/${page.slug}`, // Updated path for single file
-    detailUrl: `/${page.slug}`, // Root level slug
+    iframeSrc: `/standalone/${page.slug}`,
+    detailUrl: `/${page.slug}`,
   }));
 
   const notebookItems: ContentItem[] = notebooks.map((note) => ({
@@ -49,7 +49,7 @@ export default async function IndexPage() {
     title: note.title,
     updated: note.updated,
     excerpt: note.excerpt,
-    detailUrl: `/${note.slug}`, // Root level slug
+    detailUrl: `/${note.slug}`,
   }));
 
   const allContent: ContentItem[] = [...htmlItems, ...notebookItems];
@@ -66,13 +66,11 @@ export default async function IndexPage() {
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12">
-      <h1 className="text-4xl font-bold mb-10 text-center text-neutral-800 dark:text-neutral-100 transition-colors duration-300 ease-in-out">
+      <h1 className="text-4xl font-bold mb-10 text-center text-neutral-100">
         Content Hub
       </h1>
       {allContent.length === 0 ? (
-        <p className="text-center text-neutral-500 dark:text-neutral-400 transition-colors duration-300 ease-in-out">
-          No content found yet.
-        </p>
+        <p className="text-center text-neutral-400">No content found yet.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allContent.map((item) => {
@@ -83,10 +81,10 @@ export default async function IndexPage() {
               <Link
                 href={item.detailUrl}
                 key={uniqueKey}
-                className="group relative flex flex-col justify-between p-5 rounded-lg border bg-white dark:bg-neutral-800/60 border-neutral-200 dark:border-neutral-700/80 shadow-md hover:border-neutral-300 dark:hover:border-neutral-600/90 hover:bg-neutral-50/70 dark:hover:bg-neutral-800/80 transition-all duration-300 ease-in-out overflow-hidden"
+                className="group relative flex flex-col justify-between p-5 rounded-lg border bg-neutral-800/60 border-neutral-700/80 shadow-md hover:border-neutral-600/90 hover:bg-neutral-800/80 transition-all duration-300 ease-in-out overflow-hidden"
               >
                 <div>
-                  <div className="absolute top-3 right-3 flex items-center text-xs px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-700/80 text-neutral-600 dark:text-neutral-300 opacity-80 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-3 right-3 flex items-center text-xs px-2 py-0.5 rounded-full bg-neutral-700/80 text-neutral-300 opacity-80 group-hover:opacity-100 transition-opacity">
                     {item.type === "htmlPage" ? (
                       <CodeXml className="w-3 h-3 mr-1" />
                     ) : (
@@ -94,17 +92,17 @@ export default async function IndexPage() {
                     )}
                     {item.type === "htmlPage" ? "Demo" : "Note"}
                   </div>
-                  <h2 className="text-xl font-semibold mb-1 pr-16 text-neutral-800 dark:text-neutral-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors duration-300 ease-in-out">
+                  <h2 className="text-xl font-semibold mb-1 pr-16 text-neutral-100 group-hover:text-teal-300 transition-colors duration-300 ease-in-out">
                     {item.title}
                   </h2>
                   {formattedDate && (
-                    <div className="flex items-center text-xs text-neutral-500 dark:text-neutral-400 mb-3 transition-colors duration-300 ease-in-out">
+                    <div className="flex items-center text-xs text-neutral-400 mb-3">
                       <CalendarDays className="w-3.5 h-3.5 mr-1.5 opacity-70 flex-shrink-0" />
                       <span>{formattedDate}</span>
                     </div>
                   )}
                   {item.type === "htmlPage" && item.iframeSrc && (
-                    <div className="w-full aspect-video bg-neutral-100 dark:bg-neutral-900/50 overflow-hidden rounded-md mb-4 shadow-inner dark:shadow-neutral-900/50">
+                    <div className="w-full aspect-video bg-neutral-900/50 overflow-hidden rounded-md mb-4 shadow-inner shadow-neutral-900/50">
                       <iframe
                         src={item.iframeSrc}
                         title={`${item.title} preview`}
@@ -115,12 +113,12 @@ export default async function IndexPage() {
                     </div>
                   )}
                   {item.type === "notebook" && item.excerpt && (
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2 mb-4 transition-colors duration-300 ease-in-out">
+                    <p className="text-sm text-neutral-400 mt-2 mb-4">
                       {item.excerpt}
                     </p>
                   )}
                 </div>
-                <div className="flex items-center text-sm font-medium text-teal-600 dark:text-teal-400 mt-auto pt-2 transition-colors duration-300 ease-in-out">
+                <div className="flex items-center text-sm font-medium text-teal-400 mt-auto pt-2">
                   {item.type === "htmlPage" ? (
                     <>
                       <ArrowUpRightSquare className="w-4 h-4 mr-2 opacity-80 flex-shrink-0" />{" "}
