@@ -39,7 +39,6 @@ def format_jupyter(path: str) -> None:
         # No need to set made_changes here
 
     nb.metadata['updated'] = now_utc # Always set it
-
     # --- 2. Clean Cells ---
     # ... (Keep the cell cleaning logic as before, but without setting made_changes) ...
     original_cell_count = len(nb.cells)
@@ -104,5 +103,28 @@ def format_jupyter(path: str) -> None:
 
 # ... (Keep the if __name__ == "__main__": block as before) ...
 if __name__ == "__main__":
-    # ... (rest of the script) ...
-     sys.exit(0) # Script exits successfully
+    print("--- Script Starting ---") # Add this for debugging
+    print(f"Arguments received: {sys.argv}") # Add this
+
+    return_code = 0 # Assume success initially
+
+    if len(sys.argv) < 2:
+         print("No filenames provided as arguments.") # Add this
+
+    # sys.argv[0] is the script name, files start from index 1
+    for filename in sys.argv[1:]:
+        print(f"--- Processing file: {filename} ---") # Add this
+        try:
+            format_jupyter(filename)
+        except SystemExit as e:
+            print(f"Formatting failed for {filename} with SystemExit: {e}", file=sys.stderr)
+            return_code = 1
+        except Exception as e:
+            print(f"Unexpected error formatting {filename}: {e}", file=sys.stderr)
+            # Optionally print traceback for more detail:
+            # import traceback
+            # traceback.print_exc()
+            return_code = 1
+
+    print("--- Script Finishing ---") # Add this
+    sys.exit(return_code)

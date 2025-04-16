@@ -57,7 +57,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 - - [ ] Polynomial Regression (slug: `polynomial-regression`)
 - - [ ] Logistic Regression (slug: `logistic-regression`)
 - - [ ] Decision Boundary (slug: `decision-boundary`)
-- - [ ] K-Nearest Neighbors (KNN) (slug: `knn`)
+- - [x] K-Nearest Neighbors (KNN) (slug: `knn`)
 - - [ ] Naive Bayes (slug: `naive-bayes`)
 - - [ ] Support Vector Machines (SVM) & Kernels (slug: `svm-kernels`)
 - - [ ] Decision Trees (slug: `decision-trees`)

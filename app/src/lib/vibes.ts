@@ -249,7 +249,7 @@ export async function getVibeCodeForPrefill(slug: string): Promise<{
     if (bodyElement.length > 0) {
       const clonedBody = bodyElement.clone();
       clonedBody.find("script").remove();
-      htmlBodyContent = clonedBody.html() ?? "";
+      htmlBodyContent = dedent(clonedBody.html() ?? "");
     } else {
       htmlBodyContent = "";
     }
