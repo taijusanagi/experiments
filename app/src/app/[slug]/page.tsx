@@ -20,7 +20,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import remarkMath from "remark-math";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"; // Reverted theme
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import {
   extractMetadataFromHtmlFile,

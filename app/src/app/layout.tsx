@@ -30,14 +30,13 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${plexMono.variable} font-sans antialiased selection:bg-emerald-400/40`}
       >
-        <div className="min-h-screen flex flex-col bg-gradient-to-br from-neutral-950 via-neutral-900 to-black text-neutral-300 overflow-x-hidden">
+        <div className="min-h-screen flex flex-col bg-neutral-950 text-neutral-300 overflow-x-hidden">
           <header className="w-full px-5 py-4 flex justify-between items-center border-b border-neutral-800/50 sticky top-0 bg-neutral-950/90 backdrop-blur-md z-10">
             <Link
               href="/"
-              className="font-mono text-base font-bold tracking-tight transition-colors duration-200 ease-in-out text-neutral-200 hover:text-emerald-400"
+              className="font-mono text-sm opacity-80 font-medium tracking-tighter transition-colors duration-200 ease-in-out text-neutral-200 hover:text-emerald-400"
             >
-              Taiju Sanagi:{" "}
-              <span className="opacity-80 font-medium">Experiments</span>
+              Taiju Sanagi: Experiments
             </Link>
           </header>
           <main className="flex-1 flex flex-col items-center w-full">
