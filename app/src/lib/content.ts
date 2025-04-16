@@ -313,7 +313,7 @@ export function getSortedNotebooksData(): JupyterNotebookInfo[] {
                 : firstMarkdownCellAnywhere.source;
           }
           if (contentForExcerpt)
-            excerpt = createExcerpt(contentForExcerpt, 120);
+            excerpt = createExcerpt(contentForExcerpt, 300);
         } catch (err) {
           console.warn(
             `[getSortedNotebooksData] Could not process file ${fileName}:`,
