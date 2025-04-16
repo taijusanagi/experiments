@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta name="updated" content="2025-04-15T23:46:44.452Z" />
-    <meta name="created" content="2025-04-15T23:46:44.452Z" />
+    <meta name="updated" content="2025-04-16T00:16:04.150Z" />
+    <meta name="created" content="2025-04-16T00:16:04.150Z" />
     <meta charset="UTF-8" />
-    <title>Interactive KNN 3D Visualization</title>
+    <title>KNN Deterministic Viz (Final - No Loader)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/examples/js/controls/OrbitControls.js"></script>
@@ -15,372 +15,589 @@
         padding: 0;
         overflow: hidden;
         height: 100%;
-        background: #1a1a1a; /* Dark background */
-        color: #eee;
-        font-family: sans-serif;
+        background: #15181f;
+        color: #d0d8e8;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       }
       canvas {
         display: block;
       }
       #ui-container {
         position: absolute;
-        top: 10px;
-        left: 10px;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 15px;
-        border-radius: 5px;
+        top: 15px;
+        left: 15px;
+        background: rgba(15, 20, 30, 0.85);
+        padding: 15px 20px;
+        border-radius: 8px;
         display: flex;
         flex-direction: column;
-        gap: 10px; /* Spacing between elements */
-        align-items: flex-start; /* Align items to the start */
+        gap: 15px;
+        align-items: flex-start;
+        border: 1px solid rgba(80, 100, 130, 0.5);
+        max-width: 250px;
       }
-      #ui-container label {
-        display: block; /* Ensure labels are on their own line */
+      #ui-container label,
+      #ui-container .label-like {
+        display: block;
         margin-bottom: 5px;
+        color: #c0d0e0;
+        font-size: 0.95em;
+        font-weight: 500;
       }
-      #ui-container button {
-        padding: 8px 12px;
-        cursor: pointer;
-        border: none;
-        border-radius: 3px;
-        margin-right: 5px; /* Spacing between buttons if inline */
-        min-width: 100px; /* Ensure buttons have some width */
-      }
-      #ui-container button.active {
-        background-color: #4caf50; /* Green background for active button */
-        color: white;
-      }
-      #ui-container .button-group {
-        margin-bottom: 10px; /* Space below button groups */
-      }
-      #kValueLabel {
+      #kValueLabel,
+      #playSpeedValueLabel {
         margin-left: 10px;
-        min-width: 20px; /* Ensure space for the number */
-        display: inline-block; /* Keep it next to the slider */
-      }
-      #kSlider {
-        vertical-align: middle; /* Align slider with label */
-      }
-      #status {
-        margin-top: 10px;
+        min-width: 45px;
+        display: inline-block;
         font-weight: bold;
+        color: #e0e8f8;
+        text-align: right;
+      }
+      #kSlider,
+      #playSpeedSlider {
+        vertical-align: middle;
+        cursor: pointer;
+        accent-color: #70a0d0;
+        width: 150px;
+      }
+      /* loadingIndicator style removed */
+      .radio-group label {
+        display: inline-block;
+        margin-right: 15px;
+        font-size: 0.9em;
+        cursor: pointer;
+      }
+      .radio-group input[type="radio"] {
+        vertical-align: middle;
+        margin-right: 4px;
+        accent-color: #70a0d0;
+        cursor: pointer;
+      }
+      #ui-container hr {
+        border: none;
+        border-top: 1px solid rgba(80, 100, 130, 0.5);
+        width: 100%;
+        margin: 5px 0;
       }
     </style>
   </head>
   <body>
     <div id="ui-container">
-      <div class="button-group">
-        <label>Add Point Mode:</label>
-        <button id="addTrainClass0" class="mode-button active">
-          Train Class 0
-        </button>
-        <button id="addTrainClass1" class="mode-button">Train Class 1</button>
-        <button id="addTest" class="mode-button">Test Point</button>
-      </div>
       <div>
-        <label for="kSlider">Number of Neighbors (k):</label>
+        <label for="kSlider">Neighbors (k):</label>
         <input type="range" id="kSlider" min="1" max="15" value="3" step="1" />
         <span id="kValueLabel">3</span>
       </div>
-      <div id="status">Click on the plane to add points.</div>
+
+      <div>
+        <label for="playSpeedSlider">Play Speed:</label>
+        <input
+          type="range"
+          id="playSpeedSlider"
+          min="0.25"
+          max="4.0"
+          value="1.0"
+          step="0.05"
+        />
+        <span id="playSpeedValueLabel">1.00x</span>
+      </div>
+
+      <hr />
+
+      <div>
+        <span class="label-like">Training Data Distribution:</span>
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="dataMode" value="grouped" checked />
+            Grouped
+          </label>
+          <label>
+            <input type="radio" name="dataMode" value="random" /> Random
+          </label>
+        </div>
+      </div>
     </div>
 
     <script>
       let scene, camera, renderer, controls;
-      let raycaster, mouse;
-      let plane; // Ground plane for raycasting intersections
-
-      const trainingPoints = []; // Array to store { position: Vector3, class: number, mesh: Mesh }
-      let testPoint = null; // Object to store { position: Vector3, mesh: Mesh }
-      const voteLines = []; // Array to store line meshes for cleanup
-
+      const trainingPoints = [];
+      let fallingTestPoint = null;
+      const voteLines = [];
+      let boundaryPlaneMesh = null;
       let kValue = 3;
-      let addMode = "train0"; // 'train0', 'train1', 'test'
+      let trainingDataMode = "grouped";
+
+      let playSpeedMultiplier = 1.0;
+      const baseFallSpeed = 0.05;
+      const baseDisplayTime = 3000;
+      let currentFallSpeed = baseFallSpeed;
+      let currentDisplayTime = baseDisplayTime;
+      const minDisplayTime = 200;
+
+      const initialSeed = 123456;
+      let currentSeed = initialSeed;
+      function resetSeed() {
+        currentSeed = initialSeed;
+        console.log("PRNG Seed Reset to", currentSeed);
+      }
+      function seededRandom() {
+        const a = 1103515245,
+          c = 12345,
+          m = Math.pow(2, 31);
+        currentSeed = (a * currentSeed + c) % m;
+        return currentSeed / m;
+      }
 
       const classColors = {
-        0: 0xff8888, // Reddish for class 0
-        1: 0x8888ff, // Bluish for class 1
-        test: 0xffffff, // White for test point
-        testPredicted0: 0xffcccc, // Lighter red prediction
-        testPredicted1: 0xccccff, // Lighter blue prediction
+        0: 0xff8080,
+        1: 0x80ff80,
+        2: 0x8080ff,
+        testPredicted0: 0xffb0b0,
+        testPredicted1: 0xb0ffb0,
+        testPredicted2: 0xb0b0ff,
+        testFalling: 0xffffff,
+        testLandedNeutral: 0xcccccc,
+        boundary0: 0xd9aaaa,
+        boundary1: 0xaad9aa,
+        boundary2: 0xaaaad9,
+        boundaryUndefined: 0x505055,
       };
-      const pointSize = 0.1; // Radius of the spheres
+      const pointSize = 0.15;
+      const spawnBounds = { xMin: -8, xMax: 8, zMin: -8, zMax: 8, yStart: 10 };
+      const boundaryArea = {
+        width: 20,
+        height: 20,
+        segmentsX: 80,
+        segmentsZ: 80,
+      };
+      const clusterCenters = {
+        0: new THREE.Vector3(-5, pointSize, -4),
+        1: new THREE.Vector3(5, pointSize, -4),
+        2: new THREE.Vector3(0, pointSize, 6),
+      };
+      const clusterSpread = 3.5;
+      const randomSpread = 9.0;
 
       init();
       animate();
 
       function init() {
-        // --- Scene Setup ---
+        console.log("Initializing Scene...");
         scene = new THREE.Scene();
-
-        // --- Camera ---
         camera = new THREE.PerspectiveCamera(
-          75,
+          60,
           window.innerWidth / window.innerHeight,
           0.1,
           1000
         );
-        camera.position.set(0, 5, 7); // Position camera slightly above and back
-        camera.lookAt(0, 0, 0);
-
-        // --- Renderer ---
+        camera.position.set(0, 13, 15);
+        camera.lookAt(0, 1, 0);
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio); // For sharper rendering
-        renderer.setClearColor(0x1a1a1a); // Match body background
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setClearColor(0x15181f);
         document.body.appendChild(renderer.domElement);
-
-        // --- Lighting ---
-        const ambientLight = new THREE.AmbientLight(0xcccccc, 0.5); // Soft ambient light
+        const ambientLight = new THREE.AmbientLight(0xa0b0c0, 0.8);
         scene.add(ambientLight);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(5, 10, 7.5);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        directionalLight.position.set(10, 15, 8);
         scene.add(directionalLight);
-
-        // --- Controls ---
+        const hemisphereLight = new THREE.HemisphereLight(
+          0xccccff,
+          0x606090,
+          0.4
+        );
+        scene.add(hemisphereLight);
         controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true; // Smooths rotation/zoom
+        controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.screenSpacePanning = false; // Pan in the XY plane
-        controls.maxPolarAngle = Math.PI / 2 - 0.05; // Limit looking directly down or below ground
-        controls.minDistance = 1;
+        controls.screenSpacePanning = false;
+        controls.maxPolarAngle = Math.PI / 2 + 0.2;
+        controls.minDistance = 2;
         controls.maxDistance = 50;
+        controls.target.set(0, 1, 0);
 
-        // --- Raycasting ---
-        raycaster = new THREE.Raycaster();
-        mouse = new THREE.Vector2();
+        createDecisionBoundaryPlane();
 
-        // --- Ground Plane (for interaction) ---
-        // Invisible plane at y=0 for placing points
-        const planeGeometry = new THREE.PlaneGeometry(20, 20);
-        const planeMaterial = new THREE.MeshBasicMaterial({
-          color: 0x444444, // Visible gray plane
-          side: THREE.DoubleSide,
-          // visible: false // Make it invisible if preferred
+        document
+          .getElementById("kSlider")
+          .addEventListener("input", handleKChange);
+
+        const playSpeedSlider = document.getElementById("playSpeedSlider");
+        const playSpeedValueLabel = document.getElementById(
+          "playSpeedValueLabel"
+        );
+        playSpeedMultiplier = parseFloat(playSpeedSlider.value);
+        currentFallSpeed = baseFallSpeed * playSpeedMultiplier;
+        currentDisplayTime = Math.max(
+          minDisplayTime,
+          baseDisplayTime / playSpeedMultiplier
+        );
+        playSpeedValueLabel.textContent = playSpeedMultiplier.toFixed(2) + "x";
+
+        playSpeedSlider.addEventListener("input", (event) => {
+          playSpeedMultiplier = parseFloat(event.target.value);
+          currentFallSpeed = baseFallSpeed * playSpeedMultiplier;
+          currentDisplayTime = Math.max(
+            minDisplayTime,
+            baseDisplayTime / playSpeedMultiplier
+          );
+          playSpeedValueLabel.textContent =
+            playSpeedMultiplier.toFixed(2) + "x";
+          console.log(
+            `Play Speed: ${playSpeedMultiplier.toFixed(
+              2
+            )}x, Fall Speed: ${currentFallSpeed.toFixed(
+              4
+            )}, Display Time: ${currentDisplayTime.toFixed(0)}ms`
+          );
         });
-        plane = new THREE.Mesh(planeGeometry, planeMaterial);
-        plane.rotation.x = -Math.PI / 2; // Rotate to be horizontal
-        plane.position.y = -0.01; // Slightly below points
-        scene.add(plane);
 
-        // --- UI Event Listeners ---
-        const kSlider = document.getElementById("kSlider");
-        const kValueLabel = document.getElementById("kValueLabel");
-        kSlider.addEventListener("input", (event) => {
-          kValue = parseInt(event.target.value, 10);
-          kValueLabel.textContent = kValue;
-          updateKNN(); // Recalculate when k changes
-        });
-
-        const modeButtons = document.querySelectorAll(".mode-button");
-        modeButtons.forEach((button) => {
-          button.addEventListener("click", () => {
-            modeButtons.forEach((btn) => btn.classList.remove("active")); // Deactivate others
-            button.classList.add("active"); // Activate clicked one
-            addMode = button.id; // e.g., 'addTrainClass0', 'addTest'
-            document.getElementById(
-              "status"
-            ).textContent = `Mode: ${button.textContent}. Click on the plane.`;
+        document.querySelectorAll('input[name="dataMode"]').forEach((radio) => {
+          radio.addEventListener("change", (event) => {
+            if (event.target.checked) {
+              trainingDataMode = event.target.value;
+              console.log(
+                "Data Mode Changed To:",
+                trainingDataMode,
+                "- Regenerating..."
+              );
+              regenerateTrainingData(false);
+            }
           });
         });
 
-        // --- Mouse Click Listener ---
-        window.addEventListener("click", onMouseClick, false);
-
-        // --- Window Resize Listener ---
         window.addEventListener("resize", onWindowResize);
 
-        // --- Add Initial Demo Points ---
-        addPoint(new THREE.Vector3(-2, pointSize, -1), 0);
-        addPoint(new THREE.Vector3(-1.5, pointSize, -1.5), 0);
-        addPoint(new THREE.Vector3(-2.5, pointSize, -0.5), 0);
-        addPoint(new THREE.Vector3(1, pointSize, 1.5), 1);
-        addPoint(new THREE.Vector3(2, pointSize, 1), 1);
-        addPoint(new THREE.Vector3(1.5, pointSize, 0.5), 1);
-        addPoint(new THREE.Vector3(1.8, pointSize, 1.8), 1);
-
-        // Add an initial test point
-        addPoint(new THREE.Vector3(0, pointSize, 0), -1, true); // Class -1 indicates test point
-
-        updateKNN(); // Initial calculation
+        resetSeed();
+        regenerateTrainingData(true);
       }
 
-      function addPoint(position, classId, isTest = false) {
-        const geometry = new THREE.SphereGeometry(pointSize, 16, 16);
-        let color;
-        if (isTest) {
-          color = classColors.test;
-        } else {
-          color = classColors[classId];
+      function createDecisionBoundaryPlane() {
+        const geometry = new THREE.PlaneGeometry(
+          boundaryArea.width,
+          boundaryArea.height,
+          boundaryArea.segmentsX,
+          boundaryArea.segmentsZ
+        );
+        const material = new THREE.MeshBasicMaterial({
+          vertexColors: true,
+          side: THREE.DoubleSide,
+        });
+        boundaryPlaneMesh = new THREE.Mesh(geometry, material);
+        boundaryPlaneMesh.rotation.x = -Math.PI / 2;
+        boundaryPlaneMesh.position.y = -0.1;
+        scene.add(boundaryPlaneMesh);
+        const colors = new Float32Array(geometry.attributes.position.count * 3);
+        const defaultColor = new THREE.Color(classColors.boundaryUndefined);
+        for (let i = 0; i < geometry.attributes.position.count; i++) {
+          colors.set([defaultColor.r, defaultColor.g, defaultColor.b], i * 3);
         }
+        geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+      }
+
+      function handleKChange(event) {
+        kValue = parseInt(event.target.value, 10);
+        document.getElementById("kValueLabel").textContent = kValue;
+        // showLoadingIndicator(true); // Removed
+        setTimeout(() => {
+          updateDecisionBoundary();
+          // showLoadingIndicator(false); // Removed
+        }, 10);
+      }
+
+      function regenerateTrainingData(isInitialSetup = false) {
+        // showLoadingIndicator(true); // Removed
+        console.log("Regenerating data and boundary...");
+        clearTrainingPoints();
+        cleanupFallingPoint();
+        clearVoteLines();
+        resetSeed();
+        addInitialTrainingData(15);
+
+        setTimeout(() => {
+          updateDecisionBoundary();
+          spawnFallingTestPoint();
+          // showLoadingIndicator(false); // Removed
+        }, 50);
+      }
+
+      function clearTrainingPoints() {
+        console.log("Clearing training points...");
+        trainingPoints.forEach((tp) => {
+          if (tp.mesh) {
+            scene.remove(tp.mesh);
+            if (tp.mesh.geometry) tp.mesh.geometry.dispose();
+            if (tp.mesh.material) tp.mesh.material.dispose();
+          }
+        });
+        trainingPoints.length = 0;
+      }
+
+      function cleanupFallingPoint() {
+        if (fallingTestPoint && fallingTestPoint.mesh) {
+          console.log(
+            "Cleaning up existing falling point:",
+            fallingTestPoint.mesh.uuid
+          );
+          clearTimeout(fallingTestPoint.removeTimer);
+          scene.remove(fallingTestPoint.mesh);
+          if (fallingTestPoint.mesh.geometry)
+            fallingTestPoint.mesh.geometry.dispose();
+          if (fallingTestPoint.mesh.material)
+            fallingTestPoint.mesh.material.dispose();
+        }
+        fallingTestPoint = null;
+      }
+
+      // showLoadingIndicator Function Removed
+
+      function addInitialTrainingData(pointsPerClass) {
+        console.log(`Generating Training Data (Mode: ${trainingDataMode})...`);
+        const totalPoints = pointsPerClass * 3;
+        for (let i = 0; i < totalPoints; i++) {
+          let pos, classId;
+          if (trainingDataMode === "grouped") {
+            classId = Math.floor(i / pointsPerClass);
+            const center = clusterCenters[classId];
+            const offsetX = (seededRandom() - 0.5) * clusterSpread * 2;
+            const offsetZ = (seededRandom() - 0.5) * clusterSpread * 2;
+            pos = new THREE.Vector3(
+              center.x + offsetX,
+              pointSize,
+              center.z + offsetZ
+            );
+          } else {
+            const x = (seededRandom() - 0.5) * randomSpread * 2;
+            const z = (seededRandom() - 0.5) * randomSpread * 2;
+            pos = new THREE.Vector3(x, pointSize, z);
+            classId = Math.floor(seededRandom() * 3);
+          }
+          addPoint(pos, classId);
+        }
+        console.log(`Generated ${trainingPoints.length} training points.`);
+        updateKSliderMax();
+      }
+
+      function addPoint(position, classId) {
+        const geometry = new THREE.SphereGeometry(pointSize, 20, 20);
+        const color = classColors[classId];
         const material = new THREE.MeshStandardMaterial({
           color: color,
-          roughness: 0.7,
+          metalness: 0.2,
+          roughness: 0.6,
         });
         const sphere = new THREE.Mesh(geometry, material);
         sphere.position.copy(position);
-        // Ensure points are visually slightly above the plane
         sphere.position.y = Math.max(sphere.position.y, pointSize);
-
         scene.add(sphere);
-
-        if (isTest) {
-          // Remove previous test point if exists
-          if (testPoint && testPoint.mesh) {
-            scene.remove(testPoint.mesh);
-            testPoint.mesh.geometry.dispose();
-            testPoint.mesh.material.dispose();
-          }
-          testPoint = { position: sphere.position, mesh: sphere };
-        } else {
-          trainingPoints.push({
-            position: sphere.position,
-            class: classId,
-            mesh: sphere,
-          });
-          // Ensure k slider max is not more than available training points
-          const kSlider = document.getElementById("kSlider");
-          kSlider.max = Math.max(1, trainingPoints.length); // At least 1
-          if (kValue > trainingPoints.length) {
-            kValue = trainingPoints.length;
-            kSlider.value = kValue;
-            document.getElementById("kValueLabel").textContent = kValue;
-          }
-        }
+        trainingPoints.push({
+          position: sphere.position,
+          class: classId,
+          mesh: sphere,
+        });
+        return sphere;
       }
 
-      function onMouseClick(event) {
-        // Check if the click was on the UI, if so, ignore for placing points
-        if (document.getElementById("ui-container").contains(event.target)) {
-          return;
-        }
-
-        // Calculate mouse position in normalized device coordinates (-1 to +1)
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-        // Update the picking ray with the camera and mouse position
-        raycaster.setFromCamera(mouse, camera);
-
-        // Calculate objects intersecting the picking ray
-        const intersects = raycaster.intersectObject(plane); // Intersect only with the ground plane
-
-        if (intersects.length > 0) {
-          const intersectPoint = intersects[0].point; // Get the world coordinate
-
-          // Add point based on current mode
-          if (addMode === "addTrainClass0") {
-            addPoint(intersectPoint, 0);
-          } else if (addMode === "addTrainClass1") {
-            addPoint(intersectPoint, 1);
-          } else if (addMode === "addTest") {
-            addPoint(intersectPoint, -1, true); // Use -1 class for test point marker
-          }
-
-          updateKNN(); // Recalculate after adding a point
-        }
-      }
-
-      function updateKNN() {
-        clearVoteLines(); // Clear previous lines
-
-        if (!testPoint || trainingPoints.length === 0) {
-          document.getElementById("status").textContent =
-            "Add a test point and some training points.";
-          if (testPoint && testPoint.mesh) {
-            testPoint.mesh.material.color.set(classColors.test); // Reset color if no training data
-          }
-          return;
-        }
-
-        // 1. Calculate distances
-        const distances = trainingPoints.map((trainPoint) => {
-          const dist = testPoint.position.distanceTo(trainPoint.position);
-          return { point: trainPoint, distance: dist };
+      function spawnFallingTestPoint() {
+        console.log("Attempting to spawn new test point...");
+        cleanupFallingPoint();
+        clearVoteLines();
+        const x =
+          (seededRandom() - 0.5) * (spawnBounds.xMax - spawnBounds.xMin);
+        const z =
+          (seededRandom() - 0.5) * (spawnBounds.zMax - spawnBounds.zMin);
+        const startPos = new THREE.Vector3(x, spawnBounds.yStart, z);
+        const geometry = new THREE.SphereGeometry(pointSize * 1.1, 20, 20);
+        const material = new THREE.MeshStandardMaterial({
+          color: classColors.testFalling,
+          metalness: 0.3,
+          roughness: 0.5,
         });
-
-        // 2. Sort by distance
-        distances.sort((a, b) => a.distance - b.distance);
-
-        // 3. Select k nearest neighbors
-        const neighbors = distances.slice(
-          0,
-          Math.min(kValue, trainingPoints.length)
-        ); // Ensure k isn't > trainingPoints.length
-
-        if (neighbors.length === 0) {
-          document.getElementById("status").textContent =
-            "No neighbors found (or k=0?).";
-          testPoint.mesh.material.color.set(classColors.test); // Reset color
-          return;
-        }
-
-        // 4. Vote
-        const votes = { 0: 0, 1: 0 };
-        neighbors.forEach((neighbor) => {
-          votes[neighbor.point.class]++;
-        });
-
-        let predictedClass = -1; // -1 means undecided or tie
-        if (votes[0] > votes[1]) {
-          predictedClass = 0;
-        } else if (votes[1] > votes[0]) {
-          predictedClass = 1;
-        } else {
-          // Handle tie - often pick the closest neighbor's class in case of a tie
-          if (neighbors.length > 0) {
-            predictedClass = neighbors[0].point.class;
-          }
-        }
-
-        // 5. Visualize
-        drawVoteLines(
-          testPoint,
-          neighbors.map((n) => n.point)
+        const sphere = new THREE.Mesh(geometry, material);
+        sphere.position.copy(startPos);
+        scene.add(sphere);
+        fallingTestPoint = {
+          mesh: sphere,
+          targetY: pointSize,
+          falling: true,
+          removeTimer: null,
+        };
+        console.log(
+          "Spawned new test point:",
+          fallingTestPoint.mesh.uuid,
+          "at",
+          startPos
         );
-
-        // Update status and test point color
-        let statusText = `Test point neighbors (k=${kValue}): Class 0: ${votes[0]}, Class 1: ${votes[1]}. `;
-        if (predictedClass !== -1) {
-          statusText += ` Predicted Class: ${predictedClass}.`;
-          // Update test point color based on prediction
-          testPoint.mesh.material.color.set(
-            predictedClass === 0
-              ? classColors.testPredicted0
-              : classColors.testPredicted1
-          );
-        } else {
-          statusText += ` Prediction: Undecided (tie).`;
-          testPoint.mesh.material.color.set(classColors.test); // Reset to default if tie
-        }
-        document.getElementById("status").textContent = statusText;
       }
 
-      function drawVoteLines(targetPoint, neighborPoints) {
+      function getKNNPrediction(testPosition, k) {
+        if (trainingPoints.length === 0)
+          return { predictedClass: -1, neighbors: [] };
+        const distances = trainingPoints.map((trainPoint) => ({
+          point: trainPoint,
+          distance: testPosition.distanceTo(trainPoint.position),
+        }));
+        distances.sort((a, b) => a.distance - b.distance);
+        const currentK = Math.min(k, trainingPoints.length);
+        const neighbors = distances.slice(0, currentK);
+        if (neighbors.length === 0)
+          return { predictedClass: -1, neighbors: [] };
+        const votes = { 0: 0, 1: 0, 2: 0 };
+        neighbors.forEach((neighbor) => votes[neighbor.point.class]++);
+        let predictedClass = -1,
+          maxVotes = 0,
+          tiedClasses = [];
+        for (const classId in votes) {
+          if (votes[classId] > maxVotes) {
+            maxVotes = votes[classId];
+            predictedClass = parseInt(classId, 10);
+            tiedClasses = [predictedClass];
+          } else if (votes[classId] === maxVotes) {
+            tiedClasses.push(parseInt(classId, 10));
+          }
+        }
+        if (tiedClasses.length > 1) {
+          for (let i = 0; i < neighbors.length; i++) {
+            if (tiedClasses.includes(neighbors[i].point.class)) {
+              predictedClass = neighbors[i].point.class;
+              break;
+            }
+          }
+          if (!tiedClasses.includes(predictedClass)) {
+            predictedClass = Math.min(...tiedClasses);
+          }
+        }
+        return { predictedClass, neighbors: neighbors.map((n) => n.point) };
+      }
+
+      function updateDecisionBoundary() {
+        if (!boundaryPlaneMesh || !boundaryPlaneMesh.geometry) return;
+        console.time("BoundaryUpdate");
+        const geometry = boundaryPlaneMesh.geometry;
+        const positions = geometry.attributes.position;
+        const colors = geometry.attributes.color;
+        if (!positions || !colors) {
+          console.error("Boundary attributes missing!");
+          return;
+        }
+        const tempTestPos = new THREE.Vector3();
+        const matrixWorld = boundaryPlaneMesh.matrixWorld;
+        const hasPoints = trainingPoints.length > 0;
+        for (let i = 0; i < positions.count; i++) {
+          tempTestPos.fromBufferAttribute(positions, i);
+          tempTestPos.applyMatrix4(matrixWorld);
+          tempTestPos.y = 0;
+          let predictedClass = -1;
+          if (hasPoints) {
+            predictedClass = getKNNPrediction(
+              tempTestPos,
+              kValue
+            ).predictedClass;
+          }
+          let boundaryColor;
+          switch (predictedClass) {
+            case 0:
+              boundaryColor = classColors.boundary0;
+              break;
+            case 1:
+              boundaryColor = classColors.boundary1;
+              break;
+            case 2:
+              boundaryColor = classColors.boundary2;
+              break;
+            default:
+              boundaryColor = classColors.boundaryUndefined;
+          }
+          const colorObj = new THREE.Color(boundaryColor);
+          colors.setXYZ(i, colorObj.r, colorObj.g, colorObj.b);
+        }
+        colors.needsUpdate = true;
+        console.timeEnd("BoundaryUpdate");
+        console.log("Decision boundary updated for k =", kValue);
+      }
+
+      function classifyLandedPoint(landedPointData) {
+        console.log("Classifying landed point:", landedPointData.mesh.uuid);
+        const classificationResult = getKNNPrediction(
+          landedPointData.mesh.position,
+          kValue
+        );
+        const { predictedClass, neighbors } = classificationResult;
+
+        if (predictedClass !== -1) {
+          if (landedPointData.mesh && landedPointData.mesh.material) {
+            landedPointData.mesh.material.color.set(
+              classColors[`testPredicted${predictedClass}`]
+            );
+          }
+        } else {
+          if (landedPointData.mesh && landedPointData.mesh.material) {
+            landedPointData.mesh.material.color.set(
+              classColors.testLandedNeutral
+            );
+          }
+        }
+
+        drawVoteLines(landedPointData.mesh.position, neighbors);
+
+        console.log(
+          `Setting timer (${currentDisplayTime.toFixed(
+            0
+          )}ms) to spawn next point after classifying`,
+          landedPointData.mesh.uuid
+        );
+        landedPointData.removeTimer = setTimeout(() => {
+          console.log(
+            "Timer finished for point:",
+            landedPointData.mesh.uuid,
+            ". Spawning next point."
+          );
+          spawnFallingTestPoint();
+        }, currentDisplayTime);
+      }
+
+      function drawVoteLines(targetPosition, neighborPoints) {
         const material = new THREE.LineBasicMaterial({
-          color: 0x00ff00,
-          linewidth: 2,
-        }); // Green lines
-
+          color: 0xffffff,
+          linewidth: 1.5,
+          transparent: false,
+        });
         neighborPoints.forEach((neighbor) => {
-          const points = [];
-          points.push(targetPoint.position); // Start at test point
-          points.push(neighbor.position); // End at neighbor
-
+          const points = [targetPosition, neighbor.position];
           const geometry = new THREE.BufferGeometry().setFromPoints(points);
           const line = new THREE.Line(geometry, material);
           scene.add(line);
-          voteLines.push(line); // Store for later removal
+          voteLines.push(line);
         });
+        console.log(`Drew ${neighborPoints.length} vote lines.`);
       }
 
       function clearVoteLines() {
+        if (voteLines.length > 0) console.log("Clearing vote lines");
         voteLines.forEach((line) => {
           scene.remove(line);
           line.geometry.dispose();
           line.material.dispose();
         });
-        voteLines.length = 0; // Clear the array
+        voteLines.length = 0;
+      }
+
+      function updateKSliderMax() {
+        const kSlider = document.getElementById("kSlider");
+        const maxK = Math.max(1, trainingPoints.length);
+        kSlider.max = maxK;
+        if (parseInt(kSlider.value) > maxK) {
+          kSlider.value = maxK;
+        }
+        if (kValue > maxK) {
+          kValue = maxK;
+          document.getElementById("kValueLabel").textContent = kValue;
+        } else if (trainingPoints.length === 0) {
+          kSlider.value = 1;
+          kValue = 1;
+          document.getElementById("kValueLabel").textContent = kValue;
+        }
       }
 
       function onWindowResize() {
@@ -389,9 +606,28 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
       }
 
-      function animate() {
+      function animate(time) {
         requestAnimationFrame(animate);
-        controls.update(); // Only required if controls.enableDamping = true
+        controls.update();
+        if (fallingTestPoint && fallingTestPoint.falling) {
+          const currentY = fallingTestPoint.mesh.position.y;
+          const targetY = fallingTestPoint.targetY;
+          if (currentY > targetY) {
+            fallingTestPoint.mesh.position.y = Math.max(
+              targetY,
+              currentY - currentFallSpeed
+            );
+          } // Uses currentFallSpeed
+          if (
+            fallingTestPoint.mesh.position.y <= targetY &&
+            fallingTestPoint.falling
+          ) {
+            console.log("Point landed:", fallingTestPoint.mesh.uuid);
+            fallingTestPoint.mesh.position.y = targetY;
+            fallingTestPoint.falling = false;
+            classifyLandedPoint(fallingTestPoint);
+          }
+        }
         renderer.render(scene, camera);
       }
     </script>
