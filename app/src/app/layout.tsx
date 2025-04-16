@@ -3,27 +3,17 @@ import "./globals.css";
 import { Noto_Sans } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { DefaultLayout } from "@/components/DefaultLayout";
+import { buildPageMetadata } from "@/lib/metadata";
+import { Metadata } from "next";
 
 const noto = Noto_Sans({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "Sanagi Labs",
+export const metadata: Metadata = buildPageMetadata({
   description: "A space for learning, building, and soft experiments in AI",
-  openGraph: {
-    title: "Sanagi Labs",
-    description: "A space for learning, building, and soft experiments in AI",
-    images: [
-      {
-        url: "https://taijusanagi.com/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Sanagi Labs Open Graph Image",
-      },
-    ],
-  },
-};
+  pagePath: "/",
+});
 
 export default function RootLayout({
   children,

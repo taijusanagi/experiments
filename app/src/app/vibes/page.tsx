@@ -7,12 +7,16 @@ import type { Metadata } from "next";
 // Import the data fetching function from the lib file
 import { getSortedVibesData } from "@/lib/vibes"; // Correct import
 import { formatDate } from "@/lib/utils";
+import { buildPageMetadata } from "@/lib/metadata";
 
 // Metadata remains the same
-export const metadata: Metadata = {
-  title: "Vibes | Sanagi Labs",
-  description: "A collection of vibes by Sanagi Labs.",
-};
+export const metadata: Metadata = buildPageMetadata({
+  title: "Vibes", // Core title for vibes index
+  description:
+    "Engage with interactive AI demos, software experiments, and unique creative 'vibes' developed at Sanagi Labs.",
+  pagePath: "/vibes",
+  ogType: "website",
+});
 
 /**
  * Renders the Vibes index page using data fetched from the library.

@@ -20,6 +20,7 @@ import {
 } from "@/lib/vibes";
 import { formatDate } from "@/lib/utils";
 import { CodePenIcon } from "@/components/CodePenIcon";
+import { buildPageMetadata } from "@/lib/metadata";
 
 // generateStaticParams... (implementation unchanged)
 export async function generateStaticParams() {
@@ -36,49 +37,20 @@ type Props = {
 // generateMetadata... (implementation unchanged, already fetches title/date)
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const siteName = "Sanagi Labs";
-  const baseUrl = "https://taijusanagi.com"; // Replace with your actual domain
 
   // Fetch Vibe data (title is essential for metadata)
   const { title: actualTitle } = await getVibeDataFromHtml(slug);
 
   // Use fetched title or create a fallback
   const titleForMeta = actualTitle || formatSlugToTitle(slug);
-  const pageTitle = `${titleForMeta} | ${siteName}`;
-  const pageDescription = `Explore the interactive vibe '${titleForMeta}' on ${siteName}.`;
-  const pageUrl = `${baseUrl}/vibes/${slug}`;
-  const ogImageUrl = `${baseUrl}/ogp/${slug}.png`; // Assumes OGP image exists at this path
+  const pageDescription = `Explore '${titleForMeta}', an interactive vibe and AI experiment presented by Sanagi Labs.`;
+  const pagePath = `/vibes/${slug}`;
 
-  return {
-    title: pageTitle, // For browser tab
+  return buildPageMetadata({
+    title: titleForMeta,
     description: pageDescription,
-    openGraph: {
-      title: titleForMeta, // Title shown in social previews
-      description: pageDescription,
-      url: pageUrl,
-      siteName: siteName,
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200, // Standard OGP image width
-          height: 630, // Standard OGP image height
-          alt: `${titleForMeta} OGP Image`,
-        },
-      ],
-      locale: "en_US", // Optional: Specify locale
-      type: "website", // 'website' is suitable for interactive pages/demos
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: titleForMeta, // Title for Twitter card
-      description: pageDescription,
-      images: [ogImageUrl], // Image for Twitter card
-      // creator: "@YourTwitterHandle", // Optional: Add your Twitter handle
-    },
-    // alternates: { // Optional: Add canonical URL
-    //   canonical: pageUrl,
-    // },
-  };
+    pagePath: pagePath,
+  });
 }
 
 /**

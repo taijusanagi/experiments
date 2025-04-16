@@ -5,11 +5,14 @@ import { getSortedNotesData } from "@/lib/notes";
 import { BookOpenText, CalendarDays } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Notes | Sanagi Labs",
-  description: "A collection of notes by Sanagi Labs.",
-};
+export const metadata: Metadata = buildPageMetadata({
+  title: "Notes", // Core title for notes index
+  description:
+    "A curated collection of technical notes and reflections on AI, software development, and experiments from Sanagi Labs.",
+  pagePath: "/notes",
+});
 
 export default function NotesIndexPage() {
   const allNotes = getSortedNotesData();

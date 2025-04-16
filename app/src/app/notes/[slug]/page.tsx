@@ -22,6 +22,7 @@ import {
 } from "@/lib/notes";
 import { formatDate } from "@/lib/utils";
 import { ColabIcon } from "@/components/ColabIcon";
+import { buildPageMetadata } from "@/lib/metadata";
 
 const notesDirectory = path.resolve(process.cwd(), "../notes/jupyter");
 
@@ -37,9 +38,6 @@ type Props = {
 };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params; // Removed await as params is likely not a Promise here
-  const siteName = "Sanagi Labs"; // Define siteName
-  const baseUrl = "https://taijusanagi.com"; // Replace with your actual domain
-
   const notebookPath = path.join(notesDirectory, `${slug}.ipynb`);
   const noteData = extractMarkdownContentAndMetadata(notebookPath);
 
@@ -53,43 +51,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const titleForMeta = noteData.extractedTitle || formatSlugToTitle(slug);
   // Use noteData.excerpt for description if available and preferred, otherwise generate one
-  const pageDescription = `Read the note '${titleForMeta}' on ${siteName}.`;
-  const pageUrl = `${baseUrl}/notes/${slug}`;
-  const ogImageUrl = `${baseUrl}/ogp/${slug}.png`; // Assumes OGP image exists
+  const pageDescription = `Detailed notes on '${titleForMeta}'. Explore insights and technical learnings from Sanagi Labs.`;
+  const pagePath = `/notes/${slug}`;
 
-  return {
-    title: `${titleForMeta} | ${siteName}`, // Full title for browser tab
-    description: pageDescription, // *** Corrected semicolon to comma here ***
-    openGraph: {
-      title: titleForMeta, // Title shown in social previews
-      description: pageDescription,
-      url: pageUrl,
-      siteName: siteName,
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${titleForMeta} OGP Image`,
-        },
-      ],
-      locale: "en_US", // Optional
-      type: "article", // 'article' is suitable for notes/blog posts
-      // Optional: Add author, published_time etc. if available in noteData.metadata
-      // publishedTime: noteData.metadata?.updated || noteData.metadata?.created || undefined,
-      // authors: ['Taiju Sanagi'], // Or fetch from metadata
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: titleForMeta, // Title for Twitter card
-      description: pageDescription,
-      images: [ogImageUrl], // Image for Twitter card
-      // creator: "@YourTwitterHandle", // Optional
-    },
-    // alternates: { // Optional: Add canonical URL
-    //   canonical: pageUrl,
-    // },
-  };
+  return buildPageMetadata({
+    title: titleForMeta,
+    description: pageDescription,
+    pagePath: pagePath,
+    ogType: "article", // Specific type for notes
+  });
 }
 
 export default async function NotebookPage({ params }: Props) {
