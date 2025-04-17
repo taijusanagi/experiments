@@ -4,6 +4,7 @@ import { Inter, IBM_Plex_Mono } from "next/font/google";
 
 import { GoogleAnalytics } from "@next/third-parties/google";
 import Link from "next/link";
+import { BsTwitterX, BsGithub } from "react-icons/bs";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -38,6 +39,26 @@ export default function RootLayout({
             >
               Taiju Sanagi: Experiments
             </Link>
+            <div className="flex items-center gap-4">
+              <a
+                href={"https://github.com/taijusanagi"}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit GitHub profile"
+                className="text-neutral-400 hover:text-emerald-400 transition-colors duration-200 ease-in-out"
+              >
+                <BsGithub className="w-5 h-5" />
+              </a>
+              <a
+                href={"https://x.com/taijusanagi"}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit Twitter profile"
+                className="text-neutral-400 hover:text-emerald-400 transition-colors duration-200 ease-in-out"
+              >
+                <BsTwitterX className="w-5 h-5" />
+              </a>
+            </div>
           </header>
           <main className="flex-1 flex flex-col items-center w-full">
             {children}
