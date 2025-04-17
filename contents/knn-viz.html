@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta name="updated" content="2025-04-16T23:55:26.257Z" />
+    <meta name="updated" content="2025-04-17T00:34:17.603Z" />
     <meta name="created" content="2025-04-16T00:16:04.150Z" />
     <meta charset="UTF-8" />
-    <title>K-Nearest Neighbors (KNN) Viz with Generative Sound</title>
+    <title>K-Nearest Neighbors (KNN) Viz - Ambient Zen</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.138.0/examples/js/controls/OrbitControls.js"></script>
@@ -18,6 +18,7 @@
         background: #15181f;
         color: #d0d8e8;
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        transition: background-color 0.8s ease;
       }
       canvas {
         display: block;
@@ -46,7 +47,8 @@
         font-weight: 500;
       }
       #kValueLabel,
-      #playSpeedValueLabel {
+      #playSpeedValueLabel,
+      #currentSeedLabel {
         margin-left: 10px;
         min-width: 45px;
         display: inline-block;
@@ -54,12 +56,29 @@
         color: #e0e8f8;
         text-align: right;
       }
+      #currentSeedLabel {
+        min-width: 55px;
+      }
       #kSlider,
       #playSpeedSlider {
         vertical-align: middle;
         cursor: pointer;
         accent-color: #70a0d0;
         width: 150px;
+      }
+      #changeSeedButton {
+        padding: 5px 10px;
+        background-color: #405060;
+        color: #d0d8e8;
+        border: 1px solid rgba(100, 120, 160, 0.7);
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+        margin-top: 5px;
+        transition: background-color 0.2s ease;
+      }
+      #changeSeedButton:hover {
+        background-color: #506075;
       }
       .radio-group label {
         display: inline-block;
@@ -133,13 +152,22 @@
         <span class="label-like">Training Data Distribution:</span>
         <div class="radio-group">
           <label>
-            <input type="radio" name="dataMode" value="grouped" checked />
-            Grouped
+            <input type="radio" name="dataMode" value="random" checked /> Random
           </label>
           <label>
-            <input type="radio" name="dataMode" value="random" /> Random
+            <input type="radio" name="dataMode" value="grouped" /> Grouped
           </label>
         </div>
+      </div>
+      <hr />
+      <div>
+        <button id="changeSeedButton">New Seed</button>
+        <span
+          class="label-like"
+          style="display: inline-block; margin-left: 10px"
+          >Seed:</span
+        >
+        <span id="currentSeedLabel">42</span>
       </div>
     </div>
 
@@ -152,7 +180,7 @@
       const voteLines = [];
       let boundaryPlaneMesh = null;
       let kValue = 3;
-      let trainingDataMode = "grouped";
+      let trainingDataMode = "random";
 
       let playSpeedMultiplier = 1.0;
       const baseFallSpeed = 0.15;
@@ -161,10 +189,11 @@
       let currentDisplayTime = baseDisplayTime;
       const minDisplayTime = 200;
 
-      const initialSeed = 123456;
+      const initialSeed = 42;
       let currentSeed = initialSeed;
-      function resetSeed() {
+      function resetSeedToInitial() {
         currentSeed = initialSeed;
+        document.getElementById("currentSeedLabel").textContent = currentSeed;
       }
       function seededRandom() {
         const a = 1103515245,
@@ -207,9 +236,41 @@
       let audioContext;
       let isAudioReady = false;
       let isSoundMuted = true;
-      const baseVolume = 0.18;
+      const baseVolume = 0.15;
+      let masterGain;
+      let reverbNode;
+      let delayNode;
+      let delayFeedback;
+      let ambientLoopTimeout;
+      let lastPredictedClass = -1;
+
+      let currentBoundaryRatios = { 0: 1 / 3, 1: 1 / 3, 2: 1 / 3, "-1": 0 };
+
+      const defaultBgColorHex = "#15181f";
+      const backgroundColors = {
+        0: "#251818",
+        1: "#182518",
+        2: "#181825",
+        "-1": defaultBgColorHex,
+      };
+      let currentBgColor = new THREE.Color(defaultBgColorHex);
+      let targetBgColor = new THREE.Color(defaultBgColorHex);
 
       const Notes = {
+        C2: 65.41,
+        D2: 73.42,
+        E2: 82.41,
+        F2: 87.31,
+        G2: 98.0,
+        A2: 110.0,
+        B2: 123.47,
+        C3: 130.81,
+        D3: 146.83,
+        E3: 164.81,
+        F3: 174.61,
+        G3: 196.0,
+        A3: 220.0,
+        B3: 246.94,
         C4: 261.63,
         D4: 293.66,
         E4: 329.63,
@@ -234,36 +295,34 @@
       };
 
       const scaleNotes = {
-        0: [Notes["C5"], Notes["E5"], Notes["G5"], Notes["A5"], Notes["C6"]],
+        0: [Notes["C4"], Notes["E4"], Notes["G4"], Notes["A4"], Notes["C5"]],
         1: [Notes["G4"], Notes["B4"], Notes["D5"], Notes["E5"], Notes["G5"]],
-        2: [Notes["F5"], Notes["A5"], Notes["C6"], Notes["D6"], Notes["F6"]],
+        2: [Notes["F4"], Notes["A4"], Notes["C5"], Notes["D5"], Notes["F5"]],
       };
 
-      const beamOscillatorTypes = {
-        0: "sine",
-        1: "triangle",
-        2: "sine",
+      const classificationChords = {
+        0: [Notes.C4, Notes.E4, Notes.G4],
+        1: [Notes.G4, Notes.B4, Notes.D5],
+        2: [Notes.F4, Notes.A4, Notes.C5],
       };
 
+      const beamOscillatorType = "triangle";
       const beamSoundBaseSettings = {
-        baseDuration: 0.06,
-        volMult: 0.9,
-        minDuration: 0.03,
+        baseDuration: 0.07,
+        volMult: 0.7,
+        minDuration: 0.04,
       };
       const beamDistanceEffect = { maxDist: 18.0 };
 
-      const landingSoundSettings = {
-        freq: 110,
-        duration: 0.15,
-        type: "sine",
-        volMult: 1.0,
-      };
-      const resultSoundSettings = {
-        0: { freq: Notes["C4"], duration: 0.6, type: "sine", volMult: 1.0 },
-        1: { freq: Notes["E4"], duration: 0.6, type: "sine", volMult: 1.0 },
-        2: { freq: Notes["G4"], duration: 0.6, type: "sine", volMult: 1.0 },
-        "-1": { freq: 160, duration: 0.4, type: "square", volMult: 0.7 },
-      };
+      const ambientScale = [
+        Notes["C3"],
+        Notes["E3"],
+        Notes["G3"],
+        Notes["A3"],
+        Notes["C4"],
+        Notes["E4"],
+      ];
+      const ambientClassNoteIndices = { 0: [0, 1], 1: [2, 3], 2: [4, 5] };
 
       init();
       animate();
@@ -279,10 +338,12 @@
         camera.position.set(0, 13, 15);
         camera.lookAt(0, 1, 0);
         renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setClearColor(currentBgColor);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setClearColor(0x15181f);
         document.body.appendChild(renderer.domElement);
+        document.body.style.backgroundColor =
+          "#" + currentBgColor.getHexString();
 
         const ambientLight = new THREE.AmbientLight(0xa0b0c0, 0.8);
         scene.add(ambientLight);
@@ -305,7 +366,7 @@
         controls.maxDistance = 50;
         controls.target.set(0, 1, 0);
         controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.4;
+        controls.autoRotateSpeed = 0.3;
 
         createDecisionBoundaryPlane();
 
@@ -314,135 +375,263 @@
           .addEventListener("input", handleKChange);
         setupPlaySpeedSlider();
         setupDataModeRadios();
-
+        setupSeedButton();
         setupAudioToggleButton();
-
         window.addEventListener("resize", onWindowResize);
-
-        resetSeed();
+        resetSeedToInitial();
         regenerateTrainingData(true);
       }
 
-      function initAudioContext() {
+      async function createAudioGraph() {
+        masterGain = audioContext.createGain();
+        masterGain.gain.value = 0.7;
+        reverbNode = audioContext.createConvolver();
+        delayNode = audioContext.createDelay(5.0);
+        delayFeedback = audioContext.createGain();
+        const reverbWet = audioContext.createGain();
+        const delayWet = audioContext.createGain();
+        const dryGain = audioContext.createGain();
+        masterGain.connect(dryGain);
+        masterGain.connect(reverbWet);
+        masterGain.connect(delayWet);
+        reverbWet.gain.value = 0.4;
+        delayWet.gain.value = 0.35;
+        dryGain.gain.value = 0.65;
+        reverbWet.connect(reverbNode);
+        delayWet.connect(delayNode);
+        delayNode.delayTime.value = 0.55;
+        delayFeedback.gain.value = 0.35;
+        delayNode.connect(delayFeedback);
+        delayFeedback.connect(delayNode);
+        const finalMix = audioContext.createGain();
+        dryGain.connect(finalMix);
+        reverbNode.connect(finalMix);
+        delayFeedback.connect(finalMix);
+        finalMix.connect(audioContext.destination);
+        try {
+          reverbNode.buffer = await createImpulseResponse();
+        } catch (e) {
+          reverbWet.disconnect();
+          reverbNode.disconnect();
+        }
+      }
+
+      async function createImpulseResponse() {
+        if (!audioContext) return null;
+        const length = 4.5 * audioContext.sampleRate;
+        const impulse = audioContext.createBuffer(
+          2,
+          length,
+          audioContext.sampleRate
+        );
+        const L = impulse.getChannelData(0);
+        const R = impulse.getChannelData(1);
+        for (let i = 0; i < length; i++) {
+          const env = Math.exp(-i / (audioContext.sampleRate * 1.8));
+          L[i] = (Math.random() * 2 - 1) * env;
+          R[i] = (Math.random() * 2 - 1) * env;
+        }
+        return impulse;
+      }
+
+      async function initAudioContext() {
         if (!audioContext) {
           try {
             window.AudioContext =
               window.AudioContext || window.webkitAudioContext;
             audioContext = new AudioContext();
             isAudioReady = audioContext.state === "running";
-
+            await createAudioGraph();
             if (audioContext.state === "suspended") {
-              // Return promise to handle async resume
               return audioContext
                 .resume()
                 .then(() => {
                   isAudioReady = true;
-                  console.log("AudioContext resumed.");
-                  return true; // Indicate success
+                  return true;
                 })
                 .catch((e) => {
-                  console.error("Error resuming AudioContext:", e);
                   isAudioReady = false;
-                  return false; // Indicate failure
+                  return false;
                 });
             } else if (isAudioReady) {
-              console.log("AudioContext already running.");
-              return Promise.resolve(true); // Already ready
+              return Promise.resolve(true);
             }
           } catch (e) {
-            console.error(
-              "Web Audio API is not supported or context creation failed:",
-              e
-            );
             isAudioReady = false;
-            return Promise.resolve(false); // Indicate failure
+            return Promise.resolve(false);
           }
         } else if (audioContext.state === "suspended") {
-          // If context exists but is suspended, try resuming
           return audioContext
             .resume()
             .then(() => {
               isAudioReady = true;
-              console.log("AudioContext resumed.");
               return true;
             })
             .catch((e) => {
-              console.error("Error resuming existing AudioContext:", e);
               isAudioReady = false;
               return false;
             });
         }
-        // If context exists and is running
         return Promise.resolve(true);
       }
 
       function setupAudioToggleButton() {
         const button = document.getElementById("audio-toggle-button");
         if (!button) return;
-
         button.addEventListener("click", async () => {
-          // Always try to initialize/resume first on click if not ready
           if (!isAudioReady) {
             const success = await initAudioContext();
-            if (success) {
-              isSoundMuted = false; // Unmute after successful init/resume
+            if (success && masterGain) {
+              isSoundMuted = false;
               button.textContent = "Mute Sound";
-              playTone(440, 0.1, "sine", 0.1); // Play confirmation sound
+              masterGain.gain.setTargetAtTime(
+                0.7,
+                audioContext.currentTime,
+                0.01
+              );
+              playTone(Notes["A4"], 0.1, "sine", 0.1, 0.01, 0.05, 0);
+              startAmbientLoop();
             } else {
-              // Handle case where context couldn't start/resume
-              button.textContent = "Enable Sound"; // Keep initial text
-              isSoundMuted = true; // Stay muted
-              // Optionally show an error message to the user
+              button.textContent = "Enable Sound";
+              isSoundMuted = true;
+              if (masterGain) {
+                masterGain.gain.setTargetAtTime(
+                  0,
+                  audioContext.currentTime,
+                  0.01
+                );
+              }
             }
           } else {
-            // If audio is ready, just toggle mute state
             isSoundMuted = !isSoundMuted;
             button.textContent = isSoundMuted ? "Unmute Sound" : "Mute Sound";
-            // Optionally play a subtle click/toggle sound
             if (!isSoundMuted) {
-              playTone(660, 0.05, "triangle", 0.1);
+              if (masterGain) {
+                masterGain.gain.setTargetAtTime(
+                  0.7,
+                  audioContext.currentTime,
+                  0.01
+                );
+              }
+              startAmbientLoop();
             } else {
-              playTone(330, 0.05, "triangle", 0.1);
+              stopAmbientLoop();
+              if (masterGain) {
+                masterGain.gain.setTargetAtTime(
+                  0,
+                  audioContext.currentTime,
+                  0.01
+                );
+              }
             }
           }
         });
+        if (isSoundMuted && masterGain) {
+          masterGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.01);
+        } else if (!isSoundMuted && masterGain) {
+          masterGain.gain.setTargetAtTime(0.7, audioContext.currentTime, 0.01);
+        }
       }
 
-      function playTone(freq, durationSec, type = "sine", volMultiplier = 1.0) {
+      function playTone(
+        freq,
+        durationSec,
+        type = "sine",
+        volMultiplier = 1.0,
+        attackTime = 0.01,
+        releaseTime = 0.1,
+        detuneValue = 0,
+        startTimeOffset = 0
+      ) {
         if (
           !isAudioReady ||
           isSoundMuted ||
           !audioContext ||
-          audioContext.state !== "running"
+          audioContext.state !== "running" ||
+          !masterGain
         ) {
           return;
         }
-
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
-
         oscillator.type = type;
         oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
-
-        const volume = baseVolume * volMultiplier;
-        gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(
-          0.0001,
-          audioContext.currentTime + durationSec
+        oscillator.detune.setValueAtTime(detuneValue, audioContext.currentTime);
+        gainNode.connect(masterGain);
+        const peakVol = baseVolume * volMultiplier;
+        const startPlayTime = audioContext.currentTime + startTimeOffset;
+        attackTime = Math.min(attackTime, durationSec / 2);
+        releaseTime = Math.min(releaseTime, durationSec - attackTime);
+        const attackEndTime = startPlayTime + attackTime;
+        const decayStartTime = Math.max(
+          attackEndTime,
+          startPlayTime + durationSec - releaseTime
         );
-
+        const endTime = startPlayTime + durationSec;
+        gainNode.gain.setValueAtTime(0, startPlayTime);
+        gainNode.gain.linearRampToValueAtTime(peakVol, attackEndTime);
+        if (decayStartTime <= endTime) {
+          gainNode.gain.setValueAtTime(peakVol, decayStartTime);
+          gainNode.gain.linearRampToValueAtTime(0, endTime);
+        } else {
+          gainNode.gain.linearRampToValueAtTime(0, endTime);
+        }
         oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + durationSec);
-
+        oscillator.start(startPlayTime);
+        oscillator.stop(endTime + 0.1);
         setTimeout(() => {
           if (oscillator && typeof oscillator.disconnect === "function")
             oscillator.disconnect();
           if (gainNode && typeof gainNode.disconnect === "function")
             gainNode.disconnect();
-        }, durationSec * 1000 + 150);
+        }, (durationSec + startTimeOffset + 0.2) * 1000);
+      }
+
+      function startAmbientLoop() {
+        stopAmbientLoop();
+        if (!isAudioReady || isSoundMuted) {
+          return;
+        }
+        const triggerNote = () => {
+          let freq;
+          const r0 = currentBoundaryRatios[0];
+          const r1 = currentBoundaryRatios[1];
+          const r2 = currentBoundaryRatios[2];
+          const totalRatio = r0 + r1 + r2;
+          if (totalRatio > 0.01) {
+            const normR0 = r0 / totalRatio;
+            const normR1 = r1 / totalRatio;
+            const rand = seededRandom();
+            let targetClass;
+            if (rand < normR0) {
+              targetClass = 0;
+            } else if (rand < normR0 + normR1) {
+              targetClass = 1;
+            } else {
+              targetClass = 2;
+            }
+            const indices = ambientClassNoteIndices[targetClass];
+            const chosenIndex =
+              indices[Math.floor(seededRandom() * indices.length)];
+            freq = ambientScale[chosenIndex];
+          } else {
+            const noteIndex = Math.floor(seededRandom() * ambientScale.length);
+            freq = ambientScale[noteIndex];
+          }
+          const duration = 4.0 + seededRandom() * 5.0;
+          const attack = 1.0 + seededRandom() * 1.5;
+          const release = 1.5 + seededRandom() * 2.0;
+          const vol = 0.3 + seededRandom() * 0.3;
+          const detune = (seededRandom() - 0.5) * 8;
+          playTone(freq, duration, "sine", vol, attack, release, detune);
+          const nextDelay = (3.0 + seededRandom() * 4.0) * 1000;
+          ambientLoopTimeout = setTimeout(triggerNote, nextDelay);
+        };
+        triggerNote();
+      }
+
+      function stopAmbientLoop() {
+        clearTimeout(ambientLoopTimeout);
       }
 
       function setupPlaySpeedSlider() {
@@ -483,6 +672,17 @@
         });
       }
 
+      function setupSeedButton() {
+        const seedButton = document.getElementById("changeSeedButton");
+        const seedLabel = document.getElementById("currentSeedLabel");
+        if (!seedButton || !seedLabel) return;
+        seedButton.addEventListener("click", () => {
+          currentSeed = Math.floor(Math.random() * 9999) + 1;
+          seedLabel.textContent = currentSeed;
+          regenerateTrainingData(false);
+        });
+      }
+
       function createDecisionBoundaryPlane() {
         const geometry = new THREE.PlaneGeometry(
           boundaryArea.width,
@@ -520,8 +720,10 @@
         clearTrainingPoints();
         cleanupFallingPoint();
         clearVoteLines();
-        resetSeed();
-        addInitialTrainingData(20);
+        addInitialTrainingData(16);
+        targetBgColor.set(defaultBgColorHex);
+        document.body.style.backgroundColor =
+          "#" + targetBgColor.getHexString();
         setTimeout(() => {
           updateDecisionBoundary();
           spawnFallingTestPoint();
@@ -679,7 +881,9 @@
         const currentKValue = document.getElementById("kSlider")
           ? parseInt(document.getElementById("kSlider").value, 10)
           : kValue;
-        for (let i = 0; i < positions.count; i++) {
+        const classCounts = { 0: 0, 1: 0, 2: 0, "-1": 0 };
+        const totalVertices = positions.count;
+        for (let i = 0; i < totalVertices; i++) {
           tempTestPos.fromBufferAttribute(positions, i);
           tempTestPos.applyMatrix4(matrixWorld);
           tempTestPos.y = 0;
@@ -690,6 +894,7 @@
               currentKValue
             ).predictedClass;
           }
+          classCounts[predictedClass]++;
           let boundaryColor;
           switch (predictedClass) {
             case 0:
@@ -708,6 +913,16 @@
           colors.setXYZ(i, colorObj.r, colorObj.g, colorObj.b);
         }
         colors.needsUpdate = true;
+        if (totalVertices > 0) {
+          currentBoundaryRatios = {
+            0: classCounts[0] / totalVertices,
+            1: classCounts[1] / totalVertices,
+            2: classCounts[2] / totalVertices,
+            "-1": classCounts["-1"] / totalVertices,
+          };
+        } else {
+          currentBoundaryRatios = { 0: 1 / 3, 1: 1 / 3, 2: 1 / 3, "-1": 0 };
+        }
       }
 
       function delay(ms) {
@@ -721,14 +936,7 @@
         const currentPointData = landedPointData;
         const landedPosition = currentPointData.mesh.position.clone();
         clearVoteLines();
-
-        playTone(
-          landingSoundSettings.freq,
-          landingSoundSettings.duration,
-          landingSoundSettings.type,
-          landingSoundSettings.volMult
-        );
-
+        playTone(Notes["A2"], 0.4, "sine", 0.6, 0.15, 0.25, 0);
         const tempLineMaterial = new THREE.LineBasicMaterial({
           color: 0x00ffff,
           transparent: false,
@@ -745,38 +953,33 @@
             const geometry = new THREE.BufferGeometry().setFromPoints(points);
             const tempLine = new THREE.Line(geometry, tempLineMaterial);
             scene.add(tempLine);
-
             const scale = scaleNotes[trainPoint.class] || scaleNotes[0];
-            const oscillatorType =
-              beamOscillatorTypes[trainPoint.class] || "sine";
-
+            const oscillatorType = beamOscillatorType;
             const dist = landedPosition.distanceTo(trainPoint.position);
             const maxDist = beamDistanceEffect.maxDist;
             const distFactor = Math.min(dist, maxDist) / maxDist;
             const normalizedDist = Math.pow(distFactor, 0.6);
-
             const scaleIndex = Math.min(
               scale.length - 1,
               Math.floor(normalizedDist * scale.length)
             );
             const targetFreq = scale[scaleIndex];
-
             const baseDuration = beamSoundBaseSettings.baseDuration;
             const targetDuration = Math.max(
               beamSoundBaseSettings.minDuration,
               baseDuration * (0.7 + 0.6 * normalizedDist)
             );
-
             playTone(
               targetFreq,
               targetDuration,
               oscillatorType,
-              beamSoundBaseSettings.volMult
+              beamSoundBaseSettings.volMult,
+              0.01,
+              0.04,
+              (seededRandom() - 0.5) * 4
             );
-
             const calculatedDelay = sequentialDelay / playSpeedMultiplier;
             await delay(calculatedDelay);
-
             if (currentPointData.aborted) {
               scene.remove(tempLine);
               tempLine.geometry?.dispose();
@@ -787,7 +990,6 @@
           }
         }
         tempLineMaterial.dispose();
-
         if (currentPointData.aborted) {
           clearVoteLines();
           return;
@@ -795,15 +997,35 @@
 
         const classificationResult = getKNNPrediction(landedPosition, kValue);
         const { predictedClass, neighbors } = classificationResult;
+        const newTargetColorHex =
+          backgroundColors[predictedClass] || defaultBgColorHex;
+        targetBgColor.set(newTargetColorHex);
+        document.body.style.backgroundColor = "#" + newTargetColorHex;
 
-        const resultSound =
-          resultSoundSettings[predictedClass] || resultSoundSettings["-1"];
-        playTone(
-          resultSound.freq,
-          resultSound.duration,
-          resultSound.type,
-          resultSound.volMult
-        );
+        const chord = classificationChords[predictedClass];
+        if (predictedClass !== -1 && predictedClass !== lastPredictedClass) {
+          if (chord && audioContext) {
+            const chordAttack = 0.1;
+            const chordRelease = 1.0;
+            const chordVol = 0.35;
+            const strumDelay = 0.04;
+            chord.forEach((noteFreq, index) => {
+              playTone(
+                noteFreq,
+                chordAttack + chordRelease,
+                "sine",
+                chordVol,
+                chordAttack,
+                chordRelease,
+                0,
+                index * strumDelay
+              );
+            });
+          }
+          lastPredictedClass = predictedClass;
+        } else if (predictedClass === -1) {
+          lastPredictedClass = -1;
+        }
 
         if (predictedClass !== -1) {
           if (currentPointData.mesh?.material) {
@@ -824,6 +1046,8 @@
         currentPointData.removeTimer = setTimeout(() => {
           if (!currentPointData.aborted) {
             spawnFallingTestPoint();
+            targetBgColor.set(defaultBgColorHex);
+            document.body.style.backgroundColor = "#" + defaultBgColorHex;
           }
         }, currentDisplayTime);
       }
@@ -884,7 +1108,8 @@
       function animate(time) {
         requestAnimationFrame(animate);
         controls.update();
-
+        currentBgColor.lerp(targetBgColor, 0.03);
+        renderer.setClearColor(currentBgColor);
         const point = fallingTestPoint;
         if (point && point.falling) {
           const currentY = point.mesh.position.y;
@@ -895,7 +1120,6 @@
               currentY - currentFallSpeed
             );
           }
-
           if (point.mesh.position.y <= targetY && point.falling) {
             point.mesh.position.y = targetY;
             point.falling = false;
