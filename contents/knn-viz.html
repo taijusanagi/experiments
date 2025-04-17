@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta name="updated" content="2025-04-17T00:48:19.789Z" />
+    <meta name="updated" content="2025-04-17T00:56:50.437Z" />
     <meta name="created" content="2025-04-16T00:16:04.150Z" />
     <meta charset="UTF-8" />
     <title>K-Nearest Neighbors (KNN) Viz</title>
@@ -38,6 +38,7 @@
         max-width: 250px;
         z-index: 10;
       }
+
       #ui-container label,
       #ui-container .label-like {
         display: block;
@@ -46,6 +47,7 @@
         font-size: 0.95em;
         font-weight: 500;
       }
+
       #kValueLabel,
       #playSpeedValueLabel,
       #currentSeedLabel {
@@ -59,6 +61,7 @@
       #currentSeedLabel {
         min-width: 55px;
       }
+
       #kSlider,
       #playSpeedSlider {
         vertical-align: middle;
@@ -66,6 +69,7 @@
         accent-color: #70a0d0;
         width: 150px;
       }
+
       #changeSeedButton {
         padding: 5px 10px;
         background-color: #405060;
@@ -80,24 +84,46 @@
       #changeSeedButton:hover {
         background-color: #506075;
       }
+
+      #ui-container > div:has(.radio-group) {
+      }
+      #ui-container > div:has(.radio-group) > .label-like {
+        width: auto;
+        text-align: left;
+      }
+
+      .radio-group {
+        display: flex;
+        gap: 15px;
+        padding-left: 5px;
+        margin-top: 5px;
+      }
       .radio-group label {
-        display: inline-block;
-        margin-right: 15px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 0;
+        margin-right: 0;
         font-size: 0.9em;
         cursor: pointer;
+        font-weight: normal;
+        width: auto;
+        text-align: left;
       }
       .radio-group input[type="radio"] {
         vertical-align: middle;
-        margin-right: 4px;
+        margin-right: 5px;
         accent-color: #70a0d0;
         cursor: pointer;
+        flex-shrink: 0;
       }
+
       #ui-container hr {
         border: none;
         border-top: 1px solid rgba(80, 100, 130, 0.5);
         width: 100%;
         margin: 5px 0;
       }
+
       #audio-toggle-button {
         position: absolute;
         top: 15px;
@@ -116,6 +142,7 @@
       #audio-toggle-button:hover {
         background-color: rgba(70, 80, 100, 0.95);
       }
+
       @media (max-width: 600px) {
         #ui-container {
           display: none;
@@ -131,7 +158,7 @@
   <body>
     <div id="ui-container">
       <div>
-        <label for="kSlider">Neighbors (k):</label>
+        <label for="kSlider">Neighbors:</label>
         <input type="range" id="kSlider" min="1" max="15" value="3" step="1" />
         <span id="kValueLabel">3</span>
       </div>
