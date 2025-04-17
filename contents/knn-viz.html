@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta name="updated" content="2025-04-17T00:56:50.437Z" />
+    <meta name="updated" content="2025-04-17T02:03:57.758Z" />
     <meta name="created" content="2025-04-16T00:16:04.150Z" />
     <meta charset="UTF-8" />
     <title>K-Nearest Neighbors (KNN) Viz</title>
@@ -965,9 +965,8 @@
         clearVoteLines();
         playTone(Notes["A2"], 0.4, "sine", 0.6, 0.15, 0.25, 0);
         const tempLineMaterial = new THREE.LineBasicMaterial({
-          color: 0x00ffff,
-          transparent: false,
-          linewidth: 2,
+          color: 0xffffff,
+          linewidth: 1,
         });
         const sequentialDelay = 150;
 
@@ -1083,8 +1082,7 @@
         clearVoteLines();
         const material = new THREE.LineBasicMaterial({
           color: 0xffffff,
-          linewidth: 1.5,
-          transparent: false,
+          linewidth: 1,
         });
         neighborPoints.forEach((neighbor) => {
           const points = [targetPosition.clone(), neighbor.position.clone()];
