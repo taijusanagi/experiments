@@ -30,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${plexMono.variable} font-sans antialiased selection:bg-emerald-400/40`}
       >
-        <div className="min-h-screen flex flex-col bg-neutral-950 text-neutral-300 overflow-x-hidden">
+        <div className="min-h-[100dvh] flex flex-col bg-neutral-950 text-neutral-300 overflow-x-hidden">
           <header className="w-full px-5 py-4 flex justify-between items-center border-b border-neutral-800/50 sticky top-0 bg-neutral-950/90 backdrop-blur-md z-10">
             <Link
               href="/"
