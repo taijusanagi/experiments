@@ -171,17 +171,15 @@ export default async function SlugPage({ params }: Props) {
       }
     },
     code({ inline, className, children, ...props }: any) {
-      if (inline) {
-        return (
-          <code
-            className="bg-neutral-700/60 text-neutral-200 px-1.5 py-0.5 rounded-md text-[0.85em] font-mono mx-0.5"
-            {...props}
-          >
-            {children}
-          </code>
-        );
-      }
-      return null;
+      console.log("props", props);
+      return (
+        <code
+          className="bg-neutral-700/60 text-neutral-200 px-1.5 py-0.5 rounded-md text-[0.85em] font-mono mx-0.5"
+          {...props}
+        >
+          {children}
+        </code>
+      );
     },
     a({ node, href, children, ...props }: any) {
       const basePattern = "https://taijusanagi.com/";
@@ -252,6 +250,26 @@ export default async function SlugPage({ params }: Props) {
         >
           {children}
         </h3>
+      );
+    },
+    h4({ node, children, ...props }: any) {
+      return (
+        <h4
+          className="font-mono text-lg font-semibold text-neutral-200 mt-6 mb-2"
+          {...props}
+        >
+          {children}
+        </h4>
+      );
+    },
+    h5({ node, children, ...props }: any) {
+      return (
+        <h5
+          className="font-mono text-base font-semibold text-neutral-300 mt-5 mb-1.5"
+          {...props}
+        >
+          {children}
+        </h5>
       );
     },
     p({ node, children, ...props }: any) {
