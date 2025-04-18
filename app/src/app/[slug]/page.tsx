@@ -171,17 +171,15 @@ export default async function SlugPage({ params }: Props) {
       }
     },
     code({ inline, className, children, ...props }: any) {
-      if (inline) {
-        return (
-          <code
-            className="bg-neutral-700/60 text-neutral-200 px-1.5 py-0.5 rounded-md text-[0.85em] font-mono mx-0.5"
-            {...props}
-          >
-            {children}
-          </code>
-        );
-      }
-      return null;
+      console.log("props", props);
+      return (
+        <code
+          className="bg-neutral-700/60 text-neutral-200 px-1.5 py-0.5 rounded-md text-[0.85em] font-mono mx-0.5"
+          {...props}
+        >
+          {children}
+        </code>
+      );
     },
     a({ node, href, children, ...props }: any) {
       const basePattern = "https://taijusanagi.com/";
