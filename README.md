@@ -51,7 +51,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 ### `01 - Classical ML - Supervised`
 
 - - [ ] Supervised Learning (slug: `supervised-learning-intro`)
-- - [ ] Linear Regression (slug: `linear-regression`)
+- - [x] Linear Regression (slug: `linear-regression`)
 - - [ ] Ridge Regression (slug: `ridge-regression`)
 - - [ ] Lasso Regression (slug: `lasso-regression`)
 - - [ ] Polynomial Regression (slug: `polynomial-regression`)
