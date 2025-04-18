@@ -254,6 +254,26 @@ export default async function SlugPage({ params }: Props) {
         </h3>
       );
     },
+    h4({ node, children, ...props }: any) {
+      return (
+        <h4
+          className="font-mono text-lg font-semibold text-neutral-200 mt-6 mb-2"
+          {...props}
+        >
+          {children}
+        </h4>
+      );
+    },
+    h5({ node, children, ...props }: any) {
+      return (
+        <h5
+          className="font-mono text-base font-semibold text-neutral-300 mt-5 mb-1.5"
+          {...props}
+        >
+          {children}
+        </h5>
+      );
+    },
     p({ node, children, ...props }: any) {
       if (node && node.children.length === 1) {
         const firstChild = node.children[0];
