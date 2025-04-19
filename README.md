@@ -71,7 +71,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 ### `02 - Classical ML - Unsupervised`
 
 - - [ ] Unsupervised Learning (slug: `unsupervised-learning-intro`)
-- - [ ] K-Means Clustering (slug: `kmeans-clustering`)
+- - [x] K-Means Clustering (slug: `kmeans-clustering`)
 - - [ ] Hierarchical Clustering (slug: `hierarchical-clustering`)
 - - [ ] DBSCAN (slug: `dbscan`)
 - - [ ] Anomaly Detection (slug: `anomaly-detection`)
