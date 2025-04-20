@@ -62,7 +62,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 - - [ ] Multinomial Naive Bayes (slug: `multinomial-naive-bayes`)
 - - [ ] Gaussian Naive Bayes (slug: `gaussian-naive-bayes`)
 - - [ ] Support Vector Machines (SVM) & Kernels (slug: `svm-kernels`)
-- - [x] Decision Trees (slug: `decision-trees`)
+- - [x] Decision Tree (slug: `decision-tree`)
 - - [ ] Random Forests (slug: `random-forests`)
 - - [ ] AdaBoost (slug: `adaboost`)
 - - [ ] Gradient Boosting Machines (GBM) (slug: `gbm`)
