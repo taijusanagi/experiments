@@ -125,7 +125,7 @@ _Introduces neural networks and the core concepts behind deep learning._
 
 ### `04 - Deep Learning Fundamentals`
 
-- - [ ] Perceptron / Artificial Neuron (slug: `perceptron`)
+- - [x] Perceptron / Artificial Neuron (slug: `perceptron`)
 - - [ ] Activation Functions (slug: `activation-functions`)
 - - [ ] Need for Activation Functions (slug: `why-activation-functions`)
 - - [ ] Multi-Layer Perceptron (MLP) (slug: `mlp`)
