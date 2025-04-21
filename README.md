@@ -64,7 +64,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 - - [ ] Support Vector Machines (SVM) & Kernels (slug: `svm-kernels`)
 - - [x] Decision Tree (slug: `decision-tree`)
 - - [x] Random Forests (slug: `random-forests`)
-- - [ ] AdaBoost (slug: `adaboost`)
+- - [x] AdaBoost (slug: `adaboost`)
 - - [ ] Gradient Boosting Machines (GBM) (slug: `gbm`)
 - - [ ] Bias-Variance Tradeoff (slug: `bias-variance-tradeoff`)
 
