@@ -60,7 +60,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 - - [x] K-Nearest Neighbors (KNN) (slug: `knn`)
 - - [x] Bernoulli Naive Bayes (slug: `bernoulli-naive-bayes`)
 - - [x] Multinomial Naive Bayes (slug: `multinomial-naive-bayes`)
-- - [ ] Gaussian Naive Bayes (slug: `gaussian-naive-bayes`)
+- - [x] Gaussian Naive Bayes (slug: `gaussian-naive-bayes`)
 - - [ ] Support Vector Machines (SVM) & Kernels (slug: `svm-kernels`)
 - - [x] Decision Tree (slug: `decision-tree`)
 - - [ ] Random Forests (slug: `random-forests`)
