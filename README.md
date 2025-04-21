@@ -53,7 +53,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 - - [ ] Supervised Learning (slug: `supervised-learning-intro`)
 - - [x] Linear Regression (slug: `linear-regression`)
 - - [x] Ridge Regression (slug: `ridge-regression`)
-- - [ ] Lasso Regression (slug: `lasso-regression`)
+- - [x] Lasso Regression (slug: `lasso-regression`)
 - - [x] Polynomial Regression (slug: `polynomial-regression`)
 - - [ ] Logistic Regression (slug: `logistic-regression`)
 - - [ ] Decision Boundary (slug: `decision-boundary`)
