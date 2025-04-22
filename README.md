@@ -74,7 +74,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 - - [x] K-Means Clustering (slug: `kmeans-clustering`)
 - - [x] Hierarchical Clustering (slug: `hierarchical-clustering`)
 - - [x] DBSCAN (slug: `dbscan`)
-- - [ ] Anomaly Detection (slug: `anomaly-detection`)
+- - [x] Anomaly Detection (slug: `anomaly-detection`)
 - - [x] Principal Component Analysis (PCA) (slug: `pca`)
 - - [ ] Non-Negative Matrix Factorization (NMF) (slug: `nmf`)
 - - [x] Manifold Learning (slug: `manifold-learning`)
