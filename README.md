@@ -66,7 +66,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 - - [x] Random Forests (slug: `random-forests`)
 - - [x] AdaBoost (slug: `adaboost`)
 - - [ ] Gradient Boosting Machines (GBM) (slug: `gbm`)
-- - [ ] Bias-Variance Tradeoff (slug: `bias-variance-tradeoff`)
+- - [x] Bias-Variance Tradeoff (slug: `bias-variance-tradeoff`)
 
 ### `02 - Classical ML - Unsupervised`
 
