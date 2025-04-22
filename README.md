@@ -50,13 +50,13 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 
 ### `01 - Classical ML - Supervised`
 
-- - [ ] Supervised Learning (slug: `supervised-learning-intro`)
+- - [x] Supervised Learning (slug: `supervised-learning`)
 - - [x] Linear Regression (slug: `linear-regression`)
 - - [x] Ridge Regression (slug: `ridge-regression`)
 - - [x] Lasso Regression (slug: `lasso-regression`)
 - - [x] Polynomial Regression (slug: `polynomial-regression`)
 - - [x] Logistic Regression (slug: `logistic-regression`)
-- - [ ] Decision Boundary (slug: `decision-boundary`)
+- - [x] Decision Boundary (slug: `decision-boundary`)
 - - [x] K-Nearest Neighbors (KNN) (slug: `knn`)
 - - [x] Bernoulli Naive Bayes (slug: `bernoulli-naive-bayes`)
 - - [x] Multinomial Naive Bayes (slug: `multinomial-naive-bayes`)
@@ -66,11 +66,11 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 - - [x] Random Forests (slug: `random-forests`)
 - - [x] AdaBoost (slug: `adaboost`)
 - - [ ] Gradient Boosting Machines (GBM) (slug: `gbm`)
-- - [ ] Bias-Variance Tradeoff (slug: `bias-variance-tradeoff`)
+- - [x] Bias-Variance Tradeoff (slug: `bias-variance-tradeoff`)
 
 ### `02 - Classical ML - Unsupervised`
 
-- - [ ] Unsupervised Learning (slug: `unsupervised-learning-intro`)
+- - [x] Unsupervised Learning (slug: `unsupervised-learning`)
 - - [x] K-Means Clustering (slug: `kmeans-clustering`)
 - - [x] Hierarchical Clustering (slug: `hierarchical-clustering`)
 - - [x] DBSCAN (slug: `dbscan`)
