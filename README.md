@@ -50,7 +50,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 
 ### `01 - Classical ML - Supervised`
 
-- - [ ] Supervised Learning (slug: `supervised-learning-intro`)
+- - [x] Supervised Learning (slug: `supervised-learning`)
 - - [x] Linear Regression (slug: `linear-regression`)
 - - [x] Ridge Regression (slug: `ridge-regression`)
 - - [x] Lasso Regression (slug: `lasso-regression`)
@@ -70,7 +70,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 
 ### `02 - Classical ML - Unsupervised`
 
-- - [ ] Unsupervised Learning (slug: `unsupervised-learning-intro`)
+- - [x] Unsupervised Learning (slug: `unsupervised-learning`)
 - - [x] K-Means Clustering (slug: `kmeans-clustering`)
 - - [x] Hierarchical Clustering (slug: `hierarchical-clustering`)
 - - [x] DBSCAN (slug: `dbscan`)
