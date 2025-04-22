@@ -56,7 +56,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 - - [x] Lasso Regression (slug: `lasso-regression`)
 - - [x] Polynomial Regression (slug: `polynomial-regression`)
 - - [x] Logistic Regression (slug: `logistic-regression`)
-- - [ ] Decision Boundary (slug: `decision-boundary`)
+- - [x] Decision Boundary (slug: `decision-boundary`)
 - - [x] K-Nearest Neighbors (KNN) (slug: `knn`)
 - - [x] Bernoulli Naive Bayes (slug: `bernoulli-naive-bayes`)
 - - [x] Multinomial Naive Bayes (slug: `multinomial-naive-bayes`)
