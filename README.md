@@ -77,7 +77,7 @@ _Focuses on traditional ML algorithms that don't typically involve deep neural n
 - - [ ] Anomaly Detection (slug: `anomaly-detection`)
 - - [x] Principal Component Analysis (PCA) (slug: `pca`)
 - - [ ] Non-Negative Matrix Factorization (NMF) (slug: `nmf`)
-- - [ ] Manifold Learning (slug: `manifold-learning`)
+- - [x] Manifold Learning (slug: `manifold-learning`)
 - - [ ] t-SNE Visualization (slug: `tsne`)
 - - [ ] Topic Modeling & LDA (slug: `topic-modeling-lda`)
 
